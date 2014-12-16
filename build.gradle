@@ -28,6 +28,7 @@ targetCompatibility = 1.6
 
 ext {
     bukkit = 'org.bukkit:bukkit:1.8-R0.1-SNAPSHOT'
+	jsonSimple = 'com.googlecode.json-simple:json-simple:1.1.1'
 	updater = 'net.gravitydevelopment.updater:updater:2.3'
 }
 
@@ -35,12 +36,13 @@ ext {
 repositories {
 	mavenCentral()
 	maven { url 'http://hub.spigotmc.org/nexus/content/groups/public/' }
-	maven { url 'http://repo.gravitydevelopment.net' }
+	maven { url 'http://repo.gravitydevelopment.net/' }
 }
 
 // Project dependencies
 dependencies {
     compile bukkit
+	compile jsonSimple
 	compile updater
 }
 
@@ -59,6 +61,7 @@ jar { // The Pore classes will be created in Pore-VERSION-base.jar first
 
 shadowJar {
 	dependencies {
+		include dependency(jsonSimple)
 		include dependency(updater)
 	}
 	classifier = ''

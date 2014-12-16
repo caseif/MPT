@@ -25,8 +25,11 @@
  */
 package net.amigocraft.mpt.command;
 
-import com.google.gson.*;
+import static net.amigocraft.mpt.util.MiscUtil.threadSafeSendMessage;
+
 import net.amigocraft.mpt.Main;
+
+import com.google.gson.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -36,6 +39,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Map;
 
 public class AddRepositoryCommand extends SubcommandManager {
 
@@ -50,6 +54,8 @@ public class AddRepositoryCommand extends SubcommandManager {
 				final String id = args[1];
 				final String path = args[2];
 				// get the main array from the JSON object
+				for (Map.Entry e : Main.repoStore.entrySet())
+					Main.log.info(e.getKey().toString());
 				JsonArray array = Main.repoStore.getAsJsonArray("repositories");
 				// verify the repo hasn't already been added
 				for (JsonElement e : array){ // iterate repos in local store
@@ -64,14 +70,15 @@ public class AddRepositoryCommand extends SubcommandManager {
 						sender.sendMessage(ChatColor.RED + "[MPT] The repository at that URL has already been added!");
 						return;
 					}
-					// no way we're making the main thread wait for us to open and read the stream
+				}
+				// no way we're making the main thread wait for us to open and read the stream
 					Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable(){
 						public void run(){
-							sender.sendMessage(ChatColor.DARK_PURPLE + "[MPT] Attempting connection to repository...");
-							connectAndStore(id, path); // in separate method for organization purposes
+				threadSafeSendMessage(sender, ChatColor.DARK_PURPLE +
+						"[MPT] Attempting connection to repository...");
+				connectAndStore(id, path); // in separate method for organization purposes
 						}
 					});
-				}
 			}
 			else if (args.length < 3)
 				sender.sendMessage(ChatColor.RED + "[MPT] Too few arguments! Type " + ChatColor.DARK_PURPLE +
@@ -107,39 +114,45 @@ public class AddRepositoryCommand extends SubcommandManager {
 							repoElement.addProperty("id", id); // set the repo ID (user-defined)
 							repoElement.addProperty("name", name); // set the repo name (determined by remote config)
 							repoElement.addProperty("url", path); // set the repo URL
-							Main.repoStore.getAsJsonArray("repositories").add(repoElement); // add to local store object
+							synchronized(Main.REPO_STORE_LOCK){
+								Main.repoStore.getAsJsonArray("repositories").add(repoElement);
+							}
 							FileWriter writer = new FileWriter(store); // get a writer for the store file
 							writer.write(Main.gson.toJson(Main.repoStore)); // write to disk
+							writer.flush();
 							// apt-get doesn't fetch packages when a repo is added, so I'm following that precedent
-							sender.sendMessage(ChatColor.DARK_PURPLE + "[MPT] Successfully added repository to local " +
-									"store!  You may now use " + ChatColor.GOLD + "/mpt update" +
+							threadSafeSendMessage(sender, ChatColor.DARK_PURPLE + "[MPT] Successfully added " +
+									"repository to local store!  You may now use " + ChatColor.GOLD + "/mpt update" +
 									ChatColor.DARK_PURPLE + " to fetch available packages.");
 						}
 						catch (IOException ex){
-							sender.sendMessage(ChatColor.RED + "[MPT] Failed to add repository to local store!");
+							threadSafeSendMessage(sender, ChatColor.RED + "[MPT] Failed to add repository to local " +
+									"store!");
 						}
 					}
 					else
-						sender.sendMessage(ChatColor.RED + "[MPT] Repository index is missing required elements!");
+						threadSafeSendMessage(sender, ChatColor.RED + "[MPT] Repository index is missing required " +
+								"elements!");
 				}
 				else {
-					sender.sendMessage(ChatColor.RED + "[MPT] Remote returned bad response code! (" + response + ")");
+					threadSafeSendMessage(sender, ChatColor.RED + "[MPT] Remote returned bad response code! (" +
+							response + ")");
 					if (!http.getResponseMessage().isEmpty())
-						sender.sendMessage(ChatColor.RED + "[MPT] The remote says: " + ChatColor.GRAY +
+						threadSafeSendMessage(sender, ChatColor.RED + "[MPT] The remote says: " + ChatColor.GRAY +
 								ChatColor.ITALIC + http.getResponseMessage());
 				}
 			}
 			else
-				sender.sendMessage(ChatColor.RED + "[MPT] Bad protocol for URL!");
+				threadSafeSendMessage(sender, ChatColor.RED + "[MPT] Bad protocol for URL!");
 		}
 		catch (MalformedURLException ex){
-			sender.sendMessage(ChatColor.RED + "[MPT] Cannot parse URL!");
+			threadSafeSendMessage(sender, ChatColor.RED + "[MPT] Cannot parse URL!");
 		}
 		catch (IOException ex){
-			sender.sendMessage(ChatColor.RED + "[MPT] Cannot open connection to URL!");
+			threadSafeSendMessage(sender, ChatColor.RED + "[MPT] Cannot open connection to URL!");
 		}
 		catch (JsonParseException ex){
-			sender.sendMessage(ChatColor.RED + "[MPT] Repository index is not valid JSON!");
+			threadSafeSendMessage(sender, ChatColor.RED + "[MPT] Repository index is not valid JSON!");
 		}
 	}
 }

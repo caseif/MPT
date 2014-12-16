@@ -34,16 +34,23 @@ public class CommandManager implements CommandExecutor {
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
 		if (label.equalsIgnoreCase("mpt")){
-			if (args[0].equalsIgnoreCase("add-repo")){
-				new AddRepositoryCommand(sender, args).handle();
-			}
-			else if (args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("?")){
-				new HelpCommand(sender, args).handle();
+			if (args.length > 0){
+				if (args[0].equalsIgnoreCase("add-repo")){
+					new AddRepositoryCommand(sender, args).handle();
+				}
+				else if (args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("?")){
+					new HelpCommand(sender, args).handle();
+				}
+				else {
+					sender.sendMessage(ChatColor.RED + "[MPT] Invalid command! Type " + ChatColor.DARK_PURPLE +
+							"/mpt help" + ChatColor.RED + " for help.");
+				}
 			}
 			else {
-				sender.sendMessage(ChatColor.RED + "Too few arguments! Type " + ChatColor.DARK_PURPLE +
-						"/mpt help" + ChatColor.DARK_PURPLE + " for help.");
+				sender.sendMessage(ChatColor.RED + "[MPT] Too few arguments! Type " + ChatColor.DARK_PURPLE +
+						"/mpt help" + ChatColor.RED + " for help.");
 			}
+			return true;
 		}
 		return false;
 	}

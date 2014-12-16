@@ -56,7 +56,7 @@ public class HelpCommand extends SubcommandManager {
 			for (Map.Entry e : commands.entrySet()){
 				if (sender.hasPermission(((String[])e.getValue())[2])){
 					sender.sendMessage(ChatColor.DARK_GRAY + "-----------------------------------------------");
-					sender.sendMessage(ChatColor.DARK_BLUE + (String)e.getKey() + ChatColor.WHITE + " - " +
+					sender.sendMessage(ChatColor.DARK_BLUE + "/mpt " + e.getKey() + ChatColor.WHITE + " - " +
 							ChatColor.GOLD + ((String[])e.getValue())[0]);
 					sender.sendMessage(ChatColor.DARK_PURPLE + "Usage: " + ((String[])e.getValue())[1]);
 					sender.sendMessage(ChatColor.GREEN + "Permission node: " + ((String[])e.getValue())[2]);

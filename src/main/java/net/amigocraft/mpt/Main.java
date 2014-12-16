@@ -41,6 +41,9 @@ public class Main extends JavaPlugin {
 	public static JsonObject repoStore = null; // repo store
 	public static JsonObject packageStore = null; // package store
 
+	public static final Object REPO_STORE_LOCK = null;
+	public static final Object PACKAGE_STORE_LOCK = null;
+
 	@Override
 	public void onEnable(){
 		plugin = this;
@@ -48,18 +51,12 @@ public class Main extends JavaPlugin {
 
 		gson = new GsonBuilder().setPrettyPrinting().create(); // so the stores look decent when saved to disk
 
-		File rStoreFile = new File(getDataFolder(), "repositories.yml");
+		File rStoreFile = new File(getDataFolder(), "repositories.json");
+		JsonParser parser = new JsonParser();
 		if (rStoreFile.exists()){ // repo store has been initialized
 			log.info("Loading local repository store...");
 			try {
-				String line;
-				StringBuilder builder = new StringBuilder(); // create a builder
-				while ((line = new BufferedReader(new FileReader(rStoreFile)).readLine()) != null){ // read line-by-line
-					builder.append(line); // build
-				}
-				String content = builder.toString();
-				JsonParser parser = new JsonParser(); // create a new parser
-				repoStore = parser.parse(content).getAsJsonObject(); // parse the read string into a JSON object
+				repoStore = parser.parse(new FileReader(rStoreFile)).getAsJsonObject();
 			}
 			catch (IOException ex){
 				ex.printStackTrace();
@@ -70,18 +67,11 @@ public class Main extends JavaPlugin {
 			initializeRepoStore(rStoreFile);
 		}
 
-		File pStoreFile = new File(getDataFolder(), "maps.yml");
+		File pStoreFile = new File(getDataFolder(), "packages.json");
 		if (pStoreFile.exists()){ // package store has been initialized
 			log.info("Loading local package store...");
 			try {
-				String line;
-				StringBuilder builder = new StringBuilder(); // create a builder
-				while ((line = new BufferedReader(new FileReader(pStoreFile)).readLine()) != null){ // read
-					builder.append(line); // build
-				}
-				String content = builder.toString();
-				JsonParser parser = new JsonParser(); // create a new parser
-				packageStore = parser.parse(content).getAsJsonObject(); // parse the read string into a JSON object
+				packageStore = parser.parse(new FileReader(pStoreFile)).getAsJsonObject();
 			}
 			catch (IOException ex){
 				ex.printStackTrace();
@@ -114,9 +104,13 @@ public class Main extends JavaPlugin {
 		repoStore = new JsonObject(); // create an empty object
 		repoStore.add("repositories", repoArray); // add the array to it
 		try {
+			if (!file.getParentFile().exists())
+				file.getParentFile().mkdir();
 			file.createNewFile(); // create the file
 			BufferedWriter writer = new BufferedWriter(new FileWriter(file)); // get a writer
-			writer.write(repoStore.toString()); // convert the JSON object to a string and write it
+			System.out.println(repoStore.toString());
+			writer.write(gson.toJson(repoStore)); // convert the JSON object to a string and write it
+			writer.flush();
 		}
 		catch (IOException ex){
 			ex.printStackTrace();
@@ -130,9 +124,12 @@ public class Main extends JavaPlugin {
 		packageStore = new JsonObject(); // create an empty object
 		packageStore.add("packages", packageArray); // add the array to it
 		try {
+			if (!file.getParentFile().exists())
+				file.getParentFile().mkdir();
 			file.createNewFile(); // create the file
 			BufferedWriter writer = new BufferedWriter(new FileWriter(file)); // get a writer
-			writer.write(packageStore.toString()); // convert the JSON object to a string and write it
+			writer.write(gson.toJson(packageStore)); // convert the JSON object to a string and write it
+			writer.flush();
 		}
 		catch (IOException ex){
 			ex.printStackTrace();

@@ -23,6 +23,10 @@
  */
 package net.amigocraft.mpt.command;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import net.amigocraft.mpt.Main;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -35,7 +39,33 @@ public class AddRepositoryCommand extends SubcommandManager {
 	@Override
 	public void handle(){
 		if (sender.hasPermission("mpt.addrepo")){
-			//TODO
+			if (args.length == 3){
+				String id = args[1];
+				String url = args[2];
+				// get the main array from the JSON object
+				JsonArray array = Main.repos.getAsJsonArray("repositories");
+				// verify the repo hasn't already been added
+				for (JsonElement e : array){
+					JsonObject o = e.getAsJsonObject();
+					// check ID
+					if (o.has("id") && o.get("id").getAsString().equalsIgnoreCase(id)){
+						sender.sendMessage(ChatColor.RED + "A repository by that ID has already been added!");
+						return;
+					}
+					// check URL
+					if (o.has("url") && o.get("url").getAsString().equalsIgnoreCase(url)){
+						sender.sendMessage(ChatColor.RED + "The repository at that URL has already been added!");
+						return;
+					}
+					//TODO: verify remote is repository
+				}
+			}
+			else if (args.length < 3)
+				sender.sendMessage(ChatColor.RED + "Too few arguments! Type " + ChatColor.DARK_PURPLE + "/mpt help " +
+						ChatColor.RED + "for help");
+			else
+				sender.sendMessage(ChatColor.RED + "Too many arguments! Type " + ChatColor.DARK_PURPLE + "/mpt help " +
+						ChatColor.RED + "for help");
 		}
 		else
 			sender.sendMessage(ChatColor.RED + "You do not have access to this command!");

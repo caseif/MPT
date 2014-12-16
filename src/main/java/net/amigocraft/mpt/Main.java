@@ -23,22 +23,99 @@
  */
 package net.amigocraft.mpt;
 
+import com.google.gson.*;
 import net.amigocraft.mpt.command.CommandManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.*;
 import java.util.logging.Logger;
 
 public class Main extends JavaPlugin {
 
-	public static Main plugin;
-	public static Logger log;
+	public static Main plugin; // plugin instance
+	public static Logger log; // logger instance
+
+	public static Gson gson = null;
+	public static JsonObject repos = null; // repo store
+	public static JsonObject packages = null; // package store
 
 	@Override
 	public void onEnable(){
 		plugin = this;
 		log = this.getLogger();
 
-		this.getCommand("mpt").setExecutor(new CommandManager());
+		gson = new GsonBuilder().setPrettyPrinting().create(); // so the stores look decent when saved to disk
+
+		File reposFile = new File(getDataFolder(), "repositories.yml");
+		if (reposFile.exists()){ // repo store has been initialized
+			log.info("Loading local repository store...");
+			try {
+				String line;
+				StringBuilder builder = new StringBuilder(); // create a builder
+				while ((line = new BufferedReader(new FileReader(reposFile)).readLine()) != null){ // read line-by-line
+					builder.append(line); // build
+				}
+				String content = builder.toString();
+				JsonParser parser = new JsonParser(); // create a new parser
+				repos = parser.parse(content).getAsJsonObject(); // parse the read string into a JSON object
+			}
+			catch (IOException ex){
+				ex.printStackTrace();
+				log.severe("Failed to load repository store!");
+			}
+		}
+		else { // we need to initialize the repo store
+			log.info("Initializing local repository store...");
+
+			JsonArray repoArray = new JsonArray(); // create an empty array
+			repos = new JsonObject(); // create an empty object
+			repos.add("repositories", repoArray); // add the array to it
+			try {
+				reposFile.createNewFile(); // create the file
+				BufferedWriter writer = new BufferedWriter(new FileWriter(reposFile)); // get a writer
+				writer.write(repos.toString()); // convert the JSON object to a string and write it
+			}
+			catch (IOException ex){
+				ex.printStackTrace();
+				log.severe("Failed to initialize repository store!");
+			}
+		}
+
+		File packagesFile = new File(getDataFolder(), "maps.yml");
+		if (packagesFile.exists()){ // package store has been initialized
+			log.info("Loading local package store...");
+			try {
+				String line;
+				StringBuilder builder = new StringBuilder(); // create a builder
+				while ((line = new BufferedReader(new FileReader(packagesFile)).readLine()) != null){ // read
+					builder.append(line); // build
+				}
+				String content = builder.toString();
+				JsonParser parser = new JsonParser(); // create a new parser
+				packages = parser.parse(content).getAsJsonObject(); // parse the read string into a JSON object
+			}
+			catch (IOException ex){
+				ex.printStackTrace();
+				log.severe("Failed to load package store!");
+			}
+		}
+		else { // we need to initialize the package store
+			log.info("Initializing local package store...");
+			JsonArray packageArray = new JsonArray(); // create an empty array
+			packages = new JsonObject(); // create an empty object
+			packages.add("packages", packageArray); // add the array to it
+			try {
+				packagesFile.createNewFile(); // create the file
+				BufferedWriter writer = new BufferedWriter(new FileWriter(packagesFile)); // get a writer
+				writer.write(packages.toString()); // convert the JSON object to a string and write it
+			}
+			catch (IOException ex){
+				ex.printStackTrace();
+				log.severe("Failed to initialize package store!");
+			}
+		}
+
+		this.getCommand("mpt").setExecutor(new CommandManager()); // register the CommandManager class
 
 		log.info(this + " has been enabled!");
 	}

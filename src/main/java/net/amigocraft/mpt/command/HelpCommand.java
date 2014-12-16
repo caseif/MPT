@@ -37,7 +37,7 @@ public class HelpCommand extends SubcommandManager {
 	static {
 		commands = new HashMap<String, String[]>();
 		commands.put("add-repo",
-				new String[]{"Adds the repository at the given URL to the plugin config", "/mpt add-repo [url]",
+				new String[]{"Adds the repository at the given URL to the plugin config", "/mpt add-repo [id] [url]",
 						"mpt.addrepo"});
 		commands.put("help", new String[]{"Displays this help menu", "/mpt help", "mpt.help"});
 		commands = ImmutableMap.copyOf(commands);
@@ -54,8 +54,8 @@ public class HelpCommand extends SubcommandManager {
 			for (Map.Entry e : commands.entrySet()){
 				if (sender.hasPermission(((String[])e.getValue())[2])){
 					sender.sendMessage(ChatColor.DARK_GRAY + "-----------------------------------------------");
-					sender.sendMessage(ChatColor.DARK_BLUE + (String)e.getKey() + ChatColor.WHITE + " - " + ChatColor.GOLD +
-							((String[])e.getValue())[0]);
+					sender.sendMessage(ChatColor.DARK_BLUE + (String)e.getKey() + ChatColor.WHITE + " - " +
+							ChatColor.GOLD + ((String[])e.getValue())[0]);
 					sender.sendMessage(ChatColor.DARK_PURPLE + "Usage: " + ((String[])e.getValue())[1]);
 					sender.sendMessage(ChatColor.GREEN + "Permission node: " + ((String[])e.getValue())[2]);
 				}

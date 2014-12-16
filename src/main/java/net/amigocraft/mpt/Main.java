@@ -41,8 +41,8 @@ public class Main extends JavaPlugin {
 	public static JsonObject repoStore = null; // repo store
 	public static JsonObject packageStore = null; // package store
 
-	public static final Object REPO_STORE_LOCK = null;
-	public static final Object PACKAGE_STORE_LOCK = null;
+	public static final Object REPO_STORE_LOCK = new Object();
+	public static final Object PACKAGE_STORE_LOCK = new Object();
 
 	@Override
 	public void onEnable(){

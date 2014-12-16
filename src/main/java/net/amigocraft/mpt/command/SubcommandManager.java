@@ -21,33 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.amigocraft.mpt;
+package net.amigocraft.mpt.command;
 
-import net.amigocraft.mpt.command.CommandManager;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.command.CommandSender;
 
-import java.util.logging.Logger;
+public abstract class SubcommandManager {
 
-public class Main extends JavaPlugin {
+	protected CommandSender sender;
+	protected String[] args;
 
-	public static Main plugin;
-	public static Logger log;
-
-	@Override
-	public void onEnable(){
-		plugin = this;
-		log = this.getLogger();
-
-		this.getCommand("mpt").setExecutor(new CommandManager());
-
-		log.info(this + " has been enabled!");
+	public SubcommandManager(CommandSender sender, String[] args){
+		this.sender = sender;
+		this.args = args;
 	}
 
-	@Override
-	public void onDisable(){
-		log.info(this + " has been disabled!");
-		log = null;
-		plugin = null;
-	}
+	public abstract void handle();
 
 }

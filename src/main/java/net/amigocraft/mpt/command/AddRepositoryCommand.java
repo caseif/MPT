@@ -21,33 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.amigocraft.mpt;
+package net.amigocraft.mpt.command;
 
-import net.amigocraft.mpt.command.CommandManager;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 
-import java.util.logging.Logger;
+public class AddRepositoryCommand extends SubcommandManager {
 
-public class Main extends JavaPlugin {
-
-	public static Main plugin;
-	public static Logger log;
-
-	@Override
-	public void onEnable(){
-		plugin = this;
-		log = this.getLogger();
-
-		this.getCommand("mpt").setExecutor(new CommandManager());
-
-		log.info(this + " has been enabled!");
+	public AddRepositoryCommand(CommandSender sender, String[] args){
+		super(sender, args);
 	}
 
 	@Override
-	public void onDisable(){
-		log.info(this + " has been disabled!");
-		log = null;
-		plugin = null;
+	public void handle(){
+		if (sender.hasPermission("mpt.addrepo")){
+			//TODO
+		}
+		else
+			sender.sendMessage(ChatColor.RED + "You do not have access to this command!");
 	}
-
 }

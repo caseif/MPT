@@ -21,33 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.amigocraft.mpt;
+package net.amigocraft.mpt.command;
 
-import net.amigocraft.mpt.command.CommandManager;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 
-import java.util.logging.Logger;
+public class CommandManager implements CommandExecutor {
 
-public class Main extends JavaPlugin {
-
-	public static Main plugin;
-	public static Logger log;
-
-	@Override
-	public void onEnable(){
-		plugin = this;
-		log = this.getLogger();
-
-		this.getCommand("mpt").setExecutor(new CommandManager());
-
-		log.info(this + " has been enabled!");
-	}
-
-	@Override
-	public void onDisable(){
-		log.info(this + " has been disabled!");
-		log = null;
-		plugin = null;
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
+		if (label.equalsIgnoreCase("mpt")){
+			if (args[0].equalsIgnoreCase("add-repo")){
+				new AddRepositoryCommand(sender, args).handle();
+			}
+			else if (args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("?")){
+				new HelpCommand(sender, args).handle();
+			}
+			else {
+				sender.sendMessage(ChatColor.RED + "Too few arguments! Type " + ChatColor.DARK_PURPLE +
+						"/mpt help" + ChatColor.DARK_PURPLE + " for help.");
+			}
+		}
+		return false;
 	}
 
 }

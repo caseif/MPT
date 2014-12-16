@@ -3,3 +3,23 @@ version: 0.1.0-SNAPSHOT%VERSION%
 main: net.amigocraft.mpt.Main
 description: A Bukkit plugin similar to Debian's apt-get package, but with Minecraft maps instead of packages.
 author: Maxim Roncacé
+
+commands:
+  mpt:
+    description: The primary plugin command.
+    usage: /mpt [subcommand]
+
+permissions:
+  mpt.*:
+    description: Grants full access to the plugin's features.
+    default: op
+    children:
+      mpt.addrepo: true
+      mpt.help: true
+
+  mpt.addrepo:
+    description: Allows the player to add repositories to the plugin's configuration.
+    default: op
+  mpt.help:
+    description: Allows access to the help window.
+    default: op

@@ -39,9 +39,33 @@ public class HelpCommand extends SubcommandManager {
 	static {
 		commands = new HashMap<String, String[]>();
 		commands.put("add-repo",
-				new String[]{"Adds the repository at the given URL to the plugin config", "/mpt add-repo [id] [url]",
-						"mpt.addrepo"});
-		commands.put("help", new String[]{"Displays this help menu", "/mpt help", "mpt.help"});
+				new String[]{"Adds the repository at the given URL to the local store",
+						"/mpt add-repo [url]",
+						"mpt.repos"});
+		commands.put("remove-repo",
+				new String[]{"Removes the repository with the given ID from the local store.",
+						"/mpt remove-repo [id]",
+						"mpt.repos"});
+		commands.put("update",
+				new String[]{"Updates the local package store from the remote repositories.",
+						"/mpt update",
+						"mpt.repos"});
+		commands.put("upgrade",
+				new String[]{"Upgrades the given package(s), or all if no arguments are provided.",
+						"/mpt upgrade {package1} {package2}...",
+						"mpt.install"});
+		commands.put("install",
+				new String[]{"Installs the package(s) with the given ID(s).",
+						"/mpt install {package1} {package2}...",
+						"mpt.install"});
+		commands.put("remove",
+				new String[]{"Removes the package(s) with the given ID(s).",
+						"/mpt remove {package1} {package2}...",
+						"mpt.install"});
+		commands.put("help",
+				new String[]{"Displays this help menu",
+						"/mpt help",
+						"mpt.help"});
 		commands = ImmutableMap.copyOf(commands);
 	}
 

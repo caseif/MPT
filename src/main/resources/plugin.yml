@@ -15,10 +15,19 @@ permissions:
     default: op
     children:
       mpt.addrepo: true
+      mpt.remoterepo: true
+      mpt.update: true
+      mpt.upgrade: true
+      mpt.install: true
+      mpt.remove: true
       mpt.help: true
 
-  mpt.repo.add:
-    description: Allows the player to add repositories to the local store.
+  mpt.repos:
+    description: Allows the player to add, remove, and update from repositories.
+    default: op
+
+  mpt.install:
+    description: Allows the player to install, upgrade, and remove packages (maps).
     default: op
 
   mpt.help:

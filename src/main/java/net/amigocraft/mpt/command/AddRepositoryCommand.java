@@ -39,7 +39,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Map;
 
 public class AddRepositoryCommand extends SubcommandManager {
 
@@ -49,7 +48,7 @@ public class AddRepositoryCommand extends SubcommandManager {
 
 	@Override
 	public void handle(){
-		if (sender.hasPermission("mpt.repo.add")){
+		if (sender.hasPermission("mpt.repos")){
 			if (args.length == 2){
 				final String path = args[1];
 				// get the main array from the JSON object

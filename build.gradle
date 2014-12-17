@@ -52,7 +52,7 @@ tasks.withType(JavaCompile) {
 }
 
 processResources {
-  filter { String line -> line.replace('%VERSION%', versionSuffix) }
+  filter { String line -> line.replace('SNAPSHOT', 'SNAPSHOT' + versionSuffix) }
 }
 
 jar { // The Pore classes will be created in Pore-VERSION-base.jar first

@@ -25,8 +25,11 @@
  */
 package net.amigocraft.mpt.command;
 
-import com.google.gson.JsonElement;
+import static net.amigocraft.mpt.util.MiscUtil.*;
+
 import net.amigocraft.mpt.Main;
+
+import com.google.gson.JsonElement;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -46,7 +49,7 @@ public class RemoveRepositoryCommand extends SubcommandManager {
 			if (args.length == 2){
 				String id = args[1];
 				JsonElement remove = null;
-				synchronized(Main.REPO_STORE_LOCK){ // prevent CMEs
+				if (lockStores()){
 					for (JsonElement e : Main.repoStore.getAsJsonArray("repositories")){ // iterate repos in local store
 						if (e.getAsJsonObject().get("id").getAsString().equalsIgnoreCase(id)){ // entry matches ID
 							remove = e; // removing it here would throw a CME
@@ -71,7 +74,11 @@ public class RemoveRepositoryCommand extends SubcommandManager {
 					}
 					else // repo doesn't exist in local store
 						sender.sendMessage(ChatColor.RED + "[MPT] Cannot find repo with given ID!");
+					unlockStores();
 				}
+				else
+					sender.sendMessage(ChatColor.RED + "[MPT] The local store is currently locked! " +
+							"Perhaps another MPT task is running?");
 			}
 			else if (args.length < 2)
 				sender.sendMessage(ChatColor.RED + "[MPT] Too few arguments! Type " + ChatColor.GOLD +

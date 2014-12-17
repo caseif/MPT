@@ -27,6 +27,7 @@ package net.amigocraft.mpt;
 
 import com.google.gson.*;
 import net.amigocraft.mpt.command.CommandManager;
+import net.amigocraft.mpt.util.MiscUtil;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
@@ -41,8 +42,7 @@ public class Main extends JavaPlugin {
 	public static JsonObject repoStore = null; // repo store
 	public static JsonObject packageStore = null; // package store
 
-	public static final Object REPO_STORE_LOCK = new Object();
-	public static final Object PACKAGE_STORE_LOCK = new Object();
+	public static boolean LOCKED = false;
 
 	@Override
 	public void onEnable(){
@@ -92,6 +92,7 @@ public class Main extends JavaPlugin {
 		gson = null;
 		repoStore = null;
 		packageStore = null;
+		LOCKED = false;
 		log = null;
 		plugin = null;
 		getLogger().info(this + " has been disabled!");
@@ -99,7 +100,7 @@ public class Main extends JavaPlugin {
 
 	public static void initializeRepoStore(File file){
 		log.info("Initializing local repository store...");
-		synchronized(Main.REPO_STORE_LOCK){
+		if (MiscUtil.lockStores()){
 			JsonArray repoArray = new JsonArray(); // create an empty array
 			repoStore = new JsonObject(); // create an empty object
 			repoStore.add("repositories", repoArray); // add the array to it
@@ -115,12 +116,16 @@ public class Main extends JavaPlugin {
 				ex.printStackTrace();
 				log.severe("Failed to initialize repository store!");
 			}
+			MiscUtil.unlockStores();
+		}
+		else {
+			Main.log.severe("Failed to initialize local repository store: already locked!");
 		}
 	}
 
 	public static void initializePackageStore(File file){
 		log.info("Initializing local package store...");
-		synchronized(Main.PACKAGE_STORE_LOCK){
+		if (Main.LOCKED){
 			JsonArray packageArray = new JsonArray(); // create an empty array
 			packageStore = new JsonObject(); // create an empty object
 			packageStore.add("packages", packageArray); // add the array to it
@@ -136,6 +141,10 @@ public class Main extends JavaPlugin {
 				ex.printStackTrace();
 				log.severe("Failed to initialize package store!");
 			}
+			MiscUtil.unlockStores();
+		}
+		else {
+			Main.log.severe("Failed to initialize local package store: already locked!");
 		}
 	}
 

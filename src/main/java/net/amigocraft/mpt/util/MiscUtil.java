@@ -45,4 +45,22 @@ public class MiscUtil {
 		});
 	}
 
+	/**
+	 * Attempts to lock the local stores and returns false if they are already locked.
+	 * @return whether the stores could be locked
+	 */
+	public static boolean lockStores(){
+		if (Main.LOCKED)
+			return false;
+		Main.LOCKED = true;
+		return true;
+	}
+
+	/**
+	 * Unlocks the local stores.
+	 */
+	public static void unlockStores(){
+		Main.LOCKED = false;
+	}
+
 }

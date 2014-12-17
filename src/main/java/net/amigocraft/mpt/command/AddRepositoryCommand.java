@@ -49,22 +49,14 @@ public class AddRepositoryCommand extends SubcommandManager {
 
 	@Override
 	public void handle(){
-		if (sender.hasPermission("mpt.addrepo")){
-			if (args.length == 3){
-				final String id = args[1];
-				final String path = args[2];
+		if (sender.hasPermission("mpt.repo.add")){
+			if (args.length == 2){
+				final String path = args[1];
 				// get the main array from the JSON object
-				for (Map.Entry e : Main.repoStore.entrySet())
-					Main.log.info(e.getKey().toString());
 				JsonArray array = Main.repoStore.getAsJsonArray("repositories");
 				// verify the repo hasn't already been added
 				for (JsonElement e : array){ // iterate repos in local store
 					JsonObject o = e.getAsJsonObject();
-					// check ID
-					if (o.has("id") && o.get("id").getAsString().equalsIgnoreCase(id)){
-						sender.sendMessage(ChatColor.RED + "[MPT] A repository by that ID has already been added!");
-						return;
-					}
 					// check URL
 					if (o.has("url") && o.get("url").getAsString().equalsIgnoreCase(path)){
 						sender.sendMessage(ChatColor.RED + "[MPT] The repository at that URL has already been added!");
@@ -72,15 +64,16 @@ public class AddRepositoryCommand extends SubcommandManager {
 					}
 				}
 				// no way we're making the main thread wait for us to open and read the stream
-					Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable(){
-						public void run(){
-				threadSafeSendMessage(sender, ChatColor.DARK_PURPLE +
-						"[MPT] Attempting connection to repository...");
-				connectAndStore(id, path); // in separate method for organization purposes
-						}
-					});
+				Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable(){
+					public void run(){
+						threadSafeSendMessage(sender, ChatColor.DARK_PURPLE +
+								"[MPT] Attempting connection to repository...");
+						connectAndStore(path); // in separate method for organization purposes
+					}
+
+				});
 			}
-			else if (args.length < 3)
+			else if (args.length < 2)
 				sender.sendMessage(ChatColor.RED + "[MPT] Too few arguments! Type " + ChatColor.DARK_PURPLE +
 						"/mpt help " + ChatColor.RED + "for help");
 			else
@@ -91,7 +84,7 @@ public class AddRepositoryCommand extends SubcommandManager {
 			sender.sendMessage(ChatColor.RED + "[MPT] You do not have access to this command!");
 	}
 
-	private void connectAndStore(String id, String path){
+	private void connectAndStore(String path){
 		try {
 			URL url = new URL(path + (!path.endsWith("/") ? "/" : "") + "mpt.json"); // get URL object for data file
 			URLConnection conn = url.openConnection();
@@ -105,14 +98,13 @@ public class AddRepositoryCommand extends SubcommandManager {
 					JsonObject json = parser.parse(reader).getAsJsonObject(); // parse JSON object from stream
 					// vefify remote config is valid
 					if (json.has("name") && json.has("packages") && json.get("packages").isJsonArray()){
-						String name = json.get("name").getAsString(); // get official name from remote
+						String id = json.get("id").getAsString(); // get ID from remote
 						try { // inner try block is necessary so local issues aren't misreported as remote
 							File store = new File(Main.plugin.getDataFolder(), "repositories.json");
 							if (!store.exists())
 								Main.initializeRepoStore(store); // gotta initialize it before using it
 							JsonObject repoElement = new JsonObject(); // create a new JSON object
-							repoElement.addProperty("id", id); // set the repo ID (user-defined)
-							repoElement.addProperty("name", name); // set the repo name (determined by remote config)
+							repoElement.addProperty("id", id); // set the repo name (determined by remote config)
 							repoElement.addProperty("url", path); // set the repo URL
 							synchronized(Main.REPO_STORE_LOCK){
 								Main.repoStore.getAsJsonArray("repositories").add(repoElement);
@@ -122,7 +114,8 @@ public class AddRepositoryCommand extends SubcommandManager {
 							writer.flush();
 							// apt-get doesn't fetch packages when a repo is added, so I'm following that precedent
 							threadSafeSendMessage(sender, ChatColor.DARK_PURPLE + "[MPT] Successfully added " +
-									"repository to local store!  You may now use " + ChatColor.GOLD + "/mpt update" +
+									"repository under ID " + ChatColor.AQUA + id + ChatColor.DARK_PURPLE +
+									" to local store! You may now use " + ChatColor.GOLD + "/mpt update" +
 									ChatColor.DARK_PURPLE + " to fetch available packages.");
 						}
 						catch (IOException ex){

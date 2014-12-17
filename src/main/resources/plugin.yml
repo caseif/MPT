@@ -17,9 +17,10 @@ permissions:
       mpt.addrepo: true
       mpt.help: true
 
-  mpt.addrepo:
-    description: Allows the player to add repositories to the plugin's configuration.
+  mpt.repo.add:
+    description: Allows the player to add repositories to the local store.
     default: op
+
   mpt.help:
     description: Allows access to the help window.
     default: op

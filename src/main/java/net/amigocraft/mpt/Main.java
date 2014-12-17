@@ -99,41 +99,43 @@ public class Main extends JavaPlugin {
 
 	public static void initializeRepoStore(File file){
 		log.info("Initializing local repository store...");
-
-		JsonArray repoArray = new JsonArray(); // create an empty array
-		repoStore = new JsonObject(); // create an empty object
-		repoStore.add("repositories", repoArray); // add the array to it
-		try {
-			if (!file.getParentFile().exists())
-				file.getParentFile().mkdir();
-			file.createNewFile(); // create the file
-			BufferedWriter writer = new BufferedWriter(new FileWriter(file)); // get a writer
-			System.out.println(repoStore.toString());
-			writer.write(gson.toJson(repoStore)); // convert the JSON object to a string and write it
-			writer.flush();
-		}
-		catch (IOException ex){
-			ex.printStackTrace();
-			log.severe("Failed to initialize repository store!");
+		synchronized(Main.REPO_STORE_LOCK){
+			JsonArray repoArray = new JsonArray(); // create an empty array
+			repoStore = new JsonObject(); // create an empty object
+			repoStore.add("repositories", repoArray); // add the array to it
+			try {
+				if (!file.getParentFile().exists())
+					file.getParentFile().mkdir();
+				file.createNewFile(); // create the file
+				BufferedWriter writer = new BufferedWriter(new FileWriter(file)); // get a writer
+				writer.write(gson.toJson(repoStore)); // convert the JSON object to a string and write it
+				writer.flush();
+			}
+			catch (IOException ex){
+				ex.printStackTrace();
+				log.severe("Failed to initialize repository store!");
+			}
 		}
 	}
 
 	public static void initializePackageStore(File file){
 		log.info("Initializing local package store...");
-		JsonArray packageArray = new JsonArray(); // create an empty array
-		packageStore = new JsonObject(); // create an empty object
-		packageStore.add("packages", packageArray); // add the array to it
-		try {
-			if (!file.getParentFile().exists())
-				file.getParentFile().mkdir();
-			file.createNewFile(); // create the file
-			BufferedWriter writer = new BufferedWriter(new FileWriter(file)); // get a writer
-			writer.write(gson.toJson(packageStore)); // convert the JSON object to a string and write it
-			writer.flush();
-		}
-		catch (IOException ex){
-			ex.printStackTrace();
-			log.severe("Failed to initialize package store!");
+		synchronized(Main.PACKAGE_STORE_LOCK){
+			JsonArray packageArray = new JsonArray(); // create an empty array
+			packageStore = new JsonObject(); // create an empty object
+			packageStore.add("packages", packageArray); // add the array to it
+			try {
+				if (!file.getParentFile().exists())
+					file.getParentFile().mkdir();
+				file.createNewFile(); // create the file
+				BufferedWriter writer = new BufferedWriter(new FileWriter(file)); // get a writer
+				writer.write(gson.toJson(packageStore)); // convert the JSON object to a string and write it
+				writer.flush();
+			}
+			catch (IOException ex){
+				ex.printStackTrace();
+				log.severe("Failed to initialize package store!");
+			}
 		}
 	}
 

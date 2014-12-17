@@ -33,10 +33,13 @@ import org.bukkit.command.CommandSender;
 public class CommandManager implements CommandExecutor {
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
-		if (label.equalsIgnoreCase("mpt")){
+		if (label.equalsIgnoreCase("mpt")){ // probably not necessary, actually, but whatever
 			if (args.length > 0){
 				if (args[0].equalsIgnoreCase("add-repo")){
 					new AddRepositoryCommand(sender, args).handle();
+				}
+				else if (args[0].equalsIgnoreCase("remove-repo")){
+					new RemoveRepositoryCommand(sender, args).handle();
 				}
 				else if (args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("?")){
 					new HelpCommand(sender, args).handle();

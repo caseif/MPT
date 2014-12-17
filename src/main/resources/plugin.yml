@@ -14,12 +14,8 @@ permissions:
     description: Grants full access to the plugin's features.
     default: op
     children:
-      mpt.addrepo: true
-      mpt.remoterepo: true
-      mpt.update: true
-      mpt.upgrade: true
+      mpt.repos: true
       mpt.install: true
-      mpt.remove: true
       mpt.help: true
 
   mpt.repos:
@@ -27,7 +23,7 @@ permissions:
     default: op
 
   mpt.install:
-    description: Allows the player to install, upgrade, and remove packages (maps).
+    description: Allows the player to list, install, upgrade, and remove packages (maps).
     default: op
 
   mpt.help:

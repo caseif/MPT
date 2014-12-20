@@ -27,6 +27,7 @@ package net.amigocraft.mpt;
 
 import com.google.gson.*;
 import net.amigocraft.mpt.command.CommandManager;
+import net.amigocraft.mpt.util.MPTException;
 import net.amigocraft.mpt.util.MiscUtil;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -100,27 +101,26 @@ public class Main extends JavaPlugin {
 
 	public static void initializeRepoStore(File file){
 		log.info("Initializing local repository store...");
-		if (MiscUtil.lockStores()){
+		try {
+			MiscUtil.lockStores();
 			JsonArray repoArray = new JsonArray(); // create an empty array
 			repoStore = new JsonObject(); // create an empty object
 			repoStore.add("repositories", repoArray); // add the array to it
-			try {
-				if (!file.getParentFile().exists())
-					file.getParentFile().mkdir();
-				file.createNewFile(); // create the file
-				BufferedWriter writer = new BufferedWriter(new FileWriter(file)); // get a writer
-				writer.write(gson.toJson(repoStore)); // convert the JSON object to a string and write it
-				writer.flush();
-			}
-			catch (IOException ex){
-				ex.printStackTrace();
-				log.severe("Failed to initialize repository store!");
-			}
-			MiscUtil.unlockStores();
+			if (!file.getParentFile().exists())
+				file.getParentFile().mkdir();
+			file.createNewFile(); // create the file
+			BufferedWriter writer = new BufferedWriter(new FileWriter(file)); // get a writer
+			writer.write(gson.toJson(repoStore)); // convert the JSON object to a string and write it
+			writer.flush();
 		}
-		else {
-			Main.log.severe("Failed to initialize local repository store: already locked!");
+		catch (IOException ex){
+			ex.printStackTrace();
+			log.severe("Failed to initialize repository store!");
 		}
+		catch(MPTException ex){
+			log.info(ex.getMessage());
+		}
+		MiscUtil.unlockStores();
 	}
 
 	public static void initializePackageStore(File file){

@@ -50,16 +50,15 @@ public class AddRepositoryCommand extends SubcommandManager {
 			if (args.length == 2){
 				final String path = args[1];
 				// get the main array from the JSON object
-				JsonArray array;
-				if (lockStores()){
-					array = Main.repoStore.getAsJsonArray("repositories");
-					unlockStores();
+				try {
+					lockStores();
 				}
-				else {
-					sender.sendMessage(ChatColor.RED + "[MPT] The local store is currently locked! " +
-							"Perhaps another MPT task is running?");
+				catch (MPTException ex){
+					threadSafeSendMessage(sender, ex.getMessage());
 					return;
 				}
+				JsonArray array = Main.repoStore.getAsJsonArray("repositories");
+				unlockStores();
 				// verify the repo hasn't already been added
 				for (JsonElement e : array){ // iterate repos in local store
 					JsonObject o = e.getAsJsonObject();
@@ -100,21 +99,17 @@ public class AddRepositoryCommand extends SubcommandManager {
 			JsonObject repoElement = new JsonObject(); // create a new JSON object
 			repoElement.addProperty("id", id); // set the repo name (determined by remote config)
 			repoElement.addProperty("url", path); // set the repo URL
-			if (lockStores()){
-				Main.repoStore.getAsJsonArray("repositories").add(repoElement);
-				FileWriter writer = new FileWriter(store); // get a writer for the store file
-				writer.write(Main.gson.toJson(Main.repoStore)); // write to disk
-				writer.flush();
-				unlockStores();
-				// apt-get doesn't fetch packages when a repo is added, so I'm following that precedent
-				threadSafeSendMessage(sender, ChatColor.DARK_PURPLE + "[MPT] Successfully added " +
-						"repository under ID " + ChatColor.AQUA + id + ChatColor.DARK_PURPLE +
-						" to local store! You may now use " + ChatColor.GOLD + "/mpt update" +
-						ChatColor.DARK_PURPLE + " to fetch available packages.");
-			}
-			else
-				threadSafeSendMessage(sender, ChatColor.RED + "[MPT] The local store is currently " +
-						"locked! Perhaps another MPT task is running?");
+			lockStores();
+			Main.repoStore.getAsJsonArray("repositories").add(repoElement);
+			FileWriter writer = new FileWriter(store); // get a writer for the store file
+			writer.write(Main.gson.toJson(Main.repoStore)); // write to disk
+			writer.flush();
+			unlockStores();
+			// apt-get doesn't fetch packages when a repo is added, so I'm following that precedent
+			threadSafeSendMessage(sender, ChatColor.DARK_PURPLE + "[MPT] Successfully added " +
+					"repository under ID " + ChatColor.AQUA + id + ChatColor.DARK_PURPLE +
+					" to local store! You may now use " + ChatColor.GOLD + "/mpt update" +
+					ChatColor.DARK_PURPLE + " to fetch available packages.");
 		}
 		catch (IOException ex){
 			threadSafeSendMessage(sender, ChatColor.RED + "[MPT] Failed to add repository to local " +

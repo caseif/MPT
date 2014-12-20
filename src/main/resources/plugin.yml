@@ -15,6 +15,7 @@ permissions:
     default: op
     children:
       mpt.repos: true
+      mpt.abort: true
       mpt.install: true
       mpt.help: true
 
@@ -24,6 +25,10 @@ permissions:
 
   mpt.install:
     description: Allows the player to list, install, upgrade, and remove packages (maps).
+    default: op
+
+  mpt.abort:
+    description: Allows the player to abort currently running MPT tasks.
     default: op
 
   mpt.help:

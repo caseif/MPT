@@ -44,6 +44,9 @@ public class CommandManager implements CommandExecutor {
 				else if (args[0].equalsIgnoreCase("update")){
 					new UpdateCommand(sender, args).handle();
 				}
+				else if (args[0].equalsIgnoreCase("abort")){
+					new AbortCommand(sender, args).handle();
+				}
 				else if (args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("?")){
 					new HelpCommand(sender, args).handle();
 				}

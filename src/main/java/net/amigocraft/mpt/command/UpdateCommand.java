@@ -62,42 +62,44 @@ public class UpdateCommand extends SubcommandManager {
 	}
 
 	public void downloadRepos(){
-		if (lockStores()){
-				final File rStoreFile = new File(Main.plugin.getDataFolder(), "repositories.json");
-				if (!rStoreFile.exists())
-					Main.initializeRepoStore(rStoreFile); // gotta initialize it before using it
-				final File pStoreFile = new File(Main.plugin.getDataFolder(), "packages.json");
-				if (!pStoreFile.exists())
-					Main.initializePackageStore(pStoreFile);
-				JsonArray repos = Main.repoStore.getAsJsonArray("repositories");
-				threadSafeSendMessage(sender, ChatColor.DARK_PURPLE + "[MPT] Updating local package store...");
+		try {
+			lockStores();
+			final File rStoreFile = new File(Main.plugin.getDataFolder(), "repositories.json");
+			if (!rStoreFile.exists())
+				Main.initializeRepoStore(rStoreFile); // gotta initialize it before using it
+			final File pStoreFile = new File(Main.plugin.getDataFolder(), "packages.json");
+			if (!pStoreFile.exists())
+				Main.initializePackageStore(pStoreFile);
+			JsonArray repos = Main.repoStore.getAsJsonArray("repositories");
+			threadSafeSendMessage(sender, ChatColor.DARK_PURPLE + "[MPT] Updating local package store...");
 			if (!(sender instanceof ConsoleCommandSender))
 				Main.log.info("Updating local package store");
-				for (JsonElement e : repos){
-					JsonObject repo = e.getAsJsonObject();
-					final String id = repo.get("id").getAsString();
-					final String url = repo.get("url").getAsString();
-					if (Config.VERBOSE)
-						Main.log.info("Updating repository \"" + id + "\"");
-					Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
-						public void run(){
-							connectAndUpdate(url);
-							try {
-								FileWriter writer = new FileWriter(pStoreFile); // get a writer for the store file
-								writer.write(Main.gson.toJson(Main.packageStore)); // write to disk
-								writer.flush();
-							}
-							catch (IOException ex){
-								ex.printStackTrace();
-								threadSafeSendMessage(sender, "Failed to write package store to disk!");
-							}
+			for (JsonElement e : repos){
+				JsonObject repo = e.getAsJsonObject();
+				final String id = repo.get("id").getAsString();
+				final String url = repo.get("url").getAsString();
+				if (Config.VERBOSE)
+					Main.log.info("Updating repository \"" + id + "\"");
+				Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
+					public void run(){
+						connectAndUpdate(url);
+						try {
+							FileWriter writer = new FileWriter(pStoreFile); // get a writer for the store file
+							writer.write(Main.gson.toJson(Main.packageStore)); // write to disk
+							writer.flush();
 						}
-					});
-				}
+						catch (IOException ex){
+							ex.printStackTrace();
+							threadSafeSendMessage(sender, "Failed to write package store to disk!");
+						}
+						unlockStores();
+					}
+				});
+			}
 		}
-		else
-			threadSafeSendMessage(sender, ChatColor.RED + "[MPT] The local store is currently locked! Perhaps " +
-					"another MPT task is running?");
+		catch (MPTException ex){
+			threadSafeSendMessage(sender, ex.getMessage());
+		}
 	}
 
 
@@ -133,7 +135,6 @@ public class UpdateCommand extends SubcommandManager {
 		catch (MPTException ex){
 			threadSafeSendMessage(sender, ex.getMessage());
 		}
-		unlockStores();
 		threadSafeSendMessage(sender, "[MPT] Finished updating local package store!");
 		if (!(sender instanceof ConsoleCommandSender))
 			Main.log.info(ChatColor.DARK_PURPLE + "Finished updating local package store!");

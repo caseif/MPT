@@ -58,13 +58,13 @@ public class MiscUtil {
 
 	/**
 	 * Attempts to lock the local stores and returns false if they are already locked.
-	 * @return whether the stores could be locked
+	 * @throws MPTException if the store is already locked
 	 */
-	public static boolean lockStores(){
+	public static void lockStores() throws MPTException {
 		if (Main.LOCKED)
-			return false;
+			throw new MPTException(ChatColor.RED + "Failed to lock local stores! Perhaps a task is currently " +
+					"running or has uncleanly terminated?");
 		Main.LOCKED = true;
-		return true;
 	}
 
 	/**

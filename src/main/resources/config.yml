@@ -1,0 +1,6 @@
+# ##################### #
+# # MPT Configuration # #
+# ##################### #
+
+# If true, detailed but potentially unneeded logging information will be printed to the console.
+verbose: false

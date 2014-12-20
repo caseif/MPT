@@ -23,42 +23,16 @@
  *     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *     SOFTWARE.
  */
-package net.amigocraft.mpt.command;
+package net.amigocraft.mpt.util;
 
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import net.amigocraft.mpt.Main;
 
-public class CommandManager implements CommandExecutor {
+public class Config {
 
-	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
-		if (label.equalsIgnoreCase("mpt")){ // probably not necessary, actually, but whatever
-			if (args.length > 0){
-				if (args[0].equalsIgnoreCase("add-repo")){
-					new AddRepositoryCommand(sender, args).handle();
-				}
-				else if (args[0].equalsIgnoreCase("remove-repo")){
-					new RemoveRepositoryCommand(sender, args).handle();
-				}
-				else if (args[0].equalsIgnoreCase("update")){
-					new UpdateCommand(sender, args).handle();
-				}
-				else if (args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("?")){
-					new HelpCommand(sender, args).handle();
-				}
-				else {
-					sender.sendMessage(ChatColor.RED + "[MPT] Invalid command! Type " + ChatColor.DARK_PURPLE +
-							"/mpt help" + ChatColor.RED + " for help.");
-				}
-			}
-			else {
-				sender.sendMessage(ChatColor.RED + "[MPT] Too few arguments! Type " + ChatColor.DARK_PURPLE +
-						"/mpt help" + ChatColor.RED + " for help.");
-			}
-			return true;
-		}
-		return false;
+	public static final boolean VERBOSE;
+
+	static {
+		VERBOSE = Main.plugin.getConfig().getBoolean("verbose");
 	}
 
 }

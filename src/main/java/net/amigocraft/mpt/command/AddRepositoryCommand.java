@@ -30,16 +30,13 @@ import static net.amigocraft.mpt.util.MiscUtil.*;
 import net.amigocraft.mpt.Main;
 
 import com.google.gson.*;
+import net.amigocraft.mpt.util.MPTException;
 import net.amigocraft.mpt.util.MiscUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 
 public class AddRepositoryCommand extends SubcommandManager {
 
@@ -54,7 +51,7 @@ public class AddRepositoryCommand extends SubcommandManager {
 				final String path = args[1];
 				// get the main array from the JSON object
 				JsonArray array;
-				if (MiscUtil.lockStores()){
+				if (lockStores()){
 					array = Main.repoStore.getAsJsonArray("repositories");
 					unlockStores();
 				}
@@ -95,70 +92,36 @@ public class AddRepositoryCommand extends SubcommandManager {
 
 	private void connectAndStore(String path){
 		try {
-			URL url = new URL(path + (!path.endsWith("/") ? "/" : "") + "mpt.json"); // get URL object for data file
-			URLConnection conn = url.openConnection();
-			if (conn instanceof HttpURLConnection){
-				HttpURLConnection http = (HttpURLConnection)conn; // cast the connection
-				int response = http.getResponseCode(); // get the response
-				if (response >= 200 && response <= 299){ // verify the remote isn't upset at us
-					InputStream is = http.getInputStream(); // open a stream to the URL
-					BufferedReader reader = new BufferedReader(new InputStreamReader(is)); // get a reader
-					JsonParser parser = new JsonParser(); // get a new parser
-					JsonObject json = parser.parse(reader).getAsJsonObject(); // parse JSON object from stream
-					// vefify remote config is valid
-					if (json.has("name") && json.has("packages") && json.get("packages").isJsonArray()){
-						String id = json.get("id").getAsString(); // get ID from remote
-						try { // inner try block is necessary so local issues aren't misreported as remote
-							File store = new File(Main.plugin.getDataFolder(), "repositories.json");
-							if (!store.exists())
-								Main.initializeRepoStore(store); // gotta initialize it before using it
-							JsonObject repoElement = new JsonObject(); // create a new JSON object
-							repoElement.addProperty("id", id); // set the repo name (determined by remote config)
-							repoElement.addProperty("url", path); // set the repo URL
-							if (MiscUtil.lockStores()){
-								Main.repoStore.getAsJsonArray("repositories").add(repoElement);
-								FileWriter writer = new FileWriter(store); // get a writer for the store file
-								writer.write(Main.gson.toJson(Main.repoStore)); // write to disk
-								writer.flush();
-								unlockStores();
-								// apt-get doesn't fetch packages when a repo is added, so I'm following that precedent
-								threadSafeSendMessage(sender, ChatColor.DARK_PURPLE + "[MPT] Successfully added " +
-										"repository under ID " + ChatColor.AQUA + id + ChatColor.DARK_PURPLE +
-										" to local store! You may now use " + ChatColor.GOLD + "/mpt update" +
-										ChatColor.DARK_PURPLE + " to fetch available packages.");
-							}
-							else
-								threadSafeSendMessage(sender, ChatColor.RED + "[MPT] The local store is currently " +
-										"locked! Perhaps another MPT task is running?");
-						}
-						catch (IOException ex){
-							threadSafeSendMessage(sender, ChatColor.RED + "[MPT] Failed to add repository to local " +
-									"store!");
-						}
-					}
-					else
-						threadSafeSendMessage(sender, ChatColor.RED + "[MPT] Repository index is missing required " +
-								"elements!");
-				}
-				else {
-					threadSafeSendMessage(sender, ChatColor.RED + "[MPT] Remote returned bad response code! (" +
-							response + ")");
-					if (!http.getResponseMessage().isEmpty())
-						threadSafeSendMessage(sender, ChatColor.RED + "[MPT] The remote says: " + ChatColor.GRAY +
-								ChatColor.ITALIC + http.getResponseMessage());
-				}
+			JsonObject json = MiscUtil.getRemoteIndex(path);
+			String id = json.get("id").getAsString(); // get ID from remote
+			File store = new File(Main.plugin.getDataFolder(), "repositories.json");
+			if (!store.exists())
+				Main.initializeRepoStore(store); // gotta initialize it before using it
+			JsonObject repoElement = new JsonObject(); // create a new JSON object
+			repoElement.addProperty("id", id); // set the repo name (determined by remote config)
+			repoElement.addProperty("url", path); // set the repo URL
+			if (lockStores()){
+				Main.repoStore.getAsJsonArray("repositories").add(repoElement);
+				FileWriter writer = new FileWriter(store); // get a writer for the store file
+				writer.write(Main.gson.toJson(Main.repoStore)); // write to disk
+				writer.flush();
+				unlockStores();
+				// apt-get doesn't fetch packages when a repo is added, so I'm following that precedent
+				threadSafeSendMessage(sender, ChatColor.DARK_PURPLE + "[MPT] Successfully added " +
+						"repository under ID " + ChatColor.AQUA + id + ChatColor.DARK_PURPLE +
+						" to local store! You may now use " + ChatColor.GOLD + "/mpt update" +
+						ChatColor.DARK_PURPLE + " to fetch available packages.");
 			}
 			else
-				threadSafeSendMessage(sender, ChatColor.RED + "[MPT] Bad protocol for URL!");
-		}
-		catch (MalformedURLException ex){
-			threadSafeSendMessage(sender, ChatColor.RED + "[MPT] Cannot parse URL!");
+				threadSafeSendMessage(sender, ChatColor.RED + "[MPT] The local store is currently " +
+						"locked! Perhaps another MPT task is running?");
 		}
 		catch (IOException ex){
-			threadSafeSendMessage(sender, ChatColor.RED + "[MPT] Cannot open connection to URL!");
+			threadSafeSendMessage(sender, ChatColor.RED + "[MPT] Failed to add repository to local " +
+					"store!");
 		}
-		catch (JsonParseException ex){
-			threadSafeSendMessage(sender, ChatColor.RED + "[MPT] Repository index is not valid JSON!");
+		catch (MPTException ex){
+			threadSafeSendMessage(sender, ex.getMessage());
 		}
 	}
 }

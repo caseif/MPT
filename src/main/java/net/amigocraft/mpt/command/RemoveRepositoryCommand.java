@@ -65,6 +65,8 @@ public class RemoveRepositoryCommand extends SubcommandManager {
 							FileWriter writer = new FileWriter(store); // initialize writer
 							writer.write(Main.gson.toJson(Main.repoStore)); // write JSON
 							writer.flush(); // flush writer to disk
+							sender.sendMessage(ChatColor.DARK_PURPLE + "[MPT] Successfully removed repository " +
+									ChatColor.AQUA + id + ChatColor.DARK_PURPLE + " from local store.");
 						}
 						catch (IOException ex){
 							ex.printStackTrace();

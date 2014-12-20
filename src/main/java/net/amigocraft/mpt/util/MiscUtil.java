@@ -25,10 +25,21 @@
  */
 package net.amigocraft.mpt.util;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import net.amigocraft.mpt.Main;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Calendar;
 
 public class MiscUtil {
 
@@ -61,6 +72,81 @@ public class MiscUtil {
 	 */
 	public static void unlockStores(){
 		Main.LOCKED = false;
+	}
+
+	/*public static void logToFile(String msg, String prefix){
+		if (Config.LOG_TO_FILE){
+			try {
+				File logFile = new File(Main.plugin.getDataFolder(), "mpt.log");
+				if (!logFile.exists())
+					logFile.createNewFile();
+				FileWriter writer = new FileWriter(logFile);
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeInMillis(System.currentTimeMillis());
+				String dateTime = "[" + cal.get(Calendar.YEAR) + "-" +
+						(cal.get(Calendar.MONTH) < 9 ?
+								"0" + (cal.get(Calendar.MONTH) + 1) :
+								(cal.get(Calendar.MONTH) + 1)) + "-" +
+						(cal.get(Calendar.DAY_OF_MONTH) < 9 ?
+								"0" + (cal.get(Calendar.DAY_OF_MONTH) + 1) :
+								(cal.get(Calendar.DAY_OF_MONTH) + 1)) + "T" +
+						(cal.get(Calendar.HOUR_OF_DAY) < 9 ?
+								"0" + (cal.get(Calendar.HOUR_OF_DAY) + 1) :
+								(cal.get(Calendar.HOUR_OF_DAY) + 1)) + ":" +
+						(cal.get(Calendar.MINUTE) < 9 ?
+								"0" + (cal.get(Calendar.MINUTE) + 1) :
+								(cal.get(Calendar.MINUTE) + 1)) + ":" +
+						(cal.get(Calendar.SECOND) < 9 ?
+								"0" + (cal.get(Calendar.SECOND) + 1) :
+								(cal.get(Calendar.SECOND) + 1)) + "]";
+				writer.append(dateTime + " " + " [" + prefix + "] " + msg);
+			}
+			catch (IOException ex){
+				// do nothing lest we spam the console :P
+			}
+		}
+	}*/
+
+	public static JsonObject getRemoteIndex(String path) throws MPTException {
+		try {
+			URL url = new URL(path + (!path.endsWith("/") ? "/" : "") + "mpt.json"); // get URL object for data file
+			URLConnection conn = url.openConnection();
+			if (conn instanceof HttpURLConnection){
+				HttpURLConnection http = (HttpURLConnection)conn; // cast the connection
+				int response = http.getResponseCode(); // get the response
+				if (response >= 200 && response <= 299){ // verify the remote isn't upset at us
+					InputStream is = http.getInputStream(); // open a stream to the URL
+					BufferedReader reader = new BufferedReader(new InputStreamReader(is)); // get a reader
+					JsonParser parser = new JsonParser(); // get a new parser
+					JsonObject json = parser.parse(reader).getAsJsonObject(); // parse JSON object from stream
+					// vefify remote config is valid
+					if (json.has("id") && json.has("packages") && json.get("packages").isJsonArray()){
+						return json;
+					}
+					else
+						throw new MPTException(ChatColor.RED + "[MPT] Index for repository at " + path +
+								"is missing required elements!");
+				}
+				else {
+					String error = ChatColor.RED + "[MPT] Remote returned bad response code! (" + response + ")";
+					if (!http.getResponseMessage().isEmpty())
+						error += " The remote says: " + ChatColor.GRAY +
+								ChatColor.ITALIC + http.getResponseMessage();
+					throw new MPTException(error);
+				}
+			}
+			else
+				throw new MPTException(ChatColor.RED + "[MPT] Bad protocol for URL!");
+		}
+		catch (MalformedURLException ex){
+			throw new MPTException(ChatColor.RED + "[MPT] Cannot parse URL!");
+		}
+		catch (IOException ex){
+			throw new MPTException(ChatColor.RED + "[MPT] Cannot open connection to URL!");
+		}
+		catch (JsonParseException ex){
+			throw new MPTException(ChatColor.RED + "[MPT] Repository index is not valid JSON!");
+		}
 	}
 
 }

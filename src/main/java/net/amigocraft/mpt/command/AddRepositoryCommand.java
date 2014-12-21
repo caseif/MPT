@@ -37,6 +37,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import java.io.*;
+import java.util.Map;
 
 public class AddRepositoryCommand extends SubcommandManager {
 
@@ -57,11 +58,11 @@ public class AddRepositoryCommand extends SubcommandManager {
 					threadSafeSendMessage(sender, ex.getMessage());
 					return;
 				}
-				JsonArray array = Main.repoStore.getAsJsonArray("repositories");
+				JsonObject repos = Main.repoStore.get("repositories").getAsJsonObject();
 				unlockStores();
 				// verify the repo hasn't already been added
-				for (JsonElement e : array){ // iterate repos in local store
-					JsonObject o = e.getAsJsonObject();
+				for (Map.Entry<String, JsonElement> e : repos.entrySet()){ // iterate repos in local store
+					JsonObject o = e.getValue().getAsJsonObject();
 					// check URL
 					if (o.has("url") && o.get("url").getAsString().equalsIgnoreCase(path)){
 						sender.sendMessage(ChatColor.RED + "[MPT] The repository at that URL has already been added!");
@@ -97,10 +98,9 @@ public class AddRepositoryCommand extends SubcommandManager {
 			if (!store.exists())
 				Main.initializeRepoStore(store); // gotta initialize it before using it
 			JsonObject repoElement = new JsonObject(); // create a new JSON object
-			repoElement.addProperty("id", id); // set the repo name (determined by remote config)
 			repoElement.addProperty("url", path); // set the repo URL
 			lockStores();
-			Main.repoStore.getAsJsonArray("repositories").add(repoElement);
+			Main.repoStore.getAsJsonObject("repositories").add(id, repoElement);
 			FileWriter writer = new FileWriter(store); // get a writer for the store file
 			writer.write(Main.gson.toJson(Main.repoStore)); // write to disk
 			writer.flush();

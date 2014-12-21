@@ -40,6 +40,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Map;
 
 public class UpdateCommand extends SubcommandManager {
 
@@ -70,13 +71,13 @@ public class UpdateCommand extends SubcommandManager {
 			final File pStoreFile = new File(Main.plugin.getDataFolder(), "packages.json");
 			if (!pStoreFile.exists())
 				Main.initializePackageStore(pStoreFile);
-			JsonArray repos = Main.repoStore.getAsJsonArray("repositories");
+			JsonObject repos = Main.repoStore.getAsJsonObject("repositories");
 			threadSafeSendMessage(sender, ChatColor.DARK_PURPLE + "[MPT] Updating local package store...");
 			if (!(sender instanceof ConsoleCommandSender))
 				Main.log.info("Updating local package store");
-			for (JsonElement e : repos){
-				JsonObject repo = e.getAsJsonObject();
-				final String id = repo.get("id").getAsString();
+			for (Map.Entry<String, JsonElement> e : repos.entrySet()){
+				final String id = e.getKey();
+				JsonObject repo = e.getValue().getAsJsonObject();
 				final String url = repo.get("url").getAsString();
 				if (Config.VERBOSE)
 					Main.log.info("Updating repository \"" + id + "\"");
@@ -107,26 +108,25 @@ public class UpdateCommand extends SubcommandManager {
 		try {
 			JsonObject json = MiscUtil.getRemoteIndex(path);
 			String repoId = json.get("id").getAsString();
-			JsonArray packages = json.getAsJsonArray("packages");
-			for (JsonElement e : packages){
-				JsonObject o = e.getAsJsonObject();
-				if (o.has("id") && o.has("name") && o.has("description") && o.has("version") && o.has("url")){
-					String id = o.get("id").getAsString();
+			JsonObject packages = json.getAsJsonObject("packages");
+			for (Map.Entry<String, JsonElement> e : packages.entrySet()){
+				JsonObject o = e.getValue().getAsJsonObject();
+				if (o.has("name") && o.has("description") && o.has("version") && o.has("url")){
+					String id = e.getKey();
 					String name = o.get("name").getAsString();
 					String desc = o.get("description").getAsString();
 					String version = o.get("version").getAsString();
 					String url = o.get("url").getAsString();
 					if (Config.VERBOSE)
 						Main.log.info("Fetching package \"" + id + "\"");
-					JsonArray array = Main.packageStore.getAsJsonArray("packages");
+					JsonObject localPackages = Main.packageStore.getAsJsonObject("packages");
 					JsonObject pObj = new JsonObject();
-					pObj.addProperty("id", id);
 					pObj.addProperty("repo", repoId);
 					pObj.addProperty("name", name);
 					pObj.addProperty("description", desc);
 					pObj.addProperty("version", version);
 					pObj.addProperty("url", url);
-					array.add(pObj);
+					localPackages.add(id, pObj);
 				}
 				else if (Config.VERBOSE)
 					Main.log.info("Found invalid package definition in repository \"" + repoId + "\"");

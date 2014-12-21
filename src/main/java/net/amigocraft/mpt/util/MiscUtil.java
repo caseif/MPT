@@ -39,7 +39,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Calendar;
 
 public class MiscUtil {
 
@@ -118,9 +117,13 @@ public class MiscUtil {
 					InputStream is = http.getInputStream(); // open a stream to the URL
 					BufferedReader reader = new BufferedReader(new InputStreamReader(is)); // get a reader
 					JsonParser parser = new JsonParser(); // get a new parser
-					JsonObject json = parser.parse(reader).getAsJsonObject(); // parse JSON object from stream
+					String line;
+					StringBuilder content = new StringBuilder();
+					while ((line = reader.readLine()) != null)
+						content.append(line);
+					JsonObject json = parser.parse(content.toString()).getAsJsonObject(); // parse JSON object
 					// vefify remote config is valid
-					if (json.has("id") && json.has("packages") && json.get("packages").isJsonArray()){
+					if (json.has("packages") && json.get("packages").isJsonObject()){
 						return json;
 					}
 					else

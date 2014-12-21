@@ -27,6 +27,7 @@ package net.amigocraft.mpt.command;
 
 import static net.amigocraft.mpt.util.MiscUtil.*;
 
+import com.google.gson.JsonObject;
 import net.amigocraft.mpt.Main;
 
 import com.google.gson.JsonElement;
@@ -57,14 +58,9 @@ public class RemoveRepositoryCommand extends SubcommandManager {
 					threadSafeSendMessage(sender, ex.getMessage());
 					return;
 				}
-				for (JsonElement e : Main.repoStore.getAsJsonArray("repositories")){ // iterate repos in local store
-					if (e.getAsJsonObject().get("id").getAsString().equalsIgnoreCase(id)){ // entry matches ID
-						remove = e; // removing it here would throw a CME
-						break; // no need to continue iterating
-					}
-				}
-				if (remove != null){ // check if we found anything
-					Main.repoStore.getAsJsonArray("repositories").remove(remove); // remove it from memory
+				JsonObject repos = Main.repoStore.getAsJsonObject("repositories");
+				if (repos.has(id)){
+					repos.remove(id); // remove it from memory
 					File store = new File(Main.plugin.getDataFolder(), "repositories.json"); // get the store file
 					if (!store.exists()) // avoid dumb errors
 						Main.initializeRepoStore(store);
@@ -78,7 +74,6 @@ public class RemoveRepositoryCommand extends SubcommandManager {
 					catch (IOException ex){
 						ex.printStackTrace();
 						sender.sendMessage(ChatColor.RED + "[MPT] Failed to remove repository from local store!");
-						Main.repoStore.getAsJsonArray("repositories").add(remove); // readd it to prevent confusion
 					}
 				}
 				else // repo doesn't exist in local store

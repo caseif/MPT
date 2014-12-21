@@ -103,9 +103,9 @@ public class Main extends JavaPlugin {
 		log.info("Initializing local repository store...");
 		try {
 			MiscUtil.lockStores();
-			JsonArray repoArray = new JsonArray(); // create an empty array
+			JsonObject repos = new JsonObject(); // create an empty array
 			repoStore = new JsonObject(); // create an empty object
-			repoStore.add("repositories", repoArray); // add the array to it
+			repoStore.add("repositories", repos); // add the array to it
 			if (!file.getParentFile().exists())
 				file.getParentFile().mkdir();
 			file.createNewFile(); // create the file
@@ -125,10 +125,11 @@ public class Main extends JavaPlugin {
 
 	public static void initializePackageStore(File file){
 		log.info("Initializing local package store...");
-		if (Main.LOCKED){
-			JsonArray packageArray = new JsonArray(); // create an empty array
+		try {
+			MiscUtil.lockStores();
+			JsonObject packages = new JsonObject(); // create an empty array
 			packageStore = new JsonObject(); // create an empty object
-			packageStore.add("packages", packageArray); // add the array to it
+			packageStore.add("packages", packages); // add the array to it
 			try {
 				if (!file.getParentFile().exists())
 					file.getParentFile().mkdir();
@@ -143,8 +144,8 @@ public class Main extends JavaPlugin {
 			}
 			MiscUtil.unlockStores();
 		}
-		else {
-			Main.log.severe("Failed to initialize local package store: already locked!");
+		catch (MPTException ex){
+			log.info(ex.getMessage());
 		}
 	}
 

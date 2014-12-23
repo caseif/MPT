@@ -39,6 +39,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.MessageDigest;
 
 public class MiscUtil {
 
@@ -150,6 +151,37 @@ public class MiscUtil {
 		catch (JsonParseException ex){
 			throw new MPTException(ChatColor.RED + "[MPT] Repository index is not valid JSON!");
 		}
+	}
+
+	public static String sha1(String path){ // convenience method for calculating SHA-1 hash of a file
+		try {
+			MessageDigest md = MessageDigest.getInstance("SHA-1");
+			FileInputStream fis = new FileInputStream(path);
+			byte[] dataBytes = new byte[1024];
+
+			int nread = 0;
+			while ((nread = fis.read(dataBytes)) != -1){
+				md.update(dataBytes, 0, nread);
+			}
+			fis.close();
+
+			byte[] mdbytes = md.digest();
+
+			StringBuffer sb = new StringBuffer();
+			for (int i = 0; i < mdbytes.length; i++){
+				String hex = Integer.toHexString(0xff & mdbytes[i]);
+				if(hex.length() == 1)
+					sb.append('0');
+				sb.append(hex);
+			}
+			return sb.toString();
+		}
+		catch (Exception ex){
+			ex.printStackTrace();
+			System.err.println("Failed to calculate checksum for " + path);
+		}
+
+		return null;
 	}
 
 }

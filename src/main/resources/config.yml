@@ -2,5 +2,11 @@
 # # MPT Configuration # #
 # ##################### #
 
+# If true, package checksums will be compared against the downloaded content, and installation of packages without
+# an expected checksum will be prevented.
+# It is HIGHLY recommended that you leave this true unless you understand the implications and know that you do so at
+# your own risk.
+enforce-checksum: true
+
 # If true, detailed but potentially unneeded logging information will be printed to the console.
 verbose: false

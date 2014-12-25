@@ -25,6 +25,8 @@
  */
 package net.amigocraft.mpt.command;
 
+import static net.amigocraft.mpt.util.Config.*;
+
 import com.google.common.collect.ImmutableMap;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -82,18 +84,18 @@ public class HelpCommand extends SubcommandManager {
 	@Override
 	public void handle(){
 		if (sender.hasPermission("mpt.help")){
-			sender.sendMessage(ChatColor.GOLD + "Commands available to you:");
+			sender.sendMessage(INFO_COLOR + "Commands available to you:");
 			for (Map.Entry e : commands.entrySet()){
 				if (sender.hasPermission(((String[])e.getValue())[2])){
 					sender.sendMessage(ChatColor.DARK_GRAY + "-----------------------------------------------");
-					sender.sendMessage(ChatColor.DARK_BLUE + "/mpt " + e.getKey() + ChatColor.WHITE + " - " +
-							ChatColor.GOLD + ((String[])e.getValue())[0]);
-					sender.sendMessage(ChatColor.DARK_PURPLE + "Usage: " + ((String[])e.getValue())[1]);
-					sender.sendMessage(ChatColor.GREEN + "Permission node: " + ((String[])e.getValue())[2]);
+					sender.sendMessage(COMMAND_COLOR + "/mpt " + e.getKey() + ChatColor.WHITE + " - " +
+							INFO_COLOR + ((String[])e.getValue())[0]);
+					sender.sendMessage(INFO_COLOR + "Usage: " + ((String[])e.getValue())[1]);
+					sender.sendMessage(INFO_COLOR + "Permission node: " + ((String[])e.getValue())[2]);
 				}
 			}
 		}
 		else
-			sender.sendMessage(ChatColor.RED + "You do not have access to this command!");
+			sender.sendMessage(ERROR_COLOR + "You do not have access to this command!");
 	}
 }

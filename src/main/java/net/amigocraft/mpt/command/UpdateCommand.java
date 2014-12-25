@@ -25,15 +25,14 @@
  */
 package net.amigocraft.mpt.command;
 
+import static net.amigocraft.mpt.util.Config.*;
 import static net.amigocraft.mpt.util.MiscUtil.*;
 
 import com.google.gson.*;
 import net.amigocraft.mpt.Main;
-import net.amigocraft.mpt.util.Config;
 import net.amigocraft.mpt.util.MPTException;
 import net.amigocraft.mpt.util.MiscUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 
@@ -58,8 +57,8 @@ public class UpdateCommand extends SubcommandManager {
 			});
 		}
 		else
-			sender.sendMessage(ChatColor.RED + "[MPT] Too many arguments! Type " + ChatColor.GOLD + "/mpt help" +
-					ChatColor.RED + " for help.");
+			sender.sendMessage(ERROR_COLOR + "[MPT] Too many arguments! Type " + COMMAND_COLOR + "/mpt help" +
+					ERROR_COLOR + " for help.");
 	}
 
 	public void downloadRepos(){
@@ -72,14 +71,14 @@ public class UpdateCommand extends SubcommandManager {
 			if (!pStoreFile.exists())
 				Main.initializePackageStore(pStoreFile);
 			JsonObject repos = Main.repoStore.getAsJsonObject("repositories");
-			threadSafeSendMessage(sender, ChatColor.DARK_PURPLE + "[MPT] Updating local package store...");
+			threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Updating local package store...");
 			if (!(sender instanceof ConsoleCommandSender))
 				Main.log.info("Updating local package store");
 			for (Map.Entry<String, JsonElement> e : repos.entrySet()){
 				final String id = e.getKey();
 				JsonObject repo = e.getValue().getAsJsonObject();
 				final String url = repo.get("url").getAsString();
-				if (Config.VERBOSE)
+				if (VERBOSE)
 					Main.log.info("Updating repository \"" + id + "\"");
 				Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
 					public void run(){
@@ -117,7 +116,7 @@ public class UpdateCommand extends SubcommandManager {
 					String desc = o.get("description").getAsString();
 					String version = o.get("version").getAsString();
 					String url = o.get("url").getAsString();
-					if (Config.VERBOSE)
+					if (VERBOSE)
 						Main.log.info("Fetching package \"" + id + "\"");
 					JsonObject localPackages = Main.packageStore.getAsJsonObject("packages");
 					JsonObject pObj = new JsonObject();
@@ -128,7 +127,7 @@ public class UpdateCommand extends SubcommandManager {
 					pObj.addProperty("url", url);
 					localPackages.add(id, pObj);
 				}
-				else if (Config.VERBOSE)
+				else if (VERBOSE)
 					Main.log.info("Found invalid package definition in repository \"" + repoId + "\"");
 			}
 		}
@@ -137,6 +136,6 @@ public class UpdateCommand extends SubcommandManager {
 		}
 		threadSafeSendMessage(sender, "[MPT] Finished updating local package store!");
 		if (!(sender instanceof ConsoleCommandSender))
-			Main.log.info(ChatColor.DARK_PURPLE + "Finished updating local package store!");
+			Main.log.info(INFO_COLOR + "Finished updating local package store!");
 	}
 }

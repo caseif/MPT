@@ -25,6 +25,7 @@
  */
 package net.amigocraft.mpt.command;
 
+import static net.amigocraft.mpt.util.Config.*;
 import static net.amigocraft.mpt.util.MiscUtil.*;
 
 import net.amigocraft.mpt.Main;
@@ -33,7 +34,6 @@ import com.google.gson.*;
 import net.amigocraft.mpt.util.MPTException;
 import net.amigocraft.mpt.util.MiscUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import java.io.*;
@@ -65,14 +65,14 @@ public class AddRepositoryCommand extends SubcommandManager {
 					JsonObject o = e.getValue().getAsJsonObject();
 					// check URL
 					if (o.has("url") && o.get("url").getAsString().equalsIgnoreCase(path)){
-						sender.sendMessage(ChatColor.RED + "[MPT] The repository at that URL has already been added!");
+						sender.sendMessage(ERROR_COLOR + "[MPT] The repository at that URL has already been added!");
 						return;
 					}
 				}
 				// no way we're making the main thread wait for us to open and read the stream
 				Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable(){
 					public void run(){
-						threadSafeSendMessage(sender, ChatColor.DARK_PURPLE +
+						threadSafeSendMessage(sender, INFO_COLOR +
 								"[MPT] Attempting connection to repository...");
 						connectAndStore(path); // in separate method for organization purposes
 					}
@@ -80,14 +80,14 @@ public class AddRepositoryCommand extends SubcommandManager {
 				});
 			}
 			else if (args.length < 2)
-				sender.sendMessage(ChatColor.RED + "[MPT] Too few arguments! Type " + ChatColor.DARK_PURPLE +
-						"/mpt help " + ChatColor.RED + "for help");
+				sender.sendMessage(ERROR_COLOR + "[MPT] Too few arguments! Type " + COMMAND_COLOR +
+						"/mpt help " + ERROR_COLOR + "for help");
 			else
-				sender.sendMessage(ChatColor.RED + "[MPT] Too many arguments! Type " + ChatColor.DARK_PURPLE +
-						"/mpt help " + ChatColor.RED + "for help");
+				sender.sendMessage(ERROR_COLOR + "[MPT] Too many arguments! Type " + COMMAND_COLOR +
+						"/mpt help " + ERROR_COLOR + "for help");
 		}
 		else
-			sender.sendMessage(ChatColor.RED + "[MPT] You do not have access to this command!");
+			sender.sendMessage(ERROR_COLOR + "[MPT] You do not have access to this command!");
 	}
 
 	private void connectAndStore(String path){
@@ -106,13 +106,13 @@ public class AddRepositoryCommand extends SubcommandManager {
 			writer.flush();
 			unlockStores();
 			// apt-get doesn't fetch packages when a repo is added, so I'm following that precedent
-			threadSafeSendMessage(sender, ChatColor.DARK_PURPLE + "[MPT] Successfully added " +
-					"repository under ID " + ChatColor.AQUA + id + ChatColor.DARK_PURPLE +
-					" to local store! You may now use " + ChatColor.GOLD + "/mpt update" +
-					ChatColor.DARK_PURPLE + " to fetch available packages.");
+			threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully added " +
+					"repository under ID " + ID_COLOR + id + INFO_COLOR +
+					" to local store! You may now use " + COMMAND_COLOR + "/mpt update" +
+					INFO_COLOR + " to fetch available packages.");
 		}
 		catch (IOException ex){
-			threadSafeSendMessage(sender, ChatColor.RED + "[MPT] Failed to add repository to local " +
+			threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] Failed to add repository to local " +
 					"store!");
 		}
 		catch (MPTException ex){

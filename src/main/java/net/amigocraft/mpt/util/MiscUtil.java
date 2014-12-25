@@ -25,6 +25,8 @@
  */
 package net.amigocraft.mpt.util;
 
+import static net.amigocraft.mpt.util.Config.*;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -62,7 +64,7 @@ public class MiscUtil {
 	 */
 	public static void lockStores() throws MPTException {
 		if (Main.LOCKED)
-			throw new MPTException(ChatColor.RED + "Failed to lock local stores! Perhaps a task is currently " +
+			throw new MPTException(ERROR_COLOR + "Failed to lock local stores! Perhaps a task is currently " +
 					"running or has uncleanly terminated?");
 		Main.LOCKED = true;
 	}
@@ -73,39 +75,6 @@ public class MiscUtil {
 	public static void unlockStores(){
 		Main.LOCKED = false;
 	}
-
-	/*public static void logToFile(String msg, String prefix){
-		if (Config.LOG_TO_FILE){
-			try {
-				File logFile = new File(Main.plugin.getDataFolder(), "mpt.log");
-				if (!logFile.exists())
-					logFile.createNewFile();
-				FileWriter writer = new FileWriter(logFile);
-				Calendar cal = Calendar.getInstance();
-				cal.setTimeInMillis(System.currentTimeMillis());
-				String dateTime = "[" + cal.get(Calendar.YEAR) + "-" +
-						(cal.get(Calendar.MONTH) < 9 ?
-								"0" + (cal.get(Calendar.MONTH) + 1) :
-								(cal.get(Calendar.MONTH) + 1)) + "-" +
-						(cal.get(Calendar.DAY_OF_MONTH) < 9 ?
-								"0" + (cal.get(Calendar.DAY_OF_MONTH) + 1) :
-								(cal.get(Calendar.DAY_OF_MONTH) + 1)) + "T" +
-						(cal.get(Calendar.HOUR_OF_DAY) < 9 ?
-								"0" + (cal.get(Calendar.HOUR_OF_DAY) + 1) :
-								(cal.get(Calendar.HOUR_OF_DAY) + 1)) + ":" +
-						(cal.get(Calendar.MINUTE) < 9 ?
-								"0" + (cal.get(Calendar.MINUTE) + 1) :
-								(cal.get(Calendar.MINUTE) + 1)) + ":" +
-						(cal.get(Calendar.SECOND) < 9 ?
-								"0" + (cal.get(Calendar.SECOND) + 1) :
-								(cal.get(Calendar.SECOND) + 1)) + "]";
-				writer.append(dateTime + " " + " [" + prefix + "] " + msg);
-			}
-			catch (IOException ex){
-				// do nothing lest we spam the console :P
-			}
-		}
-	}*/
 
 	public static JsonObject getRemoteIndex(String path) throws MPTException {
 		try {
@@ -128,11 +97,11 @@ public class MiscUtil {
 						return json;
 					}
 					else
-						throw new MPTException(ChatColor.RED + "[MPT] Index for repository at " + path +
+						throw new MPTException(ERROR_COLOR + "[MPT] Index for repository at " + path +
 								"is missing required elements!");
 				}
 				else {
-					String error = ChatColor.RED + "[MPT] Remote returned bad response code! (" + response + ")";
+					String error = ERROR_COLOR + "[MPT] Remote returned bad response code! (" + response + ")";
 					if (!http.getResponseMessage().isEmpty())
 						error += " The remote says: " + ChatColor.GRAY +
 								ChatColor.ITALIC + http.getResponseMessage();
@@ -140,16 +109,16 @@ public class MiscUtil {
 				}
 			}
 			else
-				throw new MPTException(ChatColor.RED + "[MPT] Bad protocol for URL!");
+				throw new MPTException(ERROR_COLOR + "[MPT] Bad protocol for URL!");
 		}
 		catch (MalformedURLException ex){
-			throw new MPTException(ChatColor.RED + "[MPT] Cannot parse URL!");
+			throw new MPTException(ERROR_COLOR + "[MPT] Cannot parse URL!");
 		}
 		catch (IOException ex){
-			throw new MPTException(ChatColor.RED + "[MPT] Cannot open connection to URL!");
+			throw new MPTException(ERROR_COLOR + "[MPT] Cannot open connection to URL!");
 		}
 		catch (JsonParseException ex){
-			throw new MPTException(ChatColor.RED + "[MPT] Repository index is not valid JSON!");
+			throw new MPTException(ERROR_COLOR + "[MPT] Repository index is not valid JSON!");
 		}
 	}
 
@@ -159,7 +128,7 @@ public class MiscUtil {
 			FileInputStream fis = new FileInputStream(path);
 			byte[] dataBytes = new byte[1024];
 
-			int nread = 0;
+			int nread;
 			while ((nread = fis.read(dataBytes)) != -1){
 				md.update(dataBytes, 0, nread);
 			}
@@ -167,10 +136,10 @@ public class MiscUtil {
 
 			byte[] mdbytes = md.digest();
 
-			StringBuffer sb = new StringBuffer();
-			for (int i = 0; i < mdbytes.length; i++){
-				String hex = Integer.toHexString(0xff & mdbytes[i]);
-				if(hex.length() == 1)
+			StringBuilder sb = new StringBuilder();
+			for (byte mdbyte : mdbytes){
+				String hex = Integer.toHexString(0xff & mdbyte);
+				if (hex.length() == 1)
 					sb.append('0');
 				sb.append(hex);
 			}

@@ -25,6 +25,7 @@
  */
 package net.amigocraft.mpt.command;
 
+import static net.amigocraft.mpt.util.Config.*;
 import static net.amigocraft.mpt.util.MiscUtil.*;
 
 import com.google.gson.JsonObject;
@@ -32,7 +33,6 @@ import net.amigocraft.mpt.Main;
 
 import com.google.gson.JsonElement;
 import net.amigocraft.mpt.util.MPTException;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import java.io.File;
@@ -68,26 +68,26 @@ public class RemoveRepositoryCommand extends SubcommandManager {
 						FileWriter writer = new FileWriter(store); // initialize writer
 						writer.write(Main.gson.toJson(Main.repoStore)); // write JSON
 						writer.flush(); // flush writer to disk
-						sender.sendMessage(ChatColor.DARK_PURPLE + "[MPT] Successfully removed repository " +
-								ChatColor.AQUA + id + ChatColor.DARK_PURPLE + " from local store.");
+						sender.sendMessage(INFO_COLOR + "[MPT] Successfully removed repository " +
+								ID_COLOR + id + INFO_COLOR + " from local store.");
 					}
 					catch (IOException ex){
 						ex.printStackTrace();
-						sender.sendMessage(ChatColor.RED + "[MPT] Failed to remove repository from local store!");
+						sender.sendMessage(ERROR_COLOR + "[MPT] Failed to remove repository from local store!");
 					}
 				}
 				else // repo doesn't exist in local store
-					sender.sendMessage(ChatColor.RED + "[MPT] Cannot find repo with given ID!");
+					sender.sendMessage(ERROR_COLOR + "[MPT] Cannot find repo with given ID!");
 				unlockStores();
 			}
 			else if (args.length < 2)
-				sender.sendMessage(ChatColor.RED + "[MPT] Too few arguments! Type " + ChatColor.GOLD +
-						"/mpt help" + ChatColor.RED + " for help.");
+				sender.sendMessage(ERROR_COLOR + "[MPT] Too few arguments! Type " + COMMAND_COLOR +
+						"/mpt help" + ERROR_COLOR + " for help.");
 			else
-				sender.sendMessage(ChatColor.RED + "[MPT] Too many arguments! Type " + ChatColor.GOLD +
-						"/mpt help" + ChatColor.RED + " for help.");
+				sender.sendMessage(ERROR_COLOR + "[MPT] Too many arguments! Type " + COMMAND_COLOR +
+						"/mpt help" + ERROR_COLOR + " for help.");
 		}
 		else
-			sender.sendMessage(ChatColor.RED + "[MPT] You do not have permission to use this command!");
+			sender.sendMessage(ERROR_COLOR + "[MPT] You do not have permission to use this command!");
 	}
 }

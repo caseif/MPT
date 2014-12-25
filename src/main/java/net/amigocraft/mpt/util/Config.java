@@ -26,8 +26,14 @@
 package net.amigocraft.mpt.util;
 
 import net.amigocraft.mpt.Main;
+import org.bukkit.ChatColor;
 
 public class Config {
+
+	public static final ChatColor INFO_COLOR = ChatColor.DARK_PURPLE;
+	public static final ChatColor ERROR_COLOR = ChatColor.RED;
+	public static final ChatColor COMMAND_COLOR = ChatColor.GOLD;
+	public static final ChatColor ID_COLOR = ChatColor.AQUA;
 
 	public static final boolean VERBOSE;
 

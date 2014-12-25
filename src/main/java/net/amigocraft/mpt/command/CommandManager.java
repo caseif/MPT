@@ -25,7 +25,8 @@
  */
 package net.amigocraft.mpt.command;
 
-import org.bukkit.ChatColor;
+import static net.amigocraft.mpt.util.Config.*;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -51,13 +52,13 @@ public class CommandManager implements CommandExecutor {
 					new HelpCommand(sender, args).handle();
 				}
 				else {
-					sender.sendMessage(ChatColor.RED + "[MPT] Invalid command! Type " + ChatColor.DARK_PURPLE +
-							"/mpt help" + ChatColor.RED + " for help.");
+					sender.sendMessage(ERROR_COLOR + "[MPT] Invalid command! Type " + COMMAND_COLOR +
+							"/mpt help" + ERROR_COLOR + " for help.");
 				}
 			}
 			else {
-				sender.sendMessage(ChatColor.RED + "[MPT] Too few arguments! Type " + ChatColor.DARK_PURPLE +
-						"/mpt help" + ChatColor.RED + " for help.");
+				sender.sendMessage(ERROR_COLOR + "[MPT] Too few arguments! Type " + COMMAND_COLOR +
+						"/mpt help" + ERROR_COLOR + " for help.");
 			}
 			return true;
 		}

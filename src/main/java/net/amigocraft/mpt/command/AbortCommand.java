@@ -25,6 +25,8 @@
  */
 package net.amigocraft.mpt.command;
 
+import static net.amigocraft.mpt.util.Config.*;
+
 import net.amigocraft.mpt.Main;
 import net.amigocraft.mpt.util.MiscUtil;
 import org.bukkit.Bukkit;
@@ -44,6 +46,6 @@ public class AbortCommand extends SubcommandManager {
 			MiscUtil.unlockStores();
 		}
 		else
-			sender.sendMessage("You do not have permission to use this command!");
+			sender.sendMessage(ERROR_COLOR + "[MPT] You do not have permission to use this command!");
 	}
 }

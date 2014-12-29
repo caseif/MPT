@@ -30,6 +30,7 @@ import static net.amigocraft.mpt.util.MiscUtil.*;
 
 import com.google.gson.*;
 import net.amigocraft.mpt.Main;
+import net.amigocraft.mpt.util.Config;
 import net.amigocraft.mpt.util.MPTException;
 import net.amigocraft.mpt.util.MiscUtil;
 import org.bukkit.Bukkit;
@@ -90,7 +91,8 @@ public class UpdateCommand extends SubcommandManager {
 						}
 						catch (IOException ex){
 							ex.printStackTrace();
-							threadSafeSendMessage(sender, "Failed to write package store to disk!");
+							threadSafeSendMessage(sender, ERROR_COLOR +
+									"[MPT] Failed to write package store to disk!");
 						}
 						unlockStores();
 					}
@@ -98,7 +100,7 @@ public class UpdateCommand extends SubcommandManager {
 			}
 		}
 		catch (MPTException ex){
-			threadSafeSendMessage(sender, ex.getMessage());
+			threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
 		}
 	}
 
@@ -109,32 +111,40 @@ public class UpdateCommand extends SubcommandManager {
 			String repoId = json.get("id").getAsString();
 			JsonObject packages = json.getAsJsonObject("packages");
 			for (Map.Entry<String, JsonElement> e : packages.entrySet()){
+				String id = e.getKey();
 				JsonObject o = e.getValue().getAsJsonObject();
-				if (o.has("name") && o.has("description") && o.has("version") && o.has("url")){
-					String id = e.getKey();
-					String name = o.get("name").getAsString();
-					String desc = o.get("description").getAsString();
-					String version = o.get("version").getAsString();
-					String url = o.get("url").getAsString();
-					if (VERBOSE)
-						Main.log.info("Fetching package \"" + id + "\"");
-					JsonObject localPackages = Main.packageStore.getAsJsonObject("packages");
-					JsonObject pObj = new JsonObject();
-					pObj.addProperty("repo", repoId);
-					pObj.addProperty("name", name);
-					pObj.addProperty("description", desc);
-					pObj.addProperty("version", version);
-					pObj.addProperty("url", url);
-					localPackages.add(id, pObj);
+				if (o.has("name") && o.has("version") && o.has("url")){
+					if (o.has("sha1") || !Config.ENFORCE_CHECKSUM){
+						String name = o.get("name").getAsString();
+						String desc = o.has("description") ? o.get("description").getAsString() : "";
+						String version = o.get("version").getAsString();
+						String url = o.get("url").getAsString();
+						String sha1 = o.has("sha1") ? o.get("sha1").getAsString() : "";
+						if (VERBOSE)
+							Main.log.info("Fetching package \"" + id + "\"");
+						JsonObject localPackages = Main.packageStore.getAsJsonObject("packages");
+						JsonObject pObj = new JsonObject();
+						pObj.addProperty("repo", repoId);
+						pObj.addProperty("name", name);
+						if (!desc.isEmpty())
+							pObj.addProperty("description", desc);
+						pObj.addProperty("version", version);
+						pObj.addProperty("url", url);
+						if (!sha1.isEmpty())
+							pObj.addProperty("sha1", sha1);
+						localPackages.add(id, pObj);
+					}
+					else if (VERBOSE)
+						Main.log.info("Missing SHA-1 checksum for package \"" + id + ".\" Ignoring package...");
 				}
 				else if (VERBOSE)
 					Main.log.info("Found invalid package definition in repository \"" + repoId + "\"");
 			}
 		}
 		catch (MPTException ex){
-			threadSafeSendMessage(sender, ex.getMessage());
+			threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
 		}
-		threadSafeSendMessage(sender, "[MPT] Finished updating local package store!");
+		threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Finished updating local package store!");
 		if (!(sender instanceof ConsoleCommandSender))
 			Main.log.info(INFO_COLOR + "Finished updating local package store!");
 	}

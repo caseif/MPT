@@ -97,11 +97,11 @@ public class MiscUtil {
 						return json;
 					}
 					else
-						throw new MPTException(ERROR_COLOR + "[MPT] Index for repository at " + path +
+						throw new MPTException("Index for repository at " + path +
 								"is missing required elements!");
 				}
 				else {
-					String error = ERROR_COLOR + "[MPT] Remote returned bad response code! (" + response + ")";
+					String error = "Remote returned bad response code! (" + response + ")";
 					if (!http.getResponseMessage().isEmpty())
 						error += " The remote says: " + ChatColor.GRAY +
 								ChatColor.ITALIC + http.getResponseMessage();
@@ -109,20 +109,26 @@ public class MiscUtil {
 				}
 			}
 			else
-				throw new MPTException(ERROR_COLOR + "[MPT] Bad protocol for URL!");
+				throw new MPTException("Bad protocol for URL!");
 		}
 		catch (MalformedURLException ex){
-			throw new MPTException(ERROR_COLOR + "[MPT] Cannot parse URL!");
+			throw new MPTException("Cannot parse URL!");
 		}
 		catch (IOException ex){
-			throw new MPTException(ERROR_COLOR + "[MPT] Cannot open connection to URL!");
+			throw new MPTException("Cannot open connection to URL!");
 		}
 		catch (JsonParseException ex){
-			throw new MPTException(ERROR_COLOR + "[MPT] Repository index is not valid JSON!");
+			throw new MPTException("Repository index is not valid JSON!");
 		}
 	}
 
-	public static String sha1(String path){ // convenience method for calculating SHA-1 hash of a file
+	/**
+	 * Calculates the SHA-1 hash for the file at the given path.
+	 * @param path the location of the file to hash
+	 * @return the SHA-1 checksum for the file
+	 * @throws MPTException if a stream cannot be opened to the file
+	 */
+	public static String sha1(String path) throws MPTException {
 		try {
 			MessageDigest md = MessageDigest.getInstance("SHA-1");
 			FileInputStream fis = new FileInputStream(path);
@@ -146,11 +152,28 @@ public class MiscUtil {
 			return sb.toString();
 		}
 		catch (Exception ex){
-			ex.printStackTrace();
-			System.err.println("Failed to calculate checksum for " + path);
+			if (Config.ENFORCE_CHECKSUM)
+				throw new MPTException("Failed to get checksum for local package " + ID_COLOR +  path +
+						INFO_COLOR + "!");
 		}
-
 		return null;
+	}
+
+	public static int getFileSize(URL url){
+		HttpURLConnection conn = null;
+		try {
+			conn = (HttpURLConnection)url.openConnection();
+			conn.setRequestMethod("HEAD"); // joke's on you if the server doesn't specify
+			conn.getInputStream();
+			return conn.getContentLength();
+		}
+		catch (Exception e){
+			return -1;
+		}
+		finally {
+			if (conn != null)
+				conn.disconnect();
+		}
 	}
 
 }

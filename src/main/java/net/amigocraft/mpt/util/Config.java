@@ -36,9 +36,11 @@ public class Config {
 	public static final ChatColor ID_COLOR = ChatColor.AQUA;
 
 	public static final boolean VERBOSE;
+	public static final boolean ENFORCE_CHECKSUM;
 
 	static {
 		VERBOSE = Main.plugin.getConfig().getBoolean("verbose");
+		ENFORCE_CHECKSUM = Main.plugin.getConfig().getBoolean("enforce-checksum");
 	}
 
 }

@@ -120,6 +120,8 @@ public class InstallCommand extends SubcommandManager {
 												Bukkit.getWorldContainer(),
 												files
 										);
+										if (!KEEP_ARCHIVES)
+											file.delete();
 										pack.addProperty("installed", version);
 										JsonArray fileArray = new JsonArray();
 										for (String str : files)
@@ -127,14 +129,14 @@ public class InstallCommand extends SubcommandManager {
 										pack.add("files", fileArray);
 										try {
 											writePackageStore();
+											threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully installed " +
+													ID_COLOR + name + " v" + version);
 										}
 										catch (IOException ex){
 											ex.printStackTrace();
 											threadSafeSendMessage(sender, ERROR_COLOR +
 													"[MPT] Failed to write package store to disk!");
 										}
-										threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully installed " +
-												ID_COLOR + name + " v" + version);
 										if (!success)
 											threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] Some files were not " +
 													"extracted. Use verbose logging for details.");

@@ -79,6 +79,13 @@ public class RemoveCommand extends SubcommandManager {
 										}
 										else
 											Main.log.warning("No file listing for package " + id + "!");
+										File archive = new File(Main.plugin.getDataFolder(), "cache" + File.separator +
+												id + ".zip");
+										if (archive.exists()){
+											if (!archive.delete() && VERBOSE){
+												Main.log.warning("Failed to delete archive from cache");
+											}
+										}
 										pack.remove("installed");
 										try {
 											writePackageStore();

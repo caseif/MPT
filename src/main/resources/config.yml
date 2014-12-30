@@ -5,6 +5,9 @@
 # If true, detailed but potentially unneeded logging information will be printed to the console.
 verbose: false
 
+# If true, package archives will be kept in the plugin cache after installing.
+keep-archives: false
+
 ########################################################################
 # Options below this marker are there for your protection.             #
 # Please know that by changing them you are doing so at your own risk. #

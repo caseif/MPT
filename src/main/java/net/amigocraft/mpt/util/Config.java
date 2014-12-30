@@ -39,6 +39,7 @@ public class Config {
 	public static final ChatColor ID_COLOR = ChatColor.AQUA;
 
 	public static final boolean VERBOSE;
+	public static final boolean KEEP_ARCHIVES;
 	public static final boolean ENFORCE_CHECKSUM;
 	public static final boolean DISALLOW_OVERWRITE;
 	public static final boolean DISALLOW_MERGE;
@@ -48,6 +49,7 @@ public class Config {
 	static {
 		FileConfiguration cfg = Main.plugin.getConfig();
 		VERBOSE = cfg.getBoolean("verbose");
+		KEEP_ARCHIVES = cfg.getBoolean("keep-archives");
 		ENFORCE_CHECKSUM = cfg.getBoolean("enforce-checksum");
 		DISALLOW_OVERWRITE = cfg.getBoolean("disallow-overwrite");
 		DISALLOW_MERGE = cfg.getBoolean("disallow-merge");

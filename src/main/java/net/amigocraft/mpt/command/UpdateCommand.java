@@ -38,7 +38,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 
@@ -85,9 +84,7 @@ public class UpdateCommand extends SubcommandManager {
 					public void run(){
 						connectAndUpdate(url);
 						try {
-							FileWriter writer = new FileWriter(pStoreFile); // get a writer for the store file
-							writer.write(Main.gson.toJson(Main.packageStore)); // write to disk
-							writer.flush();
+							writePackageStore();
 						}
 						catch (IOException ex){
 							ex.printStackTrace();

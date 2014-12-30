@@ -101,9 +101,7 @@ public class AddRepositoryCommand extends SubcommandManager {
 			repoElement.addProperty("url", path); // set the repo URL
 			lockStores();
 			Main.repoStore.getAsJsonObject("repositories").add(id, repoElement);
-			FileWriter writer = new FileWriter(store); // get a writer for the store file
-			writer.write(Main.gson.toJson(Main.repoStore)); // write to disk
-			writer.flush();
+			writeRepositoryStore();
 			unlockStores();
 			// apt-get doesn't fetch packages when a repo is added, so I'm following that precedent
 			threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully added " +

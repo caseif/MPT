@@ -29,7 +29,6 @@ import static net.amigocraft.mpt.util.Config.*;
 import static net.amigocraft.mpt.util.MiscUtil.*;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.amigocraft.mpt.Main;
@@ -41,7 +40,6 @@ import org.bukkit.command.CommandSender;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -128,11 +126,7 @@ public class InstallCommand extends SubcommandManager {
 											fileArray.add(new JsonPrimitive(str));
 										pack.add("files", fileArray);
 										try {
-											FileWriter writer = new FileWriter( // get a writer for the store file
-													new File(Main.plugin.getDataFolder(), "packages.json")
-											);
-											writer.write(Main.gson.toJson(Main.packageStore)); // write to disk
-											writer.flush();
+											writePackageStore();
 										}
 										catch (IOException ex){
 											ex.printStackTrace();

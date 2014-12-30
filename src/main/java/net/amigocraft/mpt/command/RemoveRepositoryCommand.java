@@ -36,7 +36,6 @@ import net.amigocraft.mpt.util.MPTException;
 import org.bukkit.command.CommandSender;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 
 public class RemoveRepositoryCommand extends SubcommandManager {
@@ -65,9 +64,7 @@ public class RemoveRepositoryCommand extends SubcommandManager {
 					if (!store.exists()) // avoid dumb errors
 						Main.initializeRepoStore(store);
 					try {
-						FileWriter writer = new FileWriter(store); // initialize writer
-						writer.write(Main.gson.toJson(Main.repoStore)); // write JSON
-						writer.flush(); // flush writer to disk
+						writeRepositoryStore();
 						sender.sendMessage(INFO_COLOR + "[MPT] Successfully removed repository " +
 								ID_COLOR + id + INFO_COLOR + " from local store.");
 					}

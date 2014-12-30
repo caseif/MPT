@@ -41,7 +41,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -202,8 +201,6 @@ public class MiscUtil {
 								Main.log.warning("Refusing to extract directory " + name + ": already exists");
 						}
 					}
-					else
-						files.add(name);
 				}
 				else {
 					files.add(name);
@@ -261,6 +258,30 @@ public class MiscUtil {
 			throw new MPTException("Failed to extract archive!");
 		}
 		return returnValue;
+	}
+
+	/**
+	 * Writes the repository store to disk. This method is <strong>not</strong> thread-safe; the stores much be locked
+	 * by the caller.
+	 * @throws IOException if an exception occurs while writing data to the disk
+	 */
+	public static void writeRepositoryStore() throws IOException {
+		File file = new File(Main.plugin.getDataFolder(), "repositories.json");
+		FileWriter writer = new FileWriter(file); // get a writer for the store file
+		writer.write(Main.gson.toJson(Main.repoStore)); // write to disk
+		writer.flush();
+	}
+
+	/**
+	 * Writes the package store to disk. This method is <strong>not</strong> thread-safe; the stores much be locked
+	 * by the caller.
+	 * @throws IOException if an exception occurs while writing data to the disk
+	 */
+	public static void writePackageStore() throws IOException {
+		File file = new File(Main.plugin.getDataFolder(), "packages.json");
+		FileWriter writer = new FileWriter(file); // get a writer for the store file
+		writer.write(Main.gson.toJson(Main.packageStore)); // write to disk
+		writer.flush();
 	}
 
 }

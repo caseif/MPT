@@ -58,11 +58,11 @@ public class HelpCommand extends SubcommandManager {
 						"mpt.install"});
 		commands.put("install",
 				new String[]{"Installs the package(s) with the given ID(s).",
-						"/mpt install {package1} {package2}...",
+						"/mpt install [package1] {package2}...",
 						"mpt.install"});
 		commands.put("remove",
 				new String[]{"Removes the package(s) with the given ID(s).",
-						"/mpt remove {package1} {package2}...",
+						"/mpt remove [package1] {package2}...",
 						"mpt.install"});
 		commands.put("abort",
 				new String[]{"Attempts to abort any currently running tasks and unlock the local stores. This " +

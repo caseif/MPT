@@ -184,7 +184,7 @@ public class MiscUtil {
 	public static boolean unzip(ZipFile zip, File dest, List<String> files) throws MPTException {
 		boolean returnValue = true;
 		try {
-			List<String> existingDirs = new ArrayList<String>();
+			List<String> existingDirs = new ArrayList<>();
 			Enumeration<? extends ZipEntry> en = zip.entries();
 			entryLoop:
 			while (en.hasMoreElements()){

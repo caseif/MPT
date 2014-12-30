@@ -49,7 +49,6 @@ public class RemoveRepositoryCommand extends SubcommandManager {
 		if (sender.hasPermission("mpt.repos")){
 			if (args.length == 2){
 				String id = args[1];
-				JsonElement remove = null;
 				try {
 					lockStores();
 				}

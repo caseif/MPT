@@ -120,7 +120,7 @@ public class Main extends JavaPlugin {
 			log.severe("Failed to initialize repository store!");
 		}
 		catch(MPTException ex){
-			log.info(ex.getMessage());
+			log.severe(ex.getMessage());
 		}
 		MiscUtil.unlockStores();
 	}
@@ -147,7 +147,7 @@ public class Main extends JavaPlugin {
 			MiscUtil.unlockStores();
 		}
 		catch (MPTException ex){
-			log.info(ex.getMessage());
+			log.severe(ex.getMessage());
 		}
 	}
 

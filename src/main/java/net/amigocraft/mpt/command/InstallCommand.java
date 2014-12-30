@@ -114,7 +114,7 @@ public class InstallCommand extends SubcommandManager {
 									threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully downloaded content! " +
 											"Installing...");
 									try {
-										List<String> files = new ArrayList<String>();
+										List<String> files = new ArrayList<>();
 										boolean success = MiscUtil.unzip(
 												new ZipFile(file),
 												Bukkit.getWorldContainer(),

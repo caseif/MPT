@@ -36,30 +36,35 @@ public class CommandManager implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
 		if (label.equalsIgnoreCase("mpt")){ // probably not necessary, actually, but whatever
 			if (args.length > 0){
-				if (args[0].equalsIgnoreCase("add-repo")){
-					new AddRepositoryCommand(sender, args).handle();
-				}
-				else if (args[0].equalsIgnoreCase("remove-repo")){
-					new RemoveRepositoryCommand(sender, args).handle();
-				}
-				else if (args[0].equalsIgnoreCase("update")){
-					new UpdateCommand(sender, args).handle();
-				}
-				else if (args[0].equalsIgnoreCase("install")){
-					new InstallCommand(sender, args).handle();
-				}
-				else if (args[0].equalsIgnoreCase("remove")){
-					new RemoveCommand(sender, args).handle();
-				}
-				else if (args[0].equalsIgnoreCase("abort")){
-					new AbortCommand(sender, args).handle();
-				}
-				else if (args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("?")){
-					new HelpCommand(sender, args).handle();
-				}
-				else {
-					sender.sendMessage(ERROR_COLOR + "[MPT] Invalid command! Type " + COMMAND_COLOR +
-							"/mpt help" + ERROR_COLOR + " for help.");
+				switch (args[0]){
+					case "add-repo":
+						new AddRepositoryCommand(sender, args).handle();
+						break;
+					case "remove-repo":
+						new RemoveRepositoryCommand(sender, args).handle();
+						break;
+					case "update":
+						new UpdateCommand(sender, args).handle();
+						break;
+					case "install":
+						new InstallCommand(sender, args).handle();
+						break;
+					case "remove":
+						new RemoveCommand(sender, args).handle();
+						break;
+					case "abort":
+						new AbortCommand(sender, args).handle();
+						break;
+					case "help":
+						new HelpCommand(sender, args).handle();
+						break;
+					case "?":
+						new HelpCommand(sender, args).handle();
+						break;
+					default:
+						sender.sendMessage(ERROR_COLOR + "[MPT] Invalid command! Type " + COMMAND_COLOR +
+								"/mpt help" + ERROR_COLOR + " for help.");
+						break;
 				}
 			}
 			else {

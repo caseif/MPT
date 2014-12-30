@@ -125,7 +125,12 @@ public class UpdateCommand extends SubcommandManager {
 						JsonObject localPackages = Main.packageStore.getAsJsonObject("packages");
 						String installed = localPackages.has(id) &&
 								localPackages.getAsJsonObject(id).has("installed") ?
-								localPackages.getAsJsonObject(id).get("installed").getAsString() : "";
+								localPackages.getAsJsonObject(id).get("installed").getAsString() :
+								"";
+						JsonArray files = localPackages.has(id) &&
+								localPackages.getAsJsonObject(id).has("files") ?
+								localPackages.getAsJsonObject(id).getAsJsonArray("files") :
+								null;
 						JsonObject pObj = new JsonObject();
 						pObj.addProperty("repo", repoId);
 						pObj.addProperty("name", name);
@@ -137,6 +142,8 @@ public class UpdateCommand extends SubcommandManager {
 							pObj.addProperty("sha1", sha1);
 						if (!installed.isEmpty())
 							pObj.addProperty("installed", installed);
+						if (files != null)
+							pObj.add("files", files);
 						localPackages.add(id, pObj);
 					}
 					else if (VERBOSE)

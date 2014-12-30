@@ -1,0 +1,13 @@
+// this file must be named "mpt.json" to be picked up by the plugin, and comments must be removed
+{
+  "id": "ExampleRepo", // repo ID
+  "packages": {
+	"supercoolmap": { // package IDs should be all lowercase
+	  "name": "Super Cool Map", // user-friendly name
+	  "description": "A super-cool map for super-cool people", // description to be shown to the user
+	  "version": "0.1", // version should follow format "MAJOR.MINOR.INCREMENTAL"
+	  "url": "http://example.com/mpt/content/supercool.zip", // URL to the package content (must be a ZIP)
+	  "sha1": "54f29d86443cd2ca25db7c0eadfeb3bcf7446dc8" // SHA-1 hash for the content at the above URL
+	}
+  }
+}

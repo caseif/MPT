@@ -182,7 +182,7 @@ public class MiscUtil {
 		}
 	}
 
-	public static boolean unzip(ZipFile zip, File dest) throws MPTException {
+	public static boolean unzip(ZipFile zip, File dest, List<String> files) throws MPTException {
 		boolean returnValue = true;
 		try {
 			List<String> existingDirs = new ArrayList<String>();
@@ -190,19 +190,27 @@ public class MiscUtil {
 			entryLoop:
 			while (en.hasMoreElements()){
 				ZipEntry entry = en.nextElement();
-				File file = new File(dest, entry.getName());
+				String name = entry.getName().startsWith("./") ?
+						entry.getName().substring(2, entry.getName().length()) :
+						entry.getName();
+				File file = new File(dest, name);
 				if (entry.isDirectory()){
 					if (file.exists()){
-						existingDirs.add(entry.getName());
-						if (VERBOSE)
-							Main.log.warning("Refusing to extract directory " + entry.getName() + ": already exists");
+						if (DISALLOW_MERGE){
+							existingDirs.add(name);
+							if (VERBOSE)
+								Main.log.warning("Refusing to extract directory " + name + ": already exists");
+						}
 					}
+					else
+						files.add(name);
 				}
 				else {
+					files.add(name);
 					for (String dir : DISALLOWED_DIRECTORIES){
 						if (file.getPath().startsWith(dir)){
 							if (VERBOSE)
-								Main.log.warning("Refusing to extract " + entry.getName() + " from " + zip.getName() +
+								Main.log.warning("Refusing to extract " + name + " from " + zip.getName() +
 										": parent directory \"" + dir + "\" is not allowed");
 							continue entryLoop;
 						}
@@ -219,7 +227,7 @@ public class MiscUtil {
 					}
 					if (!DISALLOW_OVERWRITE || !file.exists()){
 						file.getParentFile().mkdirs();
-						String ext = entry.getName().split("\\.")[entry.getName().split("\\.").length - 1];
+						String ext = name.split("\\.")[name.split("\\.").length - 1];
 						if (!DISALLOWED_EXTENSIONS.contains(ext)){
 							BufferedInputStream bIs = new BufferedInputStream(zip.getInputStream(entry));
 							int b;
@@ -234,14 +242,14 @@ public class MiscUtil {
 						}
 						else {
 							if (VERBOSE)
-								Main.log.warning("Refusing to extract " + entry.getName() + " from " + zip.getName() +
+								Main.log.warning("Refusing to extract " + name + " from " + zip.getName() +
 										": extension \"" + ext + "\" is not allowed");
 							returnValue = false;
 						}
 					}
 					else {
 						if (VERBOSE)
-							Main.log.warning("Refusing to extract " + entry.getName() + " from " + zip.getName() +
+							Main.log.warning("Refusing to extract " + name + " from " + zip.getName() +
 									": already exists");
 						returnValue = false;
 					}

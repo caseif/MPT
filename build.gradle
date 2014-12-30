@@ -70,7 +70,10 @@ shadowJar {
 // License header formatting
 license {
 	header file('LICENSE')
-	exclude '*.txt'
+	excludes([
+			'**/*.json',
+			'**/*.txt',
+			'**/*.yml'])
 	sourceSets = project.sourceSets
 	ignoreFailures false
 	strictCheck true

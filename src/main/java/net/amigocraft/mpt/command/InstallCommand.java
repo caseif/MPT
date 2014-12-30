@@ -28,7 +28,10 @@ package net.amigocraft.mpt.command;
 import static net.amigocraft.mpt.util.Config.*;
 import static net.amigocraft.mpt.util.MiscUtil.*;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import net.amigocraft.mpt.Main;
 import net.amigocraft.mpt.util.Config;
 import net.amigocraft.mpt.util.MPTException;
@@ -44,6 +47,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipFile;
 
 public class InstallCommand extends SubcommandManager {
@@ -77,7 +82,7 @@ public class InstallCommand extends SubcommandManager {
 		}
 		else
 			sender.sendMessage(ERROR_COLOR + "[MPT] Too few arguments! Type " + COMMAND_COLOR + "/mpt help" +
-			ERROR_COLOR + " for help.");
+					ERROR_COLOR + " for help.");
 	}
 
 	private void downloadPackage(String id) throws MPTException {
@@ -85,70 +90,84 @@ public class InstallCommand extends SubcommandManager {
 		if (packages != null){
 			JsonObject pack = packages.getAsJsonObject(id);
 			if (pack != null){
-				if (pack.has("name") && pack.has("version") && pack.has("url")){
-					if (pack.has("sha1") || !Config.ENFORCE_CHECKSUM){
-						String name = pack.get("name").getAsString();
-						String version = pack.get("version").getAsString();
-						String fullName = name + " v" + version;
-						String url = pack.get("url").getAsString();
-						String sha1 = pack.has("sha1") ? pack.get("sha1").getAsString() : "";
-						threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Downloading package " + ID_COLOR + fullName +
-								INFO_COLOR + "...");
-						try {URLConnection conn = new URL(url).openConnection();
-							conn.connect();
-							ReadableByteChannel rbc = Channels.newChannel(conn.getInputStream());
-							File file = new File(Main.plugin.getDataFolder(), "cache" + File.separator + id + ".zip");
-							file.setReadable(true, false);
-							file.setWritable(true, false);
-							file.getParentFile().mkdirs();
-							file.createNewFile();
-							FileOutputStream os = new FileOutputStream(file);
-							os.getChannel().transferFrom(rbc, 0, MiscUtil.getFileSize(new URL(url)));
-							os.close();
-							if (sha1.isEmpty() || sha1(file.getAbsolutePath()).equals(sha1)){
-								threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully downloaded content! " +
-										"Installing...");
-								try {
-									boolean success = MiscUtil.unzip(new ZipFile(file), Bukkit.getWorldContainer());
-									pack.addProperty("installed", version);
+				if (!pack.has("installed")){ //TODO: compare versions
+					if (pack.has("name") && pack.has("version") && pack.has("url")){
+						if (pack.has("sha1") || !Config.ENFORCE_CHECKSUM){
+							String name = pack.get("name").getAsString();
+							String version = pack.get("version").getAsString();
+							String fullName = name + " v" + version;
+							String url = pack.get("url").getAsString();
+							String sha1 = pack.has("sha1") ? pack.get("sha1").getAsString() : "";
+							threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Downloading package " + ID_COLOR + fullName +
+									INFO_COLOR + "...");
+							try {
+								URLConnection conn = new URL(url).openConnection();
+								conn.connect();
+								ReadableByteChannel rbc = Channels.newChannel(conn.getInputStream());
+								File file = new File(Main.plugin.getDataFolder(), "cache" + File.separator + id + ".zip");
+								file.setReadable(true, false);
+								file.setWritable(true, false);
+								file.getParentFile().mkdirs();
+								file.createNewFile();
+								FileOutputStream os = new FileOutputStream(file);
+								os.getChannel().transferFrom(rbc, 0, MiscUtil.getFileSize(new URL(url)));
+								os.close();
+								if (sha1.isEmpty() || sha1(file.getAbsolutePath()).equals(sha1)){
+									threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully downloaded content! " +
+											"Installing...");
 									try {
-										FileWriter writer = new FileWriter // get a writer for the store file
-												(new File(Main.plugin.getDataFolder(), "packages.json")
-												);
-										writer.write(Main.gson.toJson(Main.packageStore)); // write to disk
-										writer.flush();
+										List<String> files = new ArrayList<String>();
+										boolean success = MiscUtil.unzip(
+												new ZipFile(file),
+												Bukkit.getWorldContainer(),
+												files
+										);
+										pack.addProperty("installed", version);
+										JsonArray fileArray = new JsonArray();
+										for (String str : files)
+											fileArray.add(new JsonPrimitive(str));
+										pack.add("files", fileArray);
+										try {
+											FileWriter writer = new FileWriter( // get a writer for the store file
+													new File(Main.plugin.getDataFolder(), "packages.json")
+											);
+											writer.write(Main.gson.toJson(Main.packageStore)); // write to disk
+											writer.flush();
+										}
+										catch (IOException ex){
+											ex.printStackTrace();
+											threadSafeSendMessage(sender, ERROR_COLOR +
+													"[MPT] Failed to write package store to disk!");
+										}
+										threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully installed " +
+												ID_COLOR + name + " v" + version);
+										if (!success)
+											threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] Some files were not " +
+													"extracted. Use verbose logging for details.");
 									}
 									catch (IOException ex){
-										ex.printStackTrace();
-										threadSafeSendMessage(sender, ERROR_COLOR +
-												"[MPT] Failed to write package store to disk!");
+										throw new MPTException("Failed to access archive!");
 									}
-									threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully installed " +
-											ID_COLOR + name + " v" + version);
-									if (!success)
-										threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] Some files were not " +
-												"extracted. Use verbose logging for details.");
 								}
-								catch (IOException ex){
-									throw new MPTException("Failed to access archive!");
+								else {
+									file.delete();
+									throw new MPTException("Failed to install package " + ID_COLOR + fullName +
+											ERROR_COLOR + ": checksum mismatch!");
 								}
 							}
-							else {
-								file.delete();
-								throw new MPTException("Failed to install package " + ID_COLOR + fullName + INFO_COLOR +
-										": checksum mismatch!");
+							catch (IOException ex){
+								throw new MPTException("Failed to download package " + ID_COLOR + fullName);
 							}
 						}
-						catch (IOException ex){
-							throw new MPTException("Failed to download package " + ID_COLOR + fullName + INFO_COLOR);
-						}
+						else
+							throw new MPTException("Package " + ID_COLOR + id + ERROR_COLOR +
+									" is missing SHA-1 checksum! Aborting...");
 					}
 					else
-						throw new MPTException("Package " + ID_COLOR + id + INFO_COLOR +
-								" is missing SHA-1 checksum! Aborting...");
+						throw new MPTException("Package " + ID_COLOR + id + ERROR_COLOR + " is missing required elements!");
 				}
 				else
-					throw new MPTException("Package " + ID_COLOR + id + INFO_COLOR + " is missing required elements!");
+					throw new MPTException("Package " + ID_COLOR + id + ERROR_COLOR + " is already installed!");
 			}
 			else
 				throw new MPTException("Cannot find package with id " + ID_COLOR + id);

@@ -38,11 +38,13 @@ import org.bukkit.command.CommandSender;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.zip.ZipFile;
 
 public class InstallCommand extends SubcommandManager {
 
@@ -55,15 +57,20 @@ public class InstallCommand extends SubcommandManager {
 		if (args.length > 1){
 			Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
 				public void run(){
-					for (int i = 1; i < args.length; i++){
-						threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Fetching package " + ID_COLOR + args[i] +
-								INFO_COLOR + "...");
-						try {
-							downloadPackage(args[i]);
+					try {
+						lockStores();
+						for (int i = 1; i < args.length; i++){
+							try {
+								downloadPackage(args[i]);
+							}
+							catch (MPTException ex){
+								threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
+							}
 						}
-						catch (MPTException ex){
-							threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
-						}
+						unlockStores();
+					}
+					catch (MPTException ex){
+						threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
 					}
 				}
 			});
@@ -82,10 +89,11 @@ public class InstallCommand extends SubcommandManager {
 					if (pack.has("sha1") || !Config.ENFORCE_CHECKSUM){
 						String name = pack.get("name").getAsString();
 						String version = pack.get("version").getAsString();
+						String fullName = name + " v" + version;
 						String url = pack.get("url").getAsString();
 						String sha1 = pack.has("sha1") ? pack.get("sha1").getAsString() : "";
-						threadSafeSendMessage(sender, INFO_COLOR + "Installing package " + ID_COLOR + name + " v" +
-								version + INFO_COLOR + "...");
+						threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Downloading package " + ID_COLOR + fullName +
+								INFO_COLOR + "...");
 						try {URLConnection conn = new URL(url).openConnection();
 							conn.connect();
 							ReadableByteChannel rbc = Channels.newChannel(conn.getInputStream());
@@ -97,10 +105,42 @@ public class InstallCommand extends SubcommandManager {
 							FileOutputStream os = new FileOutputStream(file);
 							os.getChannel().transferFrom(rbc, 0, MiscUtil.getFileSize(new URL(url)));
 							os.close();
-							extractPackage(id);
+							if (sha1.isEmpty() || sha1(file.getAbsolutePath()).equals(sha1)){
+								threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully downloaded content! " +
+										"Installing...");
+								try {
+									boolean success = MiscUtil.unzip(new ZipFile(file), Bukkit.getWorldContainer());
+									pack.addProperty("installed", version);
+									try {
+										FileWriter writer = new FileWriter // get a writer for the store file
+												(new File(Main.plugin.getDataFolder(), "packages.json")
+												);
+										writer.write(Main.gson.toJson(Main.packageStore)); // write to disk
+										writer.flush();
+									}
+									catch (IOException ex){
+										ex.printStackTrace();
+										threadSafeSendMessage(sender, ERROR_COLOR +
+												"[MPT] Failed to write package store to disk!");
+									}
+									threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully installed " +
+											ID_COLOR + name + " v" + version);
+									if (!success)
+										threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] Some files were not " +
+												"extracted. Use verbose logging for details.");
+								}
+								catch (IOException ex){
+									throw new MPTException("Failed to access archive!");
+								}
+							}
+							else {
+								file.delete();
+								throw new MPTException("Failed to install package " + ID_COLOR + fullName + INFO_COLOR +
+										": checksum mismatch!");
+							}
 						}
 						catch (IOException ex){
-							throw new MPTException("Failed to download package " + ID_COLOR + id + INFO_COLOR + "!");
+							throw new MPTException("Failed to download package " + ID_COLOR + fullName + INFO_COLOR);
 						}
 					}
 					else
@@ -111,14 +151,10 @@ public class InstallCommand extends SubcommandManager {
 					throw new MPTException("Package " + ID_COLOR + id + INFO_COLOR + " is missing required elements!");
 			}
 			else
-				throw new MPTException("Cannot find package " + ID_COLOR + id);
+				throw new MPTException("Cannot find package with id " + ID_COLOR + id);
 		}
 		else {
 			throw new MPTException("Package store is malformed!");
 		}
-	}
-
-	private void extractPackage(String id) throws MPTException {
-		//TODO
 	}
 }

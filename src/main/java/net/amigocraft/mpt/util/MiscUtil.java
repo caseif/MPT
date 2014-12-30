@@ -41,7 +41,13 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
 import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class MiscUtil {
 
@@ -174,6 +180,79 @@ public class MiscUtil {
 			if (conn != null)
 				conn.disconnect();
 		}
+	}
+
+	public static boolean unzip(ZipFile zip, File dest) throws MPTException {
+		boolean returnValue = true;
+		try {
+			List<String> existingDirs = new ArrayList<String>();
+			Enumeration<? extends ZipEntry> en = zip.entries();
+			entryLoop:
+			while (en.hasMoreElements()){
+				ZipEntry entry = en.nextElement();
+				File file = new File(dest, entry.getName());
+				if (entry.isDirectory()){
+					if (file.exists()){
+						existingDirs.add(entry.getName());
+						if (VERBOSE)
+							Main.log.warning("Refusing to extract directory " + entry.getName() + ": already exists");
+					}
+				}
+				else {
+					for (String dir : DISALLOWED_DIRECTORIES){
+						if (file.getPath().startsWith(dir)){
+							if (VERBOSE)
+								Main.log.warning("Refusing to extract " + entry.getName() + " from " + zip.getName() +
+										": parent directory \"" + dir + "\" is not allowed");
+							continue entryLoop;
+						}
+					}
+					if (DISALLOW_MERGE){
+						for (String dir : existingDirs){
+							if (file.getPath()
+									.substring(2, file.getPath().length())
+									.replace(File.separator, "/")
+									.startsWith(dir)){
+								continue entryLoop;
+							}
+						}
+					}
+					if (!DISALLOW_OVERWRITE || !file.exists()){
+						file.getParentFile().mkdirs();
+						String ext = entry.getName().split("\\.")[entry.getName().split("\\.").length - 1];
+						if (!DISALLOWED_EXTENSIONS.contains(ext)){
+							BufferedInputStream bIs = new BufferedInputStream(zip.getInputStream(entry));
+							int b;
+							byte[] buffer = new byte[1024];
+							FileOutputStream fOs = new FileOutputStream(file);
+							BufferedOutputStream bOs = new BufferedOutputStream(fOs, 1024);
+							while ((b = bIs.read(buffer, 0, 1024)) != -1)
+								bOs.write(buffer, 0, b);
+							bOs.flush();
+							bOs.close();
+							bIs.close();
+						}
+						else {
+							if (VERBOSE)
+								Main.log.warning("Refusing to extract " + entry.getName() + " from " + zip.getName() +
+										": extension \"" + ext + "\" is not allowed");
+							returnValue = false;
+						}
+					}
+					else {
+						if (VERBOSE)
+							Main.log.warning("Refusing to extract " + entry.getName() + " from " + zip.getName() +
+									": already exists");
+						returnValue = false;
+					}
+				}
+			}
+		}
+		catch (Exception ex){
+			ex.printStackTrace(); //TODO
+			throw new MPTException("Failed to extract archive!");
+		}
+		return returnValue;
 	}
 
 }

@@ -27,6 +27,9 @@ package net.amigocraft.mpt.util;
 
 import net.amigocraft.mpt.Main;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.FileConfiguration;
+
+import java.util.List;
 
 public class Config {
 
@@ -37,10 +40,19 @@ public class Config {
 
 	public static final boolean VERBOSE;
 	public static final boolean ENFORCE_CHECKSUM;
+	public static final boolean DISALLOW_OVERWRITE;
+	public static final boolean DISALLOW_MERGE;
+	public static final List<String> DISALLOWED_EXTENSIONS;
+	public static final List<String> DISALLOWED_DIRECTORIES;
 
 	static {
-		VERBOSE = Main.plugin.getConfig().getBoolean("verbose");
-		ENFORCE_CHECKSUM = Main.plugin.getConfig().getBoolean("enforce-checksum");
+		FileConfiguration cfg = Main.plugin.getConfig();
+		VERBOSE = cfg.getBoolean("verbose");
+		ENFORCE_CHECKSUM = cfg.getBoolean("enforce-checksum");
+		DISALLOW_OVERWRITE = cfg.getBoolean("disallow-overwrite");
+		DISALLOW_MERGE = cfg.getBoolean("disallow-merge");
+		DISALLOWED_EXTENSIONS = cfg.getStringList("disallowed-extensions");
+		DISALLOWED_DIRECTORIES = cfg.getStringList("disalllowed-directories");
 	}
 
 }

@@ -50,6 +50,8 @@ public class Main extends JavaPlugin {
 		plugin = this;
 		log = this.getLogger();
 
+		saveDefaultConfig();
+
 		gson = new GsonBuilder().setPrettyPrinting().create(); // so the stores look decent when saved to disk
 
 		File rStoreFile = new File(getDataFolder(), "repositories.json");

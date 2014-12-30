@@ -123,6 +123,9 @@ public class UpdateCommand extends SubcommandManager {
 						if (VERBOSE)
 							Main.log.info("Fetching package \"" + id + "\"");
 						JsonObject localPackages = Main.packageStore.getAsJsonObject("packages");
+						String installed = localPackages.has(id) &&
+								localPackages.getAsJsonObject(id).has("installed") ?
+								localPackages.getAsJsonObject(id).get("installed").getAsString() : "";
 						JsonObject pObj = new JsonObject();
 						pObj.addProperty("repo", repoId);
 						pObj.addProperty("name", name);
@@ -132,13 +135,15 @@ public class UpdateCommand extends SubcommandManager {
 						pObj.addProperty("url", url);
 						if (!sha1.isEmpty())
 							pObj.addProperty("sha1", sha1);
+						if (!installed.isEmpty())
+							pObj.addProperty("installed", installed);
 						localPackages.add(id, pObj);
 					}
 					else if (VERBOSE)
-						Main.log.info("Missing SHA-1 checksum for package \"" + id + ".\" Ignoring package...");
+						Main.log.warning("Missing SHA-1 checksum for package \"" + id + ".\" Ignoring package...");
 				}
 				else if (VERBOSE)
-					Main.log.info("Found invalid package definition in repository \"" + repoId + "\"");
+					Main.log.warning("Found invalid package definition in repository \"" + repoId + "\"");
 			}
 		}
 		catch (MPTException ex){

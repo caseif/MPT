@@ -45,6 +45,9 @@ public class CommandManager implements CommandExecutor {
 				else if (args[0].equalsIgnoreCase("update")){
 					new UpdateCommand(sender, args).handle();
 				}
+				else if (args[0].equalsIgnoreCase("install")){
+					new InstallCommand(sender, args).handle();
+				}
 				else if (args[0].equalsIgnoreCase("abort")){
 					new AbortCommand(sender, args).handle();
 				}

@@ -27,14 +27,15 @@ package net.amigocraft.mpt.util;
 
 import static net.amigocraft.mpt.util.Config.*;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
 import net.amigocraft.mpt.Main;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.json.simple.JSONObject;
+import net.amigocraft.mpt.json.JSONPrettyPrinter;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -81,7 +82,7 @@ public class MiscUtil {
 		Main.LOCKED = false;
 	}
 
-	public static JsonObject getRemoteIndex(String path) throws MPTException {
+	public static JSONObject getRemoteIndex(String path) throws MPTException {
 		try {
 			URL url = new URL(path + (!path.endsWith("/") ? "/" : "") + "mpt.json"); // get URL object for data file
 			URLConnection conn = url.openConnection();
@@ -91,14 +92,14 @@ public class MiscUtil {
 				if (response >= 200 && response <= 299){ // verify the remote isn't upset at us
 					InputStream is = http.getInputStream(); // open a stream to the URL
 					BufferedReader reader = new BufferedReader(new InputStreamReader(is)); // get a reader
-					JsonParser parser = new JsonParser(); // get a new parser
+					JSONParser parser = new JSONParser(); // get a new parser
 					String line;
 					StringBuilder content = new StringBuilder();
 					while ((line = reader.readLine()) != null)
 						content.append(line);
-					JsonObject json = parser.parse(content.toString()).getAsJsonObject(); // parse JSON object
+					JSONObject json = (JSONObject)parser.parse(content.toString()); // parse JSON object
 					// vefify remote config is valid
-					if (json.has("packages") && json.get("packages").isJsonObject()){
+					if (json.containsKey("packages") && json.get("packages") instanceof JSONObject){
 						return json;
 					}
 					else
@@ -122,7 +123,7 @@ public class MiscUtil {
 		catch (IOException ex){
 			throw new MPTException(ERROR_COLOR + "Cannot open connection to URL!");
 		}
-		catch (JsonParseException ex){
+		catch (ParseException ex){
 			throw new MPTException(ERROR_COLOR + "Repository index is not valid JSON!");
 		}
 	}
@@ -268,7 +269,7 @@ public class MiscUtil {
 	public static void writeRepositoryStore() throws IOException {
 		File file = new File(Main.plugin.getDataFolder(), "repositories.json");
 		FileWriter writer = new FileWriter(file); // get a writer for the store file
-		writer.write(Main.gson.toJson(Main.repoStore)); // write to disk
+		writer.write(JSONPrettyPrinter.toJSONString(Main.repoStore)); // write to disk
 		writer.flush();
 	}
 
@@ -280,7 +281,7 @@ public class MiscUtil {
 	public static void writePackageStore() throws IOException {
 		File file = new File(Main.plugin.getDataFolder(), "packages.json");
 		FileWriter writer = new FileWriter(file); // get a writer for the store file
-		writer.write(Main.gson.toJson(Main.packageStore)); // write to disk
+		writer.write(JSONPrettyPrinter.toJSONString(Main.packageStore)); // write to disk
 		writer.flush();
 	}
 

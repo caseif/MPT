@@ -6,10 +6,9 @@ plugins {
 	id 'checkstyle'
 
     id 'com.github.hierynomus.license' version '0.11.0'
-	id 'com.github.johnrengelman.shadow' version '1.2.0'
 }
 
-defaultTasks 'clean', 'licenseFormat', 'build', 'shadowJar'
+defaultTasks 'clean', 'licenseFormat', 'build'
 
 // Project information
 group = 'net.amigocraft.mpt'
@@ -27,7 +26,6 @@ targetCompatibility = 1.7
 
 ext {
     bukkit = 'org.bukkit:bukkit:1.8-R0.1-SNAPSHOT'
-	gson = 'com.google.code.gson:gson:2.3.1'
 	updater = 'net.gravitydevelopment.updater:updater:2.3'
 	junit = 'junit:junit:4.12'
 }
@@ -42,7 +40,6 @@ repositories {
 // Project dependencies
 dependencies {
     compile bukkit
-	compile gson
 	compile updater
 	testCompile junit
 }
@@ -54,18 +51,6 @@ tasks.withType(JavaCompile) {
 
 processResources {
   filter { String line -> line.replace('SNAPSHOT', 'SNAPSHOT' + versionSuffix) }
-}
-
-jar { // The Pore classes will be created in Pore-VERSION-base.jar first
-	classifier = 'base'
-}
-
-shadowJar {
-	dependencies {
-		include dependency(gson)
-		include dependency(updater)
-	}
-	classifier = ''
 }
 
 // License header formatting

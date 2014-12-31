@@ -28,15 +28,14 @@ package net.amigocraft.mpt.command;
 import static net.amigocraft.mpt.util.Config.*;
 import static net.amigocraft.mpt.util.MiscUtil.*;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import net.amigocraft.mpt.Main;
 import net.amigocraft.mpt.util.Config;
 import net.amigocraft.mpt.util.MPTException;
 import net.amigocraft.mpt.util.MiscUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -84,19 +83,20 @@ public class InstallCommand extends SubcommandManager {
 					ERROR_COLOR + " for help.");
 	}
 
+	@SuppressWarnings("unchecked")
 	public static void downloadPackage(String id) throws MPTException {
-		JsonObject packages = Main.packageStore.getAsJsonObject("packages");
+		JSONObject packages = (JSONObject)Main.packageStore.get("packages");
 		if (packages != null){
-			JsonObject pack = packages.getAsJsonObject(id);
+			JSONObject pack = (JSONObject)packages.get(id);
 			if (pack != null){
-				if (pack.has("name") && pack.has("version") && pack.has("url")){
-					if (pack.has("sha1") || !Config.ENFORCE_CHECKSUM){
-						String name = pack.get("name").getAsString();
-						String version = pack.get("version").getAsString();
+				if (pack.containsKey("name") && pack.containsKey("version") && pack.containsKey("url")){
+					if (pack.containsKey("sha1") || !Config.ENFORCE_CHECKSUM){
+						String name = pack.get("name").toString();
+						String version = pack.get("version").toString();
 						String fullName = name + " v" + version;
-						String url = pack.get("url").getAsString();
-						String sha1 = pack.has("sha1") ? pack.get("sha1").getAsString() : "";
-						if (pack.has("installed")){ //TODO: compare versions
+						String url = pack.get("url").toString();
+						String sha1 = pack.containsKey("sha1") ? pack.get("sha1").toString() : "";
+						if (pack.containsKey("installed")){ //TODO: compare versions
 							throw new MPTException(ID_COLOR + name + ERROR_COLOR +
 									" is already installed");
 						}
@@ -145,9 +145,10 @@ public class InstallCommand extends SubcommandManager {
 			File file = new File(Main.plugin.getDataFolder(), "cache" + File.separator + id + ".zip");
 			if (!file.exists())
 				downloadPackage(id);
-			if (!Main.packageStore.has("packages") && Main.packageStore.getAsJsonObject("packages").has(id))
+			if (!Main.packageStore.containsKey("packages") &&
+					((JSONObject)Main.packageStore.get("packages")).containsKey(id))
 				throw new MPTException(ERROR_COLOR + "Cannot find package by id " + ID_COLOR + id + ERROR_COLOR + "!");
-			JsonObject pack = Main.packageStore.getAsJsonObject("packages").getAsJsonObject(id);
+			JSONObject pack = (JSONObject)((JSONObject)Main.packageStore.get("packages")).get(id);
 			List<String> files = new ArrayList<>();
 			lockStores();
 			boolean success = MiscUtil.unzip(
@@ -157,11 +158,11 @@ public class InstallCommand extends SubcommandManager {
 			);
 			if (!KEEP_ARCHIVES)
 				file.delete();
-			pack.addProperty("installed", pack.get("version").getAsString());
-			JsonArray fileArray = new JsonArray();
+			pack.put("installed", pack.get("version").toString());
+			JSONArray fileArray = new JSONArray();
 			for (String str : files)
-				fileArray.add(new JsonPrimitive(str));
-			pack.add("files", fileArray);
+				fileArray.add(str);
+			pack.put("files", fileArray);
 			try {
 				writePackageStore();
 			}

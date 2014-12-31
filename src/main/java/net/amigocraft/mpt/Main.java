@@ -25,11 +25,14 @@
  */
 package net.amigocraft.mpt;
 
-import com.google.gson.*;
 import net.amigocraft.mpt.command.CommandManager;
 import net.amigocraft.mpt.util.MPTException;
 import net.amigocraft.mpt.util.MiscUtil;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.json.simple.JSONObject;
+import net.amigocraft.mpt.json.JSONPrettyPrinter;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.*;
 import java.util.logging.Logger;
@@ -41,9 +44,8 @@ public class Main extends JavaPlugin {
 
 	public static long mainThreadId;
 
-	public static Gson gson = null;
-	public static JsonObject repoStore = null; // repo store
-	public static JsonObject packageStore = null; // package store
+	public static JSONObject repoStore = null; // repo store
+	public static JSONObject packageStore = null; // package store
 
 	public static boolean LOCKED = false;
 
@@ -56,16 +58,14 @@ public class Main extends JavaPlugin {
 
 		saveDefaultConfig();
 
-		gson = new GsonBuilder().setPrettyPrinting().create(); // so the stores look decent when saved to disk
-
 		File rStoreFile = new File(getDataFolder(), "repositories.json");
-		JsonParser parser = new JsonParser();
+		JSONParser parser = new JSONParser();
 		if (rStoreFile.exists()){ // repo store has been initialized
 			log.info("Loading local repository store...");
 			try {
-				repoStore = parser.parse(new FileReader(rStoreFile)).getAsJsonObject();
+				repoStore = (JSONObject)parser.parse(new FileReader(rStoreFile));
 			}
-			catch (IOException ex){
+			catch (IOException | ParseException ex){
 				ex.printStackTrace();
 				log.severe("Failed to load repository store!");
 			}
@@ -78,9 +78,9 @@ public class Main extends JavaPlugin {
 		if (pStoreFile.exists()){ // package store has been initialized
 			log.info("Loading local package store...");
 			try {
-				packageStore = parser.parse(new FileReader(pStoreFile)).getAsJsonObject();
+				packageStore = ((JSONObject)parser.parse(new FileReader(pStoreFile)));
 			}
-			catch (IOException ex){
+			catch (IOException | ParseException ex){
 				ex.printStackTrace();
 				log.severe("Failed to load package store!");
 			}
@@ -96,7 +96,6 @@ public class Main extends JavaPlugin {
 
 	@Override
 	public void onDisable(){
-		gson = null;
 		repoStore = null;
 		packageStore = null;
 		LOCKED = false;
@@ -109,14 +108,14 @@ public class Main extends JavaPlugin {
 		log.info("Initializing local repository store...");
 		try {
 			MiscUtil.lockStores();
-			JsonObject repos = new JsonObject(); // create an empty array
-			repoStore = new JsonObject(); // create an empty object
-			repoStore.add("repositories", repos); // add the array to it
+			JSONObject repos = new JSONObject(); // create an empty array
+			repoStore = new JSONObject(); // create an empty object
+			repoStore.put("repositories", repos); // add the array to it
 			if (!file.getParentFile().exists())
 				file.getParentFile().mkdir();
 			file.createNewFile(); // create the file
 			BufferedWriter writer = new BufferedWriter(new FileWriter(file)); // get a writer
-			writer.write(gson.toJson(repoStore)); // convert the JSON object to a string and write it
+			writer.write(JSONPrettyPrinter.toJSONString(repoStore)); // convert the JSON object to a string and write it
 			writer.flush();
 		}
 		catch (IOException ex){
@@ -133,15 +132,15 @@ public class Main extends JavaPlugin {
 		log.info("Initializing local package store...");
 		try {
 			MiscUtil.lockStores();
-			JsonObject packages = new JsonObject(); // create an empty array
-			packageStore = new JsonObject(); // create an empty object
-			packageStore.add("packages", packages); // add the array to it
+			JSONObject packages = new JSONObject(); // create an empty array
+			packageStore = new JSONObject(); // create an empty object
+			packageStore.put("packages", packages); // add the array to it
 			try {
 				if (!file.getParentFile().exists())
 					file.getParentFile().mkdir();
 				file.createNewFile(); // create the file
 				BufferedWriter writer = new BufferedWriter(new FileWriter(file)); // get a writer
-				writer.write(gson.toJson(packageStore)); // convert the JSON object to a string and write it
+				writer.write(JSONPrettyPrinter.toJSONString(packageStore)); // convert the JSON object to a string and write it
 				writer.flush();
 			}
 			catch (IOException ex){

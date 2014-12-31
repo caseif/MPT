@@ -30,14 +30,15 @@ import static net.amigocraft.mpt.util.MiscUtil.*;
 
 import net.amigocraft.mpt.Main;
 
-import com.google.gson.*;
 import net.amigocraft.mpt.util.MPTException;
 import net.amigocraft.mpt.util.MiscUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.json.simple.JSONObject;
 
 import java.io.*;
 import java.util.Map;
+import java.util.Set;
 
 public class AddRepositoryCommand extends SubcommandManager {
 
@@ -51,12 +52,13 @@ public class AddRepositoryCommand extends SubcommandManager {
 			if (args.length == 2){
 				final String path = args[1];
 				// get the main array from the JSON object
-				JsonObject repos = Main.repoStore.get("repositories").getAsJsonObject();
+				JSONObject repos = (JSONObject)Main.repoStore.get("repositories");
 				// verify the repo hasn't already been added
-				for (Map.Entry<String, JsonElement> e : repos.entrySet()){ // iterate repos in local store
-					JsonObject o = e.getValue().getAsJsonObject();
+				Set<Map.Entry> entries = repos.entrySet();
+				for (Map.Entry e : entries){ // iterate repos in local store
+					JSONObject o = (JSONObject)e.getValue();
 					// check URL
-					if (o.has("url") && o.get("url").getAsString().equalsIgnoreCase(path)){
+					if (o.containsKey("url") && o.get("url").toString().equalsIgnoreCase(path)){
 						sender.sendMessage(ERROR_COLOR + "[MPT] The repository at that URL has already been added!");
 						return;
 					}
@@ -91,19 +93,20 @@ public class AddRepositoryCommand extends SubcommandManager {
 			sender.sendMessage(ERROR_COLOR + "[MPT] You do not have access to this command!");
 	}
 
+	@SuppressWarnings("unchecked")
 	public static String addRepository(String path) throws MPTException {
 		if (Thread.currentThread().getId() == Main.mainThreadId)
 			throw new MPTException(ERROR_COLOR + "Repositories may not be added from the main thread!");
 		try {
-			JsonObject json = MiscUtil.getRemoteIndex(path);
-			String id = json.get("id").getAsString(); // get ID from remote
+			JSONObject json = MiscUtil.getRemoteIndex(path);
+			String id = json.get("id").toString(); // get ID from remote
 			File store = new File(Main.plugin.getDataFolder(), "repositories.json");
 			if (!store.exists())
 				Main.initializeRepoStore(store); // gotta initialize it before using it
 			lockStores();
-			JsonObject repoElement = new JsonObject(); // create a new JSON object
-			repoElement.addProperty("url", path); // set the repo URL
-			Main.repoStore.getAsJsonObject("repositories").add(id, repoElement);
+			JSONObject repoElement = new JSONObject(); // create a new JSON object
+			repoElement.put("url", path); // set the repo URL
+			((JSONObject)Main.repoStore.get("repositories")).put(id, repoElement);
 			writeRepositoryStore();
 			unlockStores();
 			return id;

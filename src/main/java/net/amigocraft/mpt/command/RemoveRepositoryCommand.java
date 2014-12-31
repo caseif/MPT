@@ -28,11 +28,11 @@ package net.amigocraft.mpt.command;
 import static net.amigocraft.mpt.util.Config.*;
 import static net.amigocraft.mpt.util.MiscUtil.*;
 
-import com.google.gson.JsonObject;
 import net.amigocraft.mpt.Main;
 
 import net.amigocraft.mpt.util.MPTException;
 import org.bukkit.command.CommandSender;
+import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,8 +69,8 @@ public class RemoveRepositoryCommand extends SubcommandManager {
 	}
 
 	public static void removeRepository(String id) throws MPTException {
-		JsonObject repos = Main.repoStore.getAsJsonObject("repositories");
-		if (repos.has(id)){
+		JSONObject repos = (JSONObject)Main.repoStore.get("repositories");
+		if (repos.containsKey(id)){
 			lockStores();
 			repos.remove(id); // remove it from memory
 			File store = new File(Main.plugin.getDataFolder(), "repositories.json"); // get the store file

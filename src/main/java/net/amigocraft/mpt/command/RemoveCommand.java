@@ -28,12 +28,12 @@ package net.amigocraft.mpt.command;
 import static net.amigocraft.mpt.util.Config.*;
 import static net.amigocraft.mpt.util.MiscUtil.*;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.amigocraft.mpt.Main;
 import net.amigocraft.mpt.util.MPTException;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,7 +53,7 @@ public class RemoveCommand extends SubcommandManager {
 								String id = args[i];
 								sender.sendMessage(INFO_COLOR + "Removing " + ID_COLOR + id + INFO_COLOR + "...");
 								removePackage(id);
-								sender.sendMessage("Successfully removed " + ID_COLOR + id);
+								sender.sendMessage(INFO_COLOR + "Successfully removed " + ID_COLOR + id);
 							}
 						}
 						catch (MPTException ex){
@@ -69,13 +69,13 @@ public class RemoveCommand extends SubcommandManager {
 	}
 
 	public static void removePackage(String id) throws MPTException {
-		if (Main.packageStore.getAsJsonObject("packages").has(id)){
-			JsonObject pack = Main.packageStore.getAsJsonObject("packages").getAsJsonObject(id);
-			if (pack.has("installed")){
+		if (((JSONObject)Main.packageStore.get("packages")).containsKey(id)){
+			JSONObject pack = (JSONObject)((JSONObject)Main.packageStore.get("packages")).get(id);
+			if (pack.containsKey("installed")){
 				lockStores();
-				if (pack.has("files")){
-					for (JsonElement e : pack.getAsJsonArray("files")){
-						File f = new File(Bukkit.getWorldContainer(), e.getAsString());
+				if (pack.containsKey("files")){
+					for (Object e : (JSONArray)pack.get("files")){
+						File f = new File(Bukkit.getWorldContainer(), e.toString());
 						if (f.exists()){
 							if (!f.delete()){
 								if (VERBOSE){

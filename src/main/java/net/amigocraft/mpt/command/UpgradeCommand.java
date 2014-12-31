@@ -28,14 +28,14 @@ package net.amigocraft.mpt.command;
 import static net.amigocraft.mpt.util.Config.*;
 import static net.amigocraft.mpt.util.MiscUtil.*;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.amigocraft.mpt.Main;
 import net.amigocraft.mpt.util.MPTException;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.json.simple.JSONObject;
 
 import java.util.Map;
+import java.util.Set;
 
 public class UpgradeCommand extends SubcommandManager {
 
@@ -44,6 +44,7 @@ public class UpgradeCommand extends SubcommandManager {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void handle(){
 		if (sender.hasPermission("mpt.install")){
 			Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
@@ -67,31 +68,42 @@ public class UpgradeCommand extends SubcommandManager {
 								threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
 							}
 						}
-						threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Finished uprgading packages!");
+						// the extra task is so the messages will be sent in the proper order
+						Bukkit.getScheduler().runTask(Main.plugin, new Runnable() {
+							public void run(){
+								threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Finished uprgading packages!");
+							}
+						});
 					}
 					else {
-						if (Main.packageStore.has("packages")){
+						if (Main.packageStore.containsKey("packages")){
 							threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Upgrading all installed packages...");
-							for (Map.Entry<String, JsonElement> e :
-									Main.packageStore.getAsJsonObject("packages").entrySet()){
-								if (e.getValue().getAsJsonObject().has("installed")){
+							Set<Map.Entry> entries = ((JSONObject)Main.packageStore.get("packages")).entrySet();
+							for (Map.Entry e : entries){
+								if (((JSONObject)e.getValue()).containsKey("installed")){
 									try {
-									String id = e.getKey();
-											threadSafeSendMessage(sender, INFO_COLOR +
-													"[MPT] Attempting to upgrade package " + ID_COLOR + id);
-									String v = upgradePackage(id);
-									if (v != null)
-										threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully upgraded " +
-												ID_COLOR + id + INFO_COLOR + " to " + ID_COLOR + "v" + v);
-									else
-										threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Package " + ID_COLOR + id +
-												INFO_COLOR + " is already up-to-date");
+										String id = e.getKey().toString();
+										threadSafeSendMessage(sender, INFO_COLOR +
+												"[MPT] Attempting to upgrade package " + ID_COLOR + id);
+										String v = upgradePackage(id);
+										if (v != null)
+											threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully upgraded " +
+													ID_COLOR + id + INFO_COLOR + " to " + ID_COLOR + "v" + v);
+										else
+											threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Package " + ID_COLOR + id +
+													INFO_COLOR + " is already up-to-date");
 									}
 									catch (MPTException ex){
 										threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
 									}
 								}
 							}
+							// the extra task is so the messages will be sent in the proper order
+							Bukkit.getScheduler().runTask(Main.plugin, new Runnable() {
+								public void run(){
+									threadSafeSendMessage(sender, INFO_COLOR+"[MPT] Finished uprgading packages!");
+								}
+							});
 						}
 						else
 							threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] Local package store is malformed!");
@@ -112,16 +124,17 @@ public class UpgradeCommand extends SubcommandManager {
 	public static String upgradePackage(String id) throws MPTException {
 		if (Thread.currentThread().getId() == Main.mainThreadId)
 			throw new MPTException(ERROR_COLOR + "Packages may not be upgraded from the main thread!");
-		if (Main.packageStore.has("packages") && Main.packageStore.getAsJsonObject("packages").has(id)){
-			JsonObject pack = Main.packageStore.getAsJsonObject("packages").getAsJsonObject(id);
-			if (pack.has("installed")){
-				if (pack.has("version")){
-					int diff = compareVersions(pack.get("installed").getAsString(), pack.get("version").getAsString());
+		if (Main.packageStore.containsKey("packages") &&
+				((JSONObject)Main.packageStore.get("packages")).containsKey(id)){
+			JSONObject pack = (JSONObject)((JSONObject)Main.packageStore.get("packages")).get(id);
+			if (pack.containsKey("installed")){
+				if (pack.containsKey("version")){
+					int diff = compareVersions(pack.get("installed").toString(), pack.get("version").toString());
 					if (diff > 0){
 						// easy way out
 						RemoveCommand.removePackage(id);
 						InstallCommand.installPackage(id);
-						return pack.get("version").getAsString();
+						return pack.get("version").toString();
 					}
 					else // up-to-date
 						return null;

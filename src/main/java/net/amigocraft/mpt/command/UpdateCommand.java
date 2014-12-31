@@ -28,17 +28,19 @@ package net.amigocraft.mpt.command;
 import static net.amigocraft.mpt.util.Config.*;
 import static net.amigocraft.mpt.util.MiscUtil.*;
 
-import com.google.gson.*;
 import net.amigocraft.mpt.Main;
 import net.amigocraft.mpt.util.Config;
 import net.amigocraft.mpt.util.MPTException;
 import net.amigocraft.mpt.util.MiscUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 
 public class UpdateCommand extends SubcommandManager {
 
@@ -67,6 +69,7 @@ public class UpdateCommand extends SubcommandManager {
 					ERROR_COLOR + " for help.");
 	}
 
+	@SuppressWarnings("unchecked")
 	public static void downloadRepos() throws MPTException {
 		if (Thread.currentThread().getId() == Main.mainThreadId)
 			throw new MPTException(ERROR_COLOR + "Package store may not be updated from the main thread!");
@@ -77,51 +80,53 @@ public class UpdateCommand extends SubcommandManager {
 		final File pStoreFile = new File(Main.plugin.getDataFolder(), "packages.json");
 		if (!pStoreFile.exists())
 			Main.initializePackageStore(pStoreFile);
-		JsonObject repos = Main.repoStore.getAsJsonObject("repositories");
-		for (Map.Entry<String, JsonElement> e : repos.entrySet()){
+		JSONObject repos = (JSONObject)Main.repoStore.get("repositories");
+		Set<Map.Entry> entries = repos.entrySet();
+		for (Map.Entry<String, JSONObject> e : entries){
 			final String id = e.getKey();
-			JsonObject repo = e.getValue().getAsJsonObject();
-			final String url = repo.get("url").getAsString();
+			JSONObject repo = (JSONObject)e.getValue();
+			final String url = repo.get("url").toString();
 			if (VERBOSE)
 				Main.log.info("Updating repository \"" + id + "\"");
-			JsonObject json = MiscUtil.getRemoteIndex(url);
-			String repoId = json.get("id").getAsString();
-			JsonObject packages = json.getAsJsonObject("packages");
-			for (Map.Entry<String, JsonElement> en : packages.entrySet()){
-				String packId = en.getKey();
-				JsonObject o = en.getValue().getAsJsonObject();
-				if (o.has("name") && o.has("version") && o.has("url")){
-					if (o.has("sha1") || !Config.ENFORCE_CHECKSUM){
-						String name = o.get("name").getAsString();
-						String desc = o.has("description") ? o.get("description").getAsString() : "";
-						String version = o.get("version").getAsString();
-						String contentUrl = o.get("url").getAsString();
-						String sha1 = o.has("sha1") ? o.get("sha1").getAsString() : "";
+			JSONObject json = MiscUtil.getRemoteIndex(url);
+			String repoId = json.get("id").toString();
+			JSONObject packages = (JSONObject)json.get("packages");
+			Set<Map.Entry> pEntries = packages.entrySet();
+			for (Map.Entry en : pEntries){
+				String packId = en.getKey().toString();
+				JSONObject o = (JSONObject)en.getValue();
+				if (o.containsKey("name") && o.containsKey("version") && o.containsKey("url")){
+					if (o.containsKey("sha1") || !Config.ENFORCE_CHECKSUM){
+						String name = o.get("name").toString();
+						String desc = o.containsKey("description") ? o.get("description").toString() : "";
+						String version = o.get("version").toString();
+						String contentUrl = o.get("url").toString();
+						String sha1 = o.containsKey("sha1") ? o.get("sha1").toString() : "";
 						if (VERBOSE)
 							Main.log.info("Fetching package \"" + packId + "\"");
-						JsonObject localPackages = Main.packageStore.getAsJsonObject("packages");
-						String installed = localPackages.has(packId) &&
-								localPackages.getAsJsonObject(packId).has("installed") ?
-								localPackages.getAsJsonObject(packId).get("installed").getAsString() :
+						JSONObject localPackages = (JSONObject)Main.packageStore.get("packages");
+						String installed = localPackages.containsKey(packId) &&
+								((JSONObject)localPackages.get(packId)).containsKey("installed") ?
+								(((JSONObject)localPackages.get(packId)).get("installed")).toString() :
 								"";
-						JsonArray files = localPackages.has(packId) &&
-								localPackages.getAsJsonObject(packId).has("files") ?
-								localPackages.getAsJsonObject(packId).getAsJsonArray("files") :
+						JSONArray files = localPackages.containsKey(packId) &&
+								((JSONObject)localPackages.get(packId)).containsKey("files") ?
+								((JSONArray)((JSONObject)localPackages.get(packId)).get("files")) :
 								null;
-						JsonObject pObj = new JsonObject();
-						pObj.addProperty("repo", repoId);
-						pObj.addProperty("name", name);
+						JSONObject pObj = new JSONObject();
+						pObj.put("repo", repoId);
+						pObj.put("name", name);
 						if (!desc.isEmpty())
-							pObj.addProperty("description", desc);
-						pObj.addProperty("version", version);
-						pObj.addProperty("url", contentUrl);
+							pObj.put("description", desc);
+						pObj.put("version", version);
+						pObj.put("url", contentUrl);
 						if (!sha1.isEmpty())
-							pObj.addProperty("sha1", sha1);
+							pObj.put("sha1", sha1);
 						if (!installed.isEmpty())
-							pObj.addProperty("installed", installed);
+							pObj.put("installed", installed);
 						if (files != null)
-							pObj.add("files", files);
-						localPackages.add(packId, pObj);
+							pObj.put("files", files);
+						localPackages.put(packId, pObj);
 					}
 					else if (VERBOSE)
 						Main.log.warning("Missing checksum for package \"" + packId + ".\" Ignoring package...");

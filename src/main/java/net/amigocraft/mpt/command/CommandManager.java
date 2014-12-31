@@ -58,6 +58,9 @@ public class CommandManager implements CommandExecutor {
 					case "abort":
 						new AbortCommand(sender, args).handle();
 						break;
+					case "reload":
+						new ReloadCommand(sender, args).handle();
+						break;
 					case "help":
 						new HelpCommand(sender, args).handle();
 						break;

@@ -56,7 +56,7 @@ public class UpdateCommand extends SubcommandManager {
 				public void run(){
 					try {
 						threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Updating local package store...");
-						downloadRepos();
+						updateStore();
 						threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Finished updating local package store!");
 					}
 					catch (MPTException ex){
@@ -71,7 +71,7 @@ public class UpdateCommand extends SubcommandManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void downloadRepos() throws MPTException {
+	public static void updateStore() throws MPTException {
 		if (Thread.currentThread().getId() == Main.mainThreadId)
 			throw new MPTException(ERROR_COLOR + "Package store may not be updated from the main thread!");
 		lockStores();

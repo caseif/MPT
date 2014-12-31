@@ -42,6 +42,8 @@ public class CommandManager implements CommandExecutor {
 					new RemoveRepositoryCommand(sender, args).handle();
 				else if (args[0].equalsIgnoreCase("update"))
 					new UpdateCommand(sender, args).handle();
+				else if (args[0].equalsIgnoreCase("list-repos"))
+					new ListRepositoriesCommand(sender, args).handle();
 				else if (args[0].equalsIgnoreCase("upgrade"))
 					new UpgradeCommand(sender, args).handle();
 				else if (args[0].equalsIgnoreCase("install"))

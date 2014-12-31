@@ -29,6 +29,7 @@ ext {
     bukkit = 'org.bukkit:bukkit:1.8-R0.1-SNAPSHOT'
 	gson = 'com.google.code.gson:gson:2.3.1'
 	updater = 'net.gravitydevelopment.updater:updater:2.3'
+	junit = 'junit:junit:4.12'
 }
 
 // Project repositories
@@ -43,6 +44,7 @@ dependencies {
     compile bukkit
 	compile gson
 	compile updater
+	testCompile junit
 }
 
 // Read source files using UTF-8

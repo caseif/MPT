@@ -31,7 +31,6 @@ import static net.amigocraft.mpt.util.MiscUtil.*;
 import com.google.gson.JsonObject;
 import net.amigocraft.mpt.Main;
 
-import com.google.gson.JsonElement;
 import net.amigocraft.mpt.util.MPTException;
 import org.bukkit.command.CommandSender;
 

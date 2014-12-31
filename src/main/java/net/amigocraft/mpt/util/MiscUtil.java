@@ -284,4 +284,104 @@ public class MiscUtil {
 		writer.flush();
 	}
 
+	/**
+	 * Compares two version strings.
+	 * @param version1 the first version to compare
+	 * @param version2 the second version to compare
+	 * @return -1 if the first is more recent, 1 if the second is more recent, or 0 if the versions are equal
+	 */
+	public static int compareVersions(String version1, String version2){
+		// separate main version from qualifier
+		String vStr1 = version1.contains("-") ? version1.split("-")[0] : version1;
+		String vStr2 = version2.contains("-") ? version2.split("-")[0] : version2;
+
+		// compare major versions
+		int major1;
+		int major2;
+		try {
+			major1 = Integer.parseInt(vStr1.split("\\.")[0]);
+			if (major1 < 0)
+				throw new NumberFormatException();
+		}
+		catch (NumberFormatException ex){
+			throw new IllegalArgumentException("Version string \"" + vStr1 +
+					"\" contains invalid major version!");
+		}
+		try {
+			major2 = Integer.parseInt(vStr2.split("\\.")[0]);
+			if (major2 < 0)
+				throw new NumberFormatException();
+		}
+		catch (NumberFormatException ex){
+			throw new IllegalArgumentException("Version string \"" + vStr2 +
+					"\" contains invalid major version!");
+		}
+		if (major2 > major1)
+			return 1;
+		else if (major2 < major1)
+			return -1;
+		// else major versions are equal
+
+		// compare minor versions
+		int minor1;
+		int minor2;
+		try {
+			minor1 = vStr1.split("\\.").length > 1 ? Integer.parseInt(vStr1.split("\\.")[1]) : 0;
+			if (minor1 < 0)
+				throw new NumberFormatException();
+		}
+		catch (NumberFormatException ex){
+			throw new IllegalArgumentException("Version string \"" + vStr1 +
+					"\" contains invalid minor version!");
+		}
+		try {
+			minor2 = vStr2.split("\\.").length > 1 ? Integer.parseInt(vStr2.split("\\.")[1]) : 0;
+			if (minor2 < 0)
+				throw new NumberFormatException();
+		}
+		catch (NumberFormatException ex){
+			throw new IllegalArgumentException("Version string \"" + vStr2 +
+					"\" contains invalid minor version!");
+		}
+		if (minor2 > minor1)
+			return 1;
+		else if (minor2 < minor1)
+			return -1;
+		// else minor versions are equal
+
+		// compare incremental versions
+		int inc1;
+		int inc2;
+		try {
+			inc1 = vStr1.split("\\.").length > 2 ? Integer.parseInt(vStr1.split("\\.")[2]) : 0;
+			if (inc1 < 0)
+				throw new NumberFormatException();
+		}
+		catch (NumberFormatException ex){
+			throw new IllegalArgumentException("Version string \"" + vStr1 +
+					"\" contains invalid minor version!");
+		}
+		try {
+			inc2 = vStr2.split("\\.").length > 2 ? Integer.parseInt(vStr2.split("\\.")[2]) : 0;
+			if (inc2 < 0)
+				throw new NumberFormatException();
+		}
+		catch (NumberFormatException ex){
+			throw new IllegalArgumentException("Version string \"" + vStr2 +
+					"\" contains invalid minor version!");
+		}
+		if (inc2 > inc1)
+			return 1;
+		else if (inc2 < inc1)
+			return -1;
+		// else incremental versions are equal
+
+		String qual1 = version1.contains("-") ? version1.substring(version1.indexOf("-") + 1) : "";
+		String qual2 = version2.contains("-") ? version2.substring(version2.indexOf("-") + 1) : "";
+		int lex = qual1.compareTo(qual2);
+		if (lex > 0) return -1;
+		else if (lex < 0) return 1;
+		else return 0;
+	}
+
 }

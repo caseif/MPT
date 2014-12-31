@@ -45,7 +45,7 @@ public class RemoveRepositoryCommand extends SubcommandManager {
 
 	@Override
 	public void handle(){
-		if (sender.hasPermission("mpt.repos")){
+		if (!checkPerms()) return;
 			if (args.length == 2){
 				String id = args[1];
 				try {
@@ -63,9 +63,6 @@ public class RemoveRepositoryCommand extends SubcommandManager {
 			else
 				sender.sendMessage(ERROR_COLOR + "[MPT] Too many arguments! Type " + COMMAND_COLOR +
 						"/mpt help" + ERROR_COLOR + " for help.");
-		}
-		else
-			sender.sendMessage(ERROR_COLOR + "[MPT] You do not have permission to use this command!");
 	}
 
 	public static void removeRepository(String id) throws MPTException {

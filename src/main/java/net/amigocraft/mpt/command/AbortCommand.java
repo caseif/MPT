@@ -40,12 +40,9 @@ public class AbortCommand extends SubcommandManager {
 
 	@Override
 	public void handle(){
-		if (sender.hasPermission("mpt.abort")){
-			Main.log.info("Forcibly unlocking stores...");
-			Bukkit.getScheduler().cancelTasks(Main.plugin); // cancel any currently running tasks
-			MiscUtil.unlockStores();
-		}
-		else
-			sender.sendMessage(ERROR_COLOR + "[MPT] You do not have permission to use this command!");
+		if (!checkPerms()) return;
+		Main.log.info("Forcibly unlocking stores...");
+		Bukkit.getScheduler().cancelTasks(Main.plugin); // cancel any currently running tasks
+		MiscUtil.unlockStores();
 	}
 }

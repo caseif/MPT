@@ -46,7 +46,7 @@ public class RemoveCommand extends SubcommandManager {
 
 	@Override
 	public void handle(){
-		if (sender.hasPermission("mpt.install")){
+		if (sender.hasPermission("mpt.use")){
 			if (args.length > 1){
 						try {
 							for (int i = 1; i < args.length; i++){

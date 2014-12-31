@@ -36,34 +36,42 @@ import java.util.Map;
 
 public class HelpCommand extends SubcommandManager {
 
-	private static Map<String, String[]> commands;
+	static Map<String, String[]> commands;
 
 	static {
 		commands = new HashMap<String, String[]>();
 		commands.put("add-repo",
 				new String[]{"Adds the repository at the given URL to the local store",
 						"/mpt add-repo [url]",
-						"mpt.repos"});
+						"mpt.use"});
 		commands.put("remove-repo",
 				new String[]{"Removes the repository with the given ID from the local store.",
 						"/mpt remove-repo [id]",
-						"mpt.repos"});
+						"mpt.use"});
 		commands.put("update",
 				new String[]{"Updates the local package store from the remote repositories.",
 						"/mpt update",
-						"mpt.repos"});
+						"mpt.use"});
+		commands.put("list-repos",
+				new String[]{"Prints out all added repositories.",
+						"/mpt list-repos",
+						"mpt.use"});
 		commands.put("upgrade",
 				new String[]{"Upgrades the given package(s), or all if no arguments are provided.",
 						"/mpt upgrade {package1} {package2}...",
-						"mpt.install"});
+						"mpt.use"});
 		commands.put("install",
 				new String[]{"Installs the package(s) with the given ID(s).",
 						"/mpt install [package1] {package2}...",
-						"mpt.install"});
+						"mpt.use"});
 		commands.put("remove",
 				new String[]{"Removes the package(s) with the given ID(s).",
 						"/mpt remove [package1] {package2}...",
-						"mpt.install"});
+						"mpt.use"});
+		commands.put("list",
+				new String[]{"Prints out all installed packages.",
+						"/mpt list",
+						"mpt.use"});
 		commands.put("abort",
 				new String[]{"Attempts to abort any currently running tasks and unlock the local stores. This " +
 						"command is not officially supported and may mess up your stores. Use it as a last resort " +
@@ -83,19 +91,16 @@ public class HelpCommand extends SubcommandManager {
 
 	@Override
 	public void handle(){
-		if (sender.hasPermission("mpt.help")){
-			sender.sendMessage(INFO_COLOR + "Commands available to you:");
-			for (Map.Entry e : commands.entrySet()){
-				if (sender.hasPermission(((String[])e.getValue())[2])){
-					sender.sendMessage(ChatColor.DARK_GRAY + "-----------------------------------------------");
-					sender.sendMessage(COMMAND_COLOR + "/mpt " + e.getKey() + ChatColor.WHITE + " - " +
-							INFO_COLOR + ((String[])e.getValue())[0]);
-					sender.sendMessage(INFO_COLOR + "Usage: " + ((String[])e.getValue())[1]);
-					sender.sendMessage(INFO_COLOR + "Permission node: " + ((String[])e.getValue())[2]);
-				}
+		if (!checkPerms()) return;
+		sender.sendMessage(INFO_COLOR + "Commands available to you:");
+		for (Map.Entry e : commands.entrySet()){
+			if (sender.hasPermission(((String[])e.getValue())[2])){
+				sender.sendMessage(ChatColor.DARK_GRAY + "-----------------------------------------------");
+				sender.sendMessage(COMMAND_COLOR + "/mpt " + e.getKey() + ChatColor.WHITE + " - " +
+						INFO_COLOR + ((String[])e.getValue())[0]);
+				sender.sendMessage(INFO_COLOR + "Usage: " + ((String[])e.getValue())[1]);
+				sender.sendMessage(INFO_COLOR + "Permission node: " + ((String[])e.getValue())[2]);
 			}
 		}
-		else
-			sender.sendMessage(ERROR_COLOR + "You do not have access to this command!");
 	}
 }

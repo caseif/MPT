@@ -48,49 +48,46 @@ public class AddRepositoryCommand extends SubcommandManager {
 
 	@Override
 	public void handle(){
-		if (sender.hasPermission("mpt.repos")){
-			if (args.length == 2){
-				final String path = args[1];
-				// get the main array from the JSON object
-				JSONObject repos = (JSONObject)Main.repoStore.get("repositories");
-				// verify the repo hasn't already been added
-				Set<Map.Entry> entries = repos.entrySet();
-				for (Map.Entry e : entries){ // iterate repos in local store
-					JSONObject o = (JSONObject)e.getValue();
-					// check URL
-					if (o.containsKey("url") && o.get("url").toString().equalsIgnoreCase(path)){
-						sender.sendMessage(ERROR_COLOR + "[MPT] The repository at that URL has already been added!");
-						return;
+		if (!checkPerms()) return;
+		if (args.length == 2){
+			final String path = args[1];
+			// get the main array from the JSON object
+			JSONObject repos = (JSONObject)Main.repoStore.get("repositories");
+			// verify the repo hasn't already been added
+			Set<Map.Entry> entries = repos.entrySet();
+			for (Map.Entry e : entries){ // iterate repos in local store
+				JSONObject o = (JSONObject)e.getValue();
+				// check URL
+				if (o.containsKey("url") && o.get("url").toString().equalsIgnoreCase(path)){
+					sender.sendMessage(ERROR_COLOR + "[MPT] The repository at that URL has already been added!");
+					return;
+				}
+			}
+			// no way we're making the main thread wait for us to open and read the stream
+			Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable(){
+				public void run(){
+					try {
+						threadSafeSendMessage(sender, INFO_COLOR +
+								"[MPT] Attempting connection to repository...");
+						String id = addRepository(path);
+						threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully added " +
+								"repository under ID " + ID_COLOR + id + INFO_COLOR +
+								" to local store! You may now use " + COMMAND_COLOR + "/mpt update" +
+								INFO_COLOR + " to fetch available packages.");
+					}
+					catch (MPTException ex){
+						threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
 					}
 				}
-				// no way we're making the main thread wait for us to open and read the stream
-				Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable(){
-					public void run(){
-						try {
-							threadSafeSendMessage(sender, INFO_COLOR +
-									"[MPT] Attempting connection to repository...");
-							String id = addRepository(path);
-							threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully added " +
-									"repository under ID " + ID_COLOR + id + INFO_COLOR +
-									" to local store! You may now use " + COMMAND_COLOR + "/mpt update" +
-									INFO_COLOR + " to fetch available packages.");
-						}
-						catch (MPTException ex){
-							threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
-						}
-					}
 
-				});
-			}
-			else if (args.length < 2)
-				sender.sendMessage(ERROR_COLOR + "[MPT] Too few arguments! Type " + COMMAND_COLOR +
-						"/mpt help " + ERROR_COLOR + "for help");
-			else
-				sender.sendMessage(ERROR_COLOR + "[MPT] Too many arguments! Type " + COMMAND_COLOR +
-						"/mpt help " + ERROR_COLOR + "for help");
+			});
 		}
+		else if (args.length < 2)
+			sender.sendMessage(ERROR_COLOR + "[MPT] Too few arguments! Type " + COMMAND_COLOR +
+					"/mpt help " + ERROR_COLOR + "for help");
 		else
-			sender.sendMessage(ERROR_COLOR + "[MPT] You do not have access to this command!");
+			sender.sendMessage(ERROR_COLOR + "[MPT] Too many arguments! Type " + COMMAND_COLOR +
+					"/mpt help " + ERROR_COLOR + "for help");
 	}
 
 	@SuppressWarnings("unchecked")

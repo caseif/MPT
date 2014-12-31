@@ -38,6 +38,7 @@ public class ReloadCommand extends SubcommandManager {
 
 	@Override
 	public void handle(){
+		if (!checkPerms()) return;
 		sender.sendMessage(Config.INFO_COLOR + "[MPT] Reloading MPT...");
 		Bukkit.getPluginManager().disablePlugin(Main.plugin);
 		Bukkit.getPluginManager().enablePlugin(Bukkit.getPluginManager().getPlugin("MPT"));

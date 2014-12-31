@@ -56,6 +56,7 @@ public class InstallCommand extends SubcommandManager {
 
 	@Override
 	public void handle(){
+		if (!checkPerms()) return;
 		if (args.length > 1){
 			Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
 				public void run(){

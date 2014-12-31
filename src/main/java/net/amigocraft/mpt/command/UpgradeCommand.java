@@ -46,73 +46,70 @@ public class UpgradeCommand extends SubcommandManager {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void handle(){
-		if (sender.hasPermission("mpt.install")){
-			Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
-				public void run(){
-					if (args.length > 1){
-						threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Upgrading selected packages...");
-						for (int i = 1; i < args.length; i++){
-							String id = args[i];
-							try {
-								threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Attempting to upgrade package " +
-										ID_COLOR + id);
-								String v = upgradePackage(id);
-								if (v != null)
-									threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully upgraded " +
-											ID_COLOR + id + INFO_COLOR + " to " + ID_COLOR + "v" + v);
-								else
-									threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Package " + ID_COLOR + id +
-											INFO_COLOR + " is already up-to-date");
-							}
-							catch (MPTException ex){
-								threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
+		if (!checkPerms()) return;
+		Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
+			public void run(){
+				if (args.length > 1){
+					threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Upgrading selected packages...");
+					for (int i = 1; i < args.length; i++){
+						String id = args[i];
+						try {
+							threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Attempting to upgrade package " +
+									ID_COLOR + id);
+							String v = upgradePackage(id);
+							if (v != null)
+								threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully upgraded " +
+										ID_COLOR + id + INFO_COLOR + " to " + ID_COLOR + "v" + v);
+							else
+								threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Package " + ID_COLOR + id +
+										INFO_COLOR + " is already up-to-date");
+						}
+						catch (MPTException ex){
+							threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
+						}
+					}
+					// the extra task is so the messages will be sent in the proper order
+					Bukkit.getScheduler().runTask(Main.plugin, new Runnable() {
+						public void run(){
+							threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Finished uprgading packages!");
+						}
+					});
+				}
+				else {
+					if (Main.packageStore.containsKey("packages")){
+						threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Upgrading all installed packages...");
+						Set<Map.Entry> entries = ((JSONObject)Main.packageStore.get("packages")).entrySet();
+						for (Map.Entry e : entries){
+							if (((JSONObject)e.getValue()).containsKey("installed")){
+								try {
+									String id = e.getKey().toString();
+									threadSafeSendMessage(sender, INFO_COLOR +
+											"[MPT] Attempting to upgrade package " + ID_COLOR + id);
+									String v = upgradePackage(id);
+									if (v != null)
+										threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully upgraded " +
+												ID_COLOR + id + INFO_COLOR + " to " + ID_COLOR + "v" + v);
+									else
+										threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Package " + ID_COLOR + id +
+												INFO_COLOR + " is already up-to-date");
+								}
+								catch (MPTException ex){
+									threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
+								}
 							}
 						}
 						// the extra task is so the messages will be sent in the proper order
 						Bukkit.getScheduler().runTask(Main.plugin, new Runnable() {
 							public void run(){
-								threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Finished uprgading packages!");
+								threadSafeSendMessage(sender, INFO_COLOR+"[MPT] Finished uprgading packages!");
 							}
 						});
 					}
-					else {
-						if (Main.packageStore.containsKey("packages")){
-							threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Upgrading all installed packages...");
-							Set<Map.Entry> entries = ((JSONObject)Main.packageStore.get("packages")).entrySet();
-							for (Map.Entry e : entries){
-								if (((JSONObject)e.getValue()).containsKey("installed")){
-									try {
-										String id = e.getKey().toString();
-										threadSafeSendMessage(sender, INFO_COLOR +
-												"[MPT] Attempting to upgrade package " + ID_COLOR + id);
-										String v = upgradePackage(id);
-										if (v != null)
-											threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully upgraded " +
-													ID_COLOR + id + INFO_COLOR + " to " + ID_COLOR + "v" + v);
-										else
-											threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Package " + ID_COLOR + id +
-													INFO_COLOR + " is already up-to-date");
-									}
-									catch (MPTException ex){
-										threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
-									}
-								}
-							}
-							// the extra task is so the messages will be sent in the proper order
-							Bukkit.getScheduler().runTask(Main.plugin, new Runnable() {
-								public void run(){
-									threadSafeSendMessage(sender, INFO_COLOR+"[MPT] Finished uprgading packages!");
-								}
-							});
-						}
-						else
-							threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] Local package store is malformed!");
-					}
+					else
+						threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] Local package store is malformed!");
 				}
-			});;
-		}
-		else
-			sender.sendMessage(ERROR_COLOR + "You do not have permission to use this command!");
+			}
+		});;
 	}
 
 	/**

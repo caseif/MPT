@@ -72,9 +72,18 @@ public class AddRepositoryCommand extends SubcommandManager {
 				// no way we're making the main thread wait for us to open and read the stream
 				Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable(){
 					public void run(){
-						threadSafeSendMessage(sender, INFO_COLOR +
-								"[MPT] Attempting connection to repository...");
-						connectAndStore(path); // in separate method for organization purposes
+						try {
+							threadSafeSendMessage(sender, INFO_COLOR +
+									"[MPT] Attempting connection to repository...");
+							String id = connectAndStore(path);
+							threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully added " +
+									"repository under ID " + ID_COLOR + id + INFO_COLOR +
+									" to local store! You may now use " + COMMAND_COLOR + "/mpt update" +
+									INFO_COLOR + " to fetch available packages.");
+						}
+						catch (MPTException ex){
+							threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
+						}
 					}
 
 				});
@@ -90,7 +99,9 @@ public class AddRepositoryCommand extends SubcommandManager {
 			sender.sendMessage(ERROR_COLOR + "[MPT] You do not have access to this command!");
 	}
 
-	private void connectAndStore(String path){
+	public static String connectAndStore(String path) throws MPTException {
+		if (Thread.currentThread().getId() == Main.mainThreadId)
+			throw new MPTException(ERROR_COLOR + "Repositories may not be added from the main thread!");
 		try {
 			JsonObject json = MiscUtil.getRemoteIndex(path);
 			String id = json.get("id").getAsString(); // get ID from remote
@@ -103,18 +114,12 @@ public class AddRepositoryCommand extends SubcommandManager {
 			Main.repoStore.getAsJsonObject("repositories").add(id, repoElement);
 			writeRepositoryStore();
 			unlockStores();
+			return id;
 			// apt-get doesn't fetch packages when a repo is added, so I'm following that precedent
-			threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully added " +
-					"repository under ID " + ID_COLOR + id + INFO_COLOR +
-					" to local store! You may now use " + COMMAND_COLOR + "/mpt update" +
-					INFO_COLOR + " to fetch available packages.");
 		}
 		catch (IOException ex){
-			threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] Failed to add repository to local " +
+			throw new MPTException(ERROR_COLOR + "Failed to add repository to local " +
 					"store!");
-		}
-		catch (MPTException ex){
-			threadSafeSendMessage(sender, ex.getMessage());
 		}
 	}
 }

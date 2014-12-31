@@ -49,31 +49,13 @@ public class RemoveRepositoryCommand extends SubcommandManager {
 			if (args.length == 2){
 				String id = args[1];
 				try {
-					lockStores();
+					removeRepository(id);
+					sender.sendMessage(INFO_COLOR + "[MPT] Successfully removed repository " +
+							ID_COLOR + id + INFO_COLOR + " from local store.");
 				}
 				catch (MPTException ex){
-					threadSafeSendMessage(sender, ex.getMessage());
-					return;
+					sender.sendMessage(ERROR_COLOR + "[MPT] " + ex.getMessage());
 				}
-				JsonObject repos = Main.repoStore.getAsJsonObject("repositories");
-				if (repos.has(id)){
-					repos.remove(id); // remove it from memory
-					File store = new File(Main.plugin.getDataFolder(), "repositories.json"); // get the store file
-					if (!store.exists()) // avoid dumb errors
-						Main.initializeRepoStore(store);
-					try {
-						writeRepositoryStore();
-						sender.sendMessage(INFO_COLOR + "[MPT] Successfully removed repository " +
-								ID_COLOR + id + INFO_COLOR + " from local store.");
-					}
-					catch (IOException ex){
-						ex.printStackTrace();
-						sender.sendMessage(ERROR_COLOR + "[MPT] Failed to remove repository from local store!");
-					}
-				}
-				else // repo doesn't exist in local store
-					sender.sendMessage(ERROR_COLOR + "[MPT] Cannot find repo with given ID!");
-				unlockStores();
 			}
 			else if (args.length < 2)
 				sender.sendMessage(ERROR_COLOR + "[MPT] Too few arguments! Type " + COMMAND_COLOR +
@@ -84,5 +66,26 @@ public class RemoveRepositoryCommand extends SubcommandManager {
 		}
 		else
 			sender.sendMessage(ERROR_COLOR + "[MPT] You do not have permission to use this command!");
+	}
+
+	public static void removeRepository(String id) throws MPTException {
+		lockStores();
+		JsonObject repos = Main.repoStore.getAsJsonObject("repositories");
+		if (repos.has(id)){
+			repos.remove(id); // remove it from memory
+			File store = new File(Main.plugin.getDataFolder(), "repositories.json"); // get the store file
+			if (!store.exists()) // avoid dumb errors
+				Main.initializeRepoStore(store);
+			try {
+				writeRepositoryStore();
+			}
+			catch (IOException ex){
+				ex.printStackTrace();
+				throw new MPTException(ERROR_COLOR + "Failed to remove repository from local store!");
+			}
+		}
+		else // repo doesn't exist in local store
+			throw new MPTException(ERROR_COLOR + "Cannot find repo with given ID!");
+		unlockStores();
 	}
 }

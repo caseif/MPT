@@ -49,22 +49,17 @@ public class RemoveCommand extends SubcommandManager {
 	public void handle(){
 		if (sender.hasPermission("mpt.install")){
 			if (args.length > 1){
-				Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
-					public void run(){
 						try {
 							for (int i = 1; i < args.length; i++){
 								String id = args[i];
-								threadSafeSendMessage(sender, INFO_COLOR + "Removing " + ID_COLOR + id +
-										INFO_COLOR + "...");
+								sender.sendMessage(INFO_COLOR + "Removing " + ID_COLOR + id + INFO_COLOR + "...");
 								removePackage(id);
-								threadSafeSendMessage(sender, "Successfully removed " + ID_COLOR + id);
+								sender.sendMessage("Successfully removed " + ID_COLOR + id);
 							}
 						}
 						catch (MPTException ex){
 							sender.sendMessage(ERROR_COLOR + ex.getMessage());
 						}
-					}
-				});
 			}
 			else
 				sender.sendMessage(ERROR_COLOR + "[MPT] Too few arguments! Type " + COMMAND_COLOR + "/mpt help" +
@@ -78,8 +73,6 @@ public class RemoveCommand extends SubcommandManager {
 		lockStores();
 		if (Main.packageStore.getAsJsonObject("packages").has(id)){
 			JsonObject pack = Main.packageStore.getAsJsonObject("packages").getAsJsonObject(id);
-			String name = pack.get("name").getAsString() + " v" +
-					pack.get("version").getAsString();
 			if (pack.has("installed")){
 				if (pack.has("files")){
 					for (JsonElement e : pack.getAsJsonArray("files")){

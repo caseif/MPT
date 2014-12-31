@@ -142,6 +142,8 @@ public class InstallCommand extends SubcommandManager {
 	}
 
 	public static void installPackage(String id) throws MPTException {
+		if (Thread.currentThread().getId() == Main.mainThreadId)
+			throw new MPTException(ERROR_COLOR + "Packages may not be installed from the main thread!");
 		try {
 			File file = new File(Main.plugin.getDataFolder(), "cache" + File.separator + id + ".zip");
 			if (!file.exists())

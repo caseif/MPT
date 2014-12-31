@@ -39,6 +39,8 @@ public class Main extends JavaPlugin {
 	public static Main plugin; // plugin instance
 	public static Logger log; // logger instance
 
+	public static long mainThreadId;
+
 	public static Gson gson = null;
 	public static JsonObject repoStore = null; // repo store
 	public static JsonObject packageStore = null; // package store
@@ -49,6 +51,8 @@ public class Main extends JavaPlugin {
 	public void onEnable(){
 		plugin = this;
 		log = this.getLogger();
+
+		mainThreadId = Thread.currentThread().getId();
 
 		saveDefaultConfig();
 

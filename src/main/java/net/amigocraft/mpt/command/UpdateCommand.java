@@ -52,7 +52,14 @@ public class UpdateCommand extends SubcommandManager {
 		if (args.length  == 1){
 			Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable(){
 				public void run(){
-					downloadRepos();
+					try {
+						threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Updating local package store...");
+						downloadRepos();
+						threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Finished updating local package store!");
+					}
+					catch (MPTException ex){
+						threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
+					}
 				}
 			});
 		}
@@ -61,72 +68,46 @@ public class UpdateCommand extends SubcommandManager {
 					ERROR_COLOR + " for help.");
 	}
 
-	public void downloadRepos(){
-		try {
-			lockStores();
-			final File rStoreFile = new File(Main.plugin.getDataFolder(), "repositories.json");
-			if (!rStoreFile.exists())
-				Main.initializeRepoStore(rStoreFile); // gotta initialize it before using it
-			final File pStoreFile = new File(Main.plugin.getDataFolder(), "packages.json");
-			if (!pStoreFile.exists())
-				Main.initializePackageStore(pStoreFile);
-			JsonObject repos = Main.repoStore.getAsJsonObject("repositories");
-			threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Updating local package store...");
-			if (!(sender instanceof ConsoleCommandSender))
-				Main.log.info("Updating local package store");
-			for (Map.Entry<String, JsonElement> e : repos.entrySet()){
-				final String id = e.getKey();
-				JsonObject repo = e.getValue().getAsJsonObject();
-				final String url = repo.get("url").getAsString();
-				if (VERBOSE)
-					Main.log.info("Updating repository \"" + id + "\"");
-				Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
-					public void run(){
-						connectAndUpdate(url);
-						try {
-							writePackageStore();
-						}
-						catch (IOException ex){
-							ex.printStackTrace();
-							threadSafeSendMessage(sender, ERROR_COLOR +
-									"[MPT] Failed to write package store to disk!");
-						}
-						unlockStores();
-					}
-				});
-			}
-		}
-		catch (MPTException ex){
-			threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
-		}
-	}
-
-
-	private void connectAndUpdate(String path){
-		try {
-			JsonObject json = MiscUtil.getRemoteIndex(path);
+	public static void downloadRepos() throws MPTException {
+		if (Thread.currentThread().getId() == Main.mainThreadId)
+			throw new MPTException(ERROR_COLOR + "Package store may not be updated from the main thread!");
+		lockStores();
+		final File rStoreFile = new File(Main.plugin.getDataFolder(), "repositories.json");
+		if (!rStoreFile.exists())
+			Main.initializeRepoStore(rStoreFile); // gotta initialize it before using it
+		final File pStoreFile = new File(Main.plugin.getDataFolder(), "packages.json");
+		if (!pStoreFile.exists())
+			Main.initializePackageStore(pStoreFile);
+		JsonObject repos = Main.repoStore.getAsJsonObject("repositories");
+		for (Map.Entry<String, JsonElement> e : repos.entrySet()){
+			final String id = e.getKey();
+			JsonObject repo = e.getValue().getAsJsonObject();
+			final String url = repo.get("url").getAsString();
+			if (VERBOSE)
+				Main.log.info("Updating repository \"" + id + "\"");
+			JsonObject json = MiscUtil.getRemoteIndex(url);
 			String repoId = json.get("id").getAsString();
 			JsonObject packages = json.getAsJsonObject("packages");
-			for (Map.Entry<String, JsonElement> e : packages.entrySet()){
-				String id = e.getKey();
+			for (Map.Entry<String, JsonElement> en : packages.entrySet()){
+				String packId = e.getKey();
 				JsonObject o = e.getValue().getAsJsonObject();
 				if (o.has("name") && o.has("version") && o.has("url")){
 					if (o.has("sha1") || !Config.ENFORCE_CHECKSUM){
 						String name = o.get("name").getAsString();
 						String desc = o.has("description") ? o.get("description").getAsString() : "";
 						String version = o.get("version").getAsString();
-						String url = o.get("url").getAsString();
+						String contentUrl = o.get("url").getAsString();
 						String sha1 = o.has("sha1") ? o.get("sha1").getAsString() : "";
 						if (VERBOSE)
-							Main.log.info("Fetching package \"" + id + "\"");
+							Main.log.info("Fetching package \"" + packId + "\"");
 						JsonObject localPackages = Main.packageStore.getAsJsonObject("packages");
-						String installed = localPackages.has(id) &&
-								localPackages.getAsJsonObject(id).has("installed") ?
-								localPackages.getAsJsonObject(id).get("installed").getAsString() :
+						String installed = localPackages.has(packId) &&
+								localPackages.getAsJsonObject(packId).has("installed") ?
+								localPackages.getAsJsonObject(packId).get("installed").getAsString() :
 								"";
-						JsonArray files = localPackages.has(id) &&
-								localPackages.getAsJsonObject(id).has("files") ?
-								localPackages.getAsJsonObject(id).getAsJsonArray("files") :
+						JsonArray files = localPackages.has(packId) &&
+								localPackages.getAsJsonObject(packId).has("files") ?
+								localPackages.getAsJsonObject(packId).getAsJsonArray("files") :
 								null;
 						JsonObject pObj = new JsonObject();
 						pObj.addProperty("repo", repoId);
@@ -134,7 +115,7 @@ public class UpdateCommand extends SubcommandManager {
 						if (!desc.isEmpty())
 							pObj.addProperty("description", desc);
 						pObj.addProperty("version", version);
-						pObj.addProperty("url", url);
+						pObj.addProperty("url", contentUrl);
 						if (!sha1.isEmpty())
 							pObj.addProperty("sha1", sha1);
 						if (!installed.isEmpty())
@@ -149,12 +130,7 @@ public class UpdateCommand extends SubcommandManager {
 				else if (VERBOSE)
 					Main.log.warning("Found invalid package definition in repository \"" + repoId + "\"");
 			}
+			unlockStores();
 		}
-		catch (MPTException ex){
-			threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
-		}
-		threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Finished updating local package store!");
-		if (!(sender instanceof ConsoleCommandSender))
-			Main.log.info(INFO_COLOR + "Finished updating local package store!");
 	}
 }

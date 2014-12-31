@@ -25,18 +25,21 @@
  */
 package net.amigocraft.mpt.json;
 
+import org.json.simple.JSONAware;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class JSONPrettyPrinter extends HashMap {
 
 	private static final long serialVersionUID = -9168577804652055206L;
 
-	private static int column = 0;
+	static int column = 0;
 
-	private static final int INDENT = 2;
+	static final int INDENT = 2;
 
 	public static String toJSONString(Map map) throws IOException {
 
@@ -70,14 +73,14 @@ public class JSONPrettyPrinter extends HashMap {
 
 			Map.Entry entry = (Map.Entry)iter.next();
 			sb.append('\"');
-			sb.append(JSONPrettyValue.escape(String.valueOf(entry.getKey())));
+			sb.append(escape(String.valueOf(entry.getKey())));
 			sb.append('\"');
 			sb.append(':');
 			sb.append(' ');
 
 			sb.append(entry.getValue() instanceof Map ?
 					toJSONString((Map)entry.getValue()) :
-					JSONPrettyValue.toPrettyJSONString(entry.getValue()));
+					valueToJsonString(entry.getValue()));
 		}
 
 		sb.append(newLine);
@@ -87,6 +90,123 @@ public class JSONPrettyPrinter extends HashMap {
 			sb.append(' ');
 
 		sb.append('}');
+		return sb.toString();
+	}
+
+	public static String listToJsonString(List list) throws IOException {
+		StringBuilder sb = new StringBuilder();
+
+		if (list == null){
+			sb.append("null");
+			return sb.toString();
+		}
+
+		boolean first = true;
+		Iterator iter = list.iterator();
+
+		String newLine = System.getProperty("line.separator");
+
+		sb.append('[');
+		while (iter.hasNext()){
+			if (first)
+				first = false;
+			else
+				sb.append(',');
+			sb.append(newLine);
+			for (int i = 0; i < column * INDENT + 4; i++)
+				sb.append(' ');
+
+			Object value = iter.next();
+			if (value == null){
+				sb.append("null");
+				continue;
+			}
+
+			sb.append(valueToJsonString(value));
+		}
+		sb.append(newLine);
+		for (int i = 0; i < column * INDENT; i++)
+			sb.append(' ');
+		sb.append(']');
+		return sb.toString();
+	}
+
+	public static String valueToJsonString(Object value) throws IOException {
+		if(value == null)
+			return "null";
+
+		if(value instanceof String)
+			return "\"" + escape((String)value)+"\"";
+
+		if(value instanceof Double){
+			if(((Double)value).isInfinite() || ((Double)value).isNaN())
+				return "null";
+			else
+				return value.toString();
+		}
+
+		if(value instanceof Float){
+			if(((Float)value).isInfinite() || ((Float)value).isNaN())
+				return "null";
+			else
+				return value.toString();
+		}
+
+		if (value instanceof Number)
+			return value.toString();
+		if (value instanceof Boolean)
+			return value.toString();
+		if (value instanceof Map)
+			return JSONPrettyPrinter.toJSONString((Map)value);
+		if (value instanceof List)
+			return JSONPrettyPrinter.listToJsonString((List)value);
+		if ((value instanceof JSONAware))
+			return ((JSONAware)value).toJSONString();
+
+		return value.toString();
+	}
+
+	public static String escape(String str){
+		StringBuilder sb = new StringBuilder();
+
+		for (int i = 0; i < str.length(); i++){
+			char ch = str.charAt(i);
+			switch (ch){
+				case '"':
+					sb.append("\\\"");
+					break;
+				case '\\':
+					sb.append("\\\\");
+					break;
+				case '\b':
+					sb.append("\\b");
+					break;
+				case '\f':
+					sb.append("\\f");
+					break;
+				case '\n':
+					sb.append("\\n");
+					break;
+				case '\r':
+					sb.append("\\r");
+					break;
+				case '\t':
+					sb.append("\\t");
+					break;
+				default:
+					if ((ch <= '\u001F') || (ch >= '\u007F' && ch <= '\u009F') || (ch >= '\u2000' && ch <= '\u20FF')){
+						String ss=Integer.toHexString(ch);
+						sb.append("\\u");
+						for (int k = 0; k < 4 - ss.length(); k++){
+							sb.append('0');
+						}
+						sb.append(ss.toUpperCase());
+					}
+					else {
+						sb.append(ch);
+					}
+			}
+		}
 		return sb.toString();
 	}
 }

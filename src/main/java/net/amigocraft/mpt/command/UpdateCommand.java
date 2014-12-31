@@ -35,7 +35,6 @@ import net.amigocraft.mpt.util.MPTException;
 import net.amigocraft.mpt.util.MiscUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 
 import java.io.File;
 import java.io.IOException;
@@ -89,8 +88,8 @@ public class UpdateCommand extends SubcommandManager {
 			String repoId = json.get("id").getAsString();
 			JsonObject packages = json.getAsJsonObject("packages");
 			for (Map.Entry<String, JsonElement> en : packages.entrySet()){
-				String packId = e.getKey();
-				JsonObject o = e.getValue().getAsJsonObject();
+				String packId = en.getKey();
+				JsonObject o = en.getValue().getAsJsonObject();
 				if (o.has("name") && o.has("version") && o.has("url")){
 					if (o.has("sha1") || !Config.ENFORCE_CHECKSUM){
 						String name = o.get("name").getAsString();
@@ -122,15 +121,22 @@ public class UpdateCommand extends SubcommandManager {
 							pObj.addProperty("installed", installed);
 						if (files != null)
 							pObj.add("files", files);
-						localPackages.add(id, pObj);
+						localPackages.add(packId, pObj);
 					}
 					else if (VERBOSE)
-						Main.log.warning("Missing SHA-1 checksum for package \"" + id + ".\" Ignoring package...");
+						Main.log.warning("Missing checksum for package \"" + packId + ".\" Ignoring package...");
 				}
 				else if (VERBOSE)
-					Main.log.warning("Found invalid package definition in repository \"" + repoId + "\"");
+					Main.log.warning("Found invalid package definition \"" + packId + "\" in repository \"" +
+							repoId + "\"");
 			}
-			unlockStores();
 		}
+		try {
+			writePackageStore();
+		}
+		catch (IOException ex){
+			throw new MPTException(ERROR_COLOR + "Failed to save repository store to disk!");
+		}
+		unlockStores();
 	}
 }

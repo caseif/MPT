@@ -37,7 +37,6 @@ import net.amigocraft.mpt.util.MPTException;
 import net.amigocraft.mpt.util.MiscUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -62,7 +61,6 @@ public class InstallCommand extends SubcommandManager {
 			Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
 				public void run(){
 					try {
-						lockStores();
 						for (int i = 1; i < args.length; i++){
 							String id = args[i];
 							threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Downloading package " + ID_COLOR +
@@ -74,7 +72,6 @@ public class InstallCommand extends SubcommandManager {
 							threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully installed " +
 									ID_COLOR + id);
 						}
-						unlockStores();
 					}
 					catch (MPTException ex){
 						threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
@@ -152,6 +149,7 @@ public class InstallCommand extends SubcommandManager {
 				throw new MPTException(ERROR_COLOR + "Cannot find package by id " + ID_COLOR + id + ERROR_COLOR + "!");
 			JsonObject pack = Main.packageStore.getAsJsonObject("packages").getAsJsonObject(id);
 			List<String> files = new ArrayList<>();
+			lockStores();
 			boolean success = MiscUtil.unzip(
 					new ZipFile(file),
 					Bukkit.getWorldContainer(),
@@ -169,8 +167,10 @@ public class InstallCommand extends SubcommandManager {
 			}
 			catch (IOException ex){
 				ex.printStackTrace();
+				unlockStores();
 				throw new MPTException(ERROR_COLOR + "Failed to write package store to disk!");
 			}
+			unlockStores();
 			if (!success)
 				throw new MPTException(ERROR_COLOR + "Some files were not extracted. Use verbose logging for details.");
 		}

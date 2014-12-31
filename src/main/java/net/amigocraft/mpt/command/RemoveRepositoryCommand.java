@@ -69,9 +69,9 @@ public class RemoveRepositoryCommand extends SubcommandManager {
 	}
 
 	public static void removeRepository(String id) throws MPTException {
-		lockStores();
 		JsonObject repos = Main.repoStore.getAsJsonObject("repositories");
 		if (repos.has(id)){
+			lockStores();
 			repos.remove(id); // remove it from memory
 			File store = new File(Main.plugin.getDataFolder(), "repositories.json"); // get the store file
 			if (!store.exists()) // avoid dumb errors
@@ -81,11 +81,12 @@ public class RemoveRepositoryCommand extends SubcommandManager {
 			}
 			catch (IOException ex){
 				ex.printStackTrace();
+				unlockStores();
 				throw new MPTException(ERROR_COLOR + "Failed to remove repository from local store!");
 			}
+			unlockStores();
 		}
 		else // repo doesn't exist in local store
 			throw new MPTException(ERROR_COLOR + "Cannot find repo with given ID!");
-		unlockStores();
 	}
 }

@@ -51,15 +51,7 @@ public class AddRepositoryCommand extends SubcommandManager {
 			if (args.length == 2){
 				final String path = args[1];
 				// get the main array from the JSON object
-				try {
-					lockStores();
-				}
-				catch (MPTException ex){
-					threadSafeSendMessage(sender, ex.getMessage());
-					return;
-				}
 				JsonObject repos = Main.repoStore.get("repositories").getAsJsonObject();
-				unlockStores();
 				// verify the repo hasn't already been added
 				for (Map.Entry<String, JsonElement> e : repos.entrySet()){ // iterate repos in local store
 					JsonObject o = e.getValue().getAsJsonObject();
@@ -75,7 +67,7 @@ public class AddRepositoryCommand extends SubcommandManager {
 						try {
 							threadSafeSendMessage(sender, INFO_COLOR +
 									"[MPT] Attempting connection to repository...");
-							String id = connectAndStore(path);
+							String id = addRepository(path);
 							threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully added " +
 									"repository under ID " + ID_COLOR + id + INFO_COLOR +
 									" to local store! You may now use " + COMMAND_COLOR + "/mpt update" +
@@ -99,7 +91,7 @@ public class AddRepositoryCommand extends SubcommandManager {
 			sender.sendMessage(ERROR_COLOR + "[MPT] You do not have access to this command!");
 	}
 
-	public static String connectAndStore(String path) throws MPTException {
+	public static String addRepository(String path) throws MPTException {
 		if (Thread.currentThread().getId() == Main.mainThreadId)
 			throw new MPTException(ERROR_COLOR + "Repositories may not be added from the main thread!");
 		try {
@@ -108,9 +100,9 @@ public class AddRepositoryCommand extends SubcommandManager {
 			File store = new File(Main.plugin.getDataFolder(), "repositories.json");
 			if (!store.exists())
 				Main.initializeRepoStore(store); // gotta initialize it before using it
+			lockStores();
 			JsonObject repoElement = new JsonObject(); // create a new JSON object
 			repoElement.addProperty("url", path); // set the repo URL
-			lockStores();
 			Main.repoStore.getAsJsonObject("repositories").add(id, repoElement);
 			writeRepositoryStore();
 			unlockStores();
@@ -118,6 +110,7 @@ public class AddRepositoryCommand extends SubcommandManager {
 			// apt-get doesn't fetch packages when a repo is added, so I'm following that precedent
 		}
 		catch (IOException ex){
+			unlockStores();
 			throw new MPTException(ERROR_COLOR + "Failed to add repository to local " +
 					"store!");
 		}

@@ -30,7 +30,6 @@ import static net.amigocraft.mpt.util.MiscUtil.*;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.sun.istack.internal.NotNull;
 import net.amigocraft.mpt.Main;
 import net.amigocraft.mpt.util.MPTException;
 import org.bukkit.Bukkit;
@@ -70,10 +69,10 @@ public class RemoveCommand extends SubcommandManager {
 	}
 
 	public static void removePackage(String id) throws MPTException {
-		lockStores();
 		if (Main.packageStore.getAsJsonObject("packages").has(id)){
 			JsonObject pack = Main.packageStore.getAsJsonObject("packages").getAsJsonObject(id);
 			if (pack.has("installed")){
+				lockStores();
 				if (pack.has("files")){
 					for (JsonElement e : pack.getAsJsonArray("files")){
 						File f = new File(Bukkit.getWorldContainer(), e.getAsString());
@@ -104,8 +103,10 @@ public class RemoveCommand extends SubcommandManager {
 					writePackageStore();
 				}
 				catch (IOException ex){
+					unlockStores();
 					throw new MPTException(ERROR_COLOR + "Failed to save changes to disk!");
 				}
+				unlockStores();
 			}
 			else
 				throw new MPTException(ERROR_COLOR + "Package " + ID_COLOR + id + ERROR_COLOR + " is not installed!");
@@ -115,7 +116,7 @@ public class RemoveCommand extends SubcommandManager {
 		unlockStores();
 	}
 
-	public static void checkParent(@NotNull File file){
+	public static void checkParent(File file){
 		if (file != null){
 			if (file.getParentFile().listFiles().length == 0){
 				file.getParentFile().delete();

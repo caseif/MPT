@@ -46,6 +46,9 @@ public class CommandManager implements CommandExecutor {
 					case "update":
 						new UpdateCommand(sender, args).handle();
 						break;
+					case "upgrade":
+						new UpgradeCommand(sender, args).handle();
+						break;
 					case "install":
 						new InstallCommand(sender, args).handle();
 						break;

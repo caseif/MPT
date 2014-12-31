@@ -25,7 +25,7 @@ enforce-checksum: true
 disallow-overwrite: true
 
 # While true, directories will not be merged if they already exist.
-disallow-merge: true
+disallow-merge: false
 
 # Files with extensions present on this list will not be extracted no matter what. It is HIGHLY recommended that you
 # not remove any present by default.

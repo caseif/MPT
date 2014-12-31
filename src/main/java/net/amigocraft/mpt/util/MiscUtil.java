@@ -102,11 +102,11 @@ public class MiscUtil {
 						return json;
 					}
 					else
-						throw new MPTException("Index for repository at " + path +
+						throw new MPTException(ERROR_COLOR + "Index for repository at " + path +
 								"is missing required elements!");
 				}
 				else {
-					String error = "Remote returned bad response code! (" + response + ")";
+					String error = ERROR_COLOR + "Remote returned bad response code! (" + response + ")";
 					if (!http.getResponseMessage().isEmpty())
 						error += " The remote says: " + ChatColor.GRAY +
 								ChatColor.ITALIC + http.getResponseMessage();
@@ -114,16 +114,16 @@ public class MiscUtil {
 				}
 			}
 			else
-				throw new MPTException("Bad protocol for URL!");
+				throw new MPTException(ERROR_COLOR + "Bad protocol for URL!");
 		}
 		catch (MalformedURLException ex){
-			throw new MPTException("Cannot parse URL!");
+			throw new MPTException(ERROR_COLOR + "Cannot parse URL!");
 		}
 		catch (IOException ex){
-			throw new MPTException("Cannot open connection to URL!");
+			throw new MPTException(ERROR_COLOR + "Cannot open connection to URL!");
 		}
 		catch (JsonParseException ex){
-			throw new MPTException("Repository index is not valid JSON!");
+			throw new MPTException(ERROR_COLOR + "Repository index is not valid JSON!");
 		}
 	}
 
@@ -158,8 +158,8 @@ public class MiscUtil {
 		}
 		catch (Exception ex){
 			if (Config.ENFORCE_CHECKSUM)
-				throw new MPTException("Failed to get checksum for local package " + ID_COLOR +  path +
-						INFO_COLOR + "!");
+				throw new MPTException(ERROR_COLOR + "Failed to get checksum for local package " + ID_COLOR +  path +
+						ERROR_COLOR + "!");
 		}
 		return null;
 	}
@@ -255,7 +255,7 @@ public class MiscUtil {
 		}
 		catch (Exception ex){
 			ex.printStackTrace(); //TODO
-			throw new MPTException("Failed to extract archive!");
+			throw new MPTException(ERROR_COLOR + "Failed to extract archive!");
 		}
 		return returnValue;
 	}

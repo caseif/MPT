@@ -30,6 +30,7 @@ import static net.amigocraft.mpt.util.MiscUtil.*;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.sun.istack.internal.NotNull;
 import net.amigocraft.mpt.Main;
 import net.amigocraft.mpt.util.MPTException;
 import org.bukkit.Bukkit;
@@ -51,61 +52,13 @@ public class RemoveCommand extends SubcommandManager {
 				Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
 					public void run(){
 						try {
-							lockStores();
 							for (int i = 1; i < args.length; i++){
 								String id = args[i];
-								if (Main.packageStore.getAsJsonObject("packages").has(id)){
-									JsonObject pack = Main.packageStore.getAsJsonObject("packages").getAsJsonObject(id);
-									String name = pack.get("name").getAsString() + " v" +
-											pack.get("version").getAsString();
-									threadSafeSendMessage(sender, INFO_COLOR + "Removing " + ID_COLOR + name +
-											INFO_COLOR + "...");
-									if (pack.has("installed")){
-										if (pack.has("files")){
-											for (JsonElement e : pack.getAsJsonArray("files")){
-												File f = new File(Bukkit.getWorldContainer(), e.getAsString());
-												if (f.exists()){
-													if (!f.delete()){
-														if (VERBOSE){
-															Main.log.warning("Failed to delete file " + f.getName());
-														}
-													}
-													else {
-														checkParent(f);
-													}
-												}
-											}
-											pack.remove("files");
-										}
-										else
-											Main.log.warning("No file listing for package " + id + "!");
-										File archive = new File(Main.plugin.getDataFolder(), "cache" + File.separator +
-												id + ".zip");
-										if (archive.exists()){
-											if (!archive.delete() && VERBOSE){
-												Main.log.warning("Failed to delete archive from cache");
-											}
-										}
-										pack.remove("installed");
-										try {
-											writePackageStore();
-											threadSafeSendMessage(sender,
-													INFO_COLOR + "[MPT] Successfully removed " + ID_COLOR + name);
-										}
-										catch (IOException ex){
-											threadSafeSendMessage(sender, ERROR_COLOR +
-													"[MPT] Failed to save changes to disk!");
-										}
-									}
-									else
-										threadSafeSendMessage(sender, ERROR_COLOR + "Package " + ID_COLOR + id +
-												ERROR_COLOR + " is not installed!");
-								}
-								else
-									threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] Cannot find package with id " +
-											ID_COLOR + id);
+								threadSafeSendMessage(sender, INFO_COLOR + "Removing " + ID_COLOR + id +
+										INFO_COLOR + "...");
+								removePackage(id);
+								threadSafeSendMessage(sender, "Successfully removed " + ID_COLOR + id);
 							}
-							unlockStores();
 						}
 						catch (MPTException ex){
 							sender.sendMessage(ERROR_COLOR + ex.getMessage());
@@ -121,10 +74,62 @@ public class RemoveCommand extends SubcommandManager {
 			sender.sendMessage(ERROR_COLOR + "[MPT] You do not have permission to use this command!");
 	}
 
-	private void checkParent(File file){
-		if (file.getParentFile().listFiles().length == 0){
-			file.getParentFile().delete();
-			checkParent(file.getParentFile());
+	public static void removePackage(String id) throws MPTException {
+		lockStores();
+		if (Main.packageStore.getAsJsonObject("packages").has(id)){
+			JsonObject pack = Main.packageStore.getAsJsonObject("packages").getAsJsonObject(id);
+			String name = pack.get("name").getAsString() + " v" +
+					pack.get("version").getAsString();
+			if (pack.has("installed")){
+				if (pack.has("files")){
+					for (JsonElement e : pack.getAsJsonArray("files")){
+						File f = new File(Bukkit.getWorldContainer(), e.getAsString());
+						if (f.exists()){
+							if (!f.delete()){
+								if (VERBOSE){
+									Main.log.warning("Failed to delete file " + f.getName());
+								}
+							}
+							else {
+								checkParent(f);
+							}
+						}
+					}
+					pack.remove("files");
+				}
+				else
+					Main.log.warning("No file listing for package " + id + "!");
+				File archive = new File(Main.plugin.getDataFolder(), "cache" + File.separator +
+						id + ".zip");
+				if (archive.exists()){
+					if (!archive.delete() && VERBOSE){
+						Main.log.warning("Failed to delete archive from cache");
+					}
+				}
+				pack.remove("installed");
+				try {
+					writePackageStore();
+				}
+				catch (IOException ex){
+					throw new MPTException(ERROR_COLOR + "Failed to save changes to disk!");
+				}
+			}
+			else
+				throw new MPTException(ERROR_COLOR + "Package " + ID_COLOR + id + ERROR_COLOR + " is not installed!");
 		}
+		else
+			throw new MPTException(ERROR_COLOR + "Cannot find package with id " + ID_COLOR + id);
+		unlockStores();
+	}
+
+	public static void checkParent(@NotNull File file){
+		if (file != null){
+			if (file.getParentFile().listFiles().length == 0){
+				file.getParentFile().delete();
+				checkParent(file.getParentFile());
+			}
+		}
+		else
+			throw new IllegalArgumentException("File cannot be null!");
 	}
 }

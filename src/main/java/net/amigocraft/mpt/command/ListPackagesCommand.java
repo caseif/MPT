@@ -34,9 +34,9 @@ import org.json.simple.JSONObject;
 
 import java.util.*;
 
-public class ListRepositoriesCommand extends SubcommandManager {
+public class ListPackagesCommand extends SubcommandManager {
 
-	public ListRepositoriesCommand(CommandSender sender, String[] args){
+	public ListPackagesCommand(CommandSender sender, String[] args){
 		super(sender, args);
 	}
 
@@ -45,10 +45,10 @@ public class ListRepositoriesCommand extends SubcommandManager {
 		if (!checkPerms()) return;
 		try {
 			List<String> messages = new ArrayList<>();
-			messages.add(INFO_COLOR + "[MPT] Added repositories:");
-			for (String[] info : getRepositories()){
-				messages.add(INFO_COLOR + "- " + ID_COLOR + info[0] +
-						INFO_COLOR + " (url: " + ID_COLOR + info[1] + INFO_COLOR + ")");
+			messages.add(INFO_COLOR + "[MPT] Installed packages:");
+			for (String[] info : getPackages()){
+				messages.add(INFO_COLOR + "- " + ID_COLOR + info[1] + " v" + info[2] +
+						INFO_COLOR + " (id: " + ID_COLOR + info[0] + INFO_COLOR + ")");
 			}
 			sender.sendMessage(messages.toArray(new String[messages.size()]));
 		}
@@ -58,23 +58,29 @@ public class ListRepositoriesCommand extends SubcommandManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<String[]> getRepositories() throws MPTException {
-		if (Main.repoStore.containsKey("repositories")){
-			JSONObject repos = (JSONObject)Main.repoStore.get("repositories");
-			Set<Map.Entry<String, Object>> entries = repos.entrySet();
-			List<String[]> repoList = new ArrayList<>();
+	public static List<String[]> getPackages() throws MPTException {
+		if (Main.packageStore.containsKey("packages")){
+			JSONObject packs = (JSONObject)Main.packageStore.get("packages");
+			Set<Map.Entry<String, Object>> entries = packs.entrySet();
+			List<String[]> packList = new ArrayList<>();
 			for (Map.Entry<String, Object> e : entries){
-				if (((JSONObject)e.getValue()).containsKey("url")){
-					repoList.add(new String[]{e.getKey(), ((JSONObject)e.getValue()).get("url").toString()});
-				}
-				else if (VERBOSE){
-					Main.log.warning("Invalid repository definition \"" + e.getKey() + "\"");
+				if (((JSONObject)e.getValue()).containsKey("installed")){
+					if (((JSONObject)e.getValue()).containsKey("name")){
+						packList.add(new String[]{
+								e.getKey(),
+								((JSONObject)e.getValue()).get("name").toString(),
+								((JSONObject)e.getValue()).get("installed").toString(),
+						});
+					}
+					else if (VERBOSE){
+						Main.log.warning("Invalid package definition \"" + e.getKey() + "\"");
+					}
 				}
 			}
-			return repoList;
+			return packList;
 		}
 		else {
-			throw new MPTException("Repository store is malformed!");
+			throw new MPTException("Package store is malformed!");
 		}
 	}
 }

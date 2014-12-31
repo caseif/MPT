@@ -89,9 +89,6 @@ public class UpgradeCommand extends SubcommandManager {
 									if (v != null)
 										threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully upgraded " +
 												ID_COLOR + id + INFO_COLOR + " to " + ID_COLOR + "v" + v);
-									else
-										threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Package " + ID_COLOR + id +
-												INFO_COLOR + " is already up-to-date");
 								}
 								catch (MPTException ex){
 									threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());

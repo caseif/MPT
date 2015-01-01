@@ -8,6 +8,12 @@ verbose: false
 # If true, package archives will be kept in the plugin cache after installing.
 keep-archives: false
 
+# When true, the plugin will automatically keep itself up-to-date.
+auto-update: true
+
+# When true, the plugin will submit anonymous statistics to mcstats.org
+metrics: true
+
 ########################################################################
 # Options below this marker are there for your protection.             #
 # Please know that by changing them you are doing so at your own risk. #

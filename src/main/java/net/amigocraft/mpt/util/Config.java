@@ -40,6 +40,8 @@ public class Config {
 
 	public static final boolean VERBOSE;
 	public static final boolean KEEP_ARCHIVES;
+	public static final boolean AUTO_UPDATE;
+	public static final boolean METRICS;
 	public static final boolean ENFORCE_CHECKSUM;
 	public static final boolean DISALLOW_OVERWRITE;
 	public static final boolean DISALLOW_MERGE;
@@ -50,6 +52,8 @@ public class Config {
 		FileConfiguration cfg = Main.plugin.getConfig();
 		VERBOSE = cfg.getBoolean("verbose");
 		KEEP_ARCHIVES = cfg.getBoolean("keep-archives");
+		AUTO_UPDATE = cfg.getBoolean("auto-update");
+		METRICS = cfg.getBoolean("metrics");
 		ENFORCE_CHECKSUM = cfg.getBoolean("enforce-checksum");
 		DISALLOW_OVERWRITE = cfg.getBoolean("disallow-overwrite");
 		DISALLOW_MERGE = cfg.getBoolean("disallow-merge");

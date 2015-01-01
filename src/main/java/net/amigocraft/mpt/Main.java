@@ -26,11 +26,14 @@
 package net.amigocraft.mpt;
 
 import net.amigocraft.mpt.command.CommandManager;
+import net.amigocraft.mpt.util.Config;
 import net.amigocraft.mpt.util.MPTException;
 import net.amigocraft.mpt.util.MiscUtil;
+import net.amigocraft.mpt.json.JSONPrettyPrinter;
+
+import net.gravitydevelopment.updater.Updater;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONObject;
-import net.amigocraft.mpt.json.JSONPrettyPrinter;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
@@ -90,6 +93,21 @@ public class Main extends JavaPlugin {
 		}
 
 		this.getCommand("mpt").setExecutor(new CommandManager()); // register the CommandManager class
+
+		// initialize auto-updater
+		if (Config.AUTO_UPDATE)
+			new Updater(this, 88254, this.getFile(), Updater.UpdateType.DEFAULT, true);
+
+		// initialize plugin metrics
+		if (Config.METRICS){
+			try {
+				Metrics metrics = new Metrics(this);
+				metrics.start();
+			}
+			catch (IOException ex){
+				log.warning("Failed to initialize plugin metrics!");
+			}
+		}
 
 		log.info(this + " has been enabled!");
 	}

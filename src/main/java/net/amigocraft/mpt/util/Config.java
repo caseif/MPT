@@ -26,6 +26,7 @@
 package net.amigocraft.mpt.util;
 
 import net.amigocraft.mpt.Main;
+
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 

@@ -25,10 +25,9 @@
  */
 package net.amigocraft.mpt.command;
 
-import static net.amigocraft.mpt.util.Config.*;
-
 import net.amigocraft.mpt.Main;
 import net.amigocraft.mpt.util.MiscUtil;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 

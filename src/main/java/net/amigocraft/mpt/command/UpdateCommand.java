@@ -39,6 +39,8 @@ import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -83,6 +85,14 @@ public class UpdateCommand extends SubcommandManager {
 			Main.initializePackageStore(pStoreFile);
 		JSONObject repos = (JSONObject)Main.repoStore.get("repositories");
 		Set<Map.Entry> entries = repos.entrySet();
+		JSONObject localPackages = (JSONObject)Main.packageStore.get("packages");
+		List<Object> remove = new ArrayList<Object>();
+		for (Object k : localPackages.keySet()){
+			if (!((JSONObject)localPackages.get(k)).containsKey("installed"))
+				remove.add(k);
+		}
+		for (Object r : remove)
+			localPackages.remove(r);
 		for (Map.Entry<String, JSONObject> e : entries){
 			final String id = e.getKey().toLowerCase();
 			JSONObject repo = e.getValue();
@@ -105,7 +115,6 @@ public class UpdateCommand extends SubcommandManager {
 						String sha1 = o.containsKey("sha1") ? o.get("sha1").toString() : "";
 						if (VERBOSE)
 							Main.log.info("Fetching package \"" + packId + "\"");
-						JSONObject localPackages = (JSONObject)Main.packageStore.get("packages");
 						String installed = localPackages.containsKey(packId) &&
 								((JSONObject)localPackages.get(packId)).containsKey("installed") ?
 								(((JSONObject)localPackages.get(packId)).get("installed")).toString() :
@@ -137,6 +146,7 @@ public class UpdateCommand extends SubcommandManager {
 							repoId + "\"");
 			}
 		}
+		Main.packageStore.put("packages", localPackages);
 		try {
 			writePackageStore();
 		}

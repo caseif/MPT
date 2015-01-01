@@ -29,11 +29,12 @@ import static net.amigocraft.mpt.util.Config.*;
 
 import net.amigocraft.mpt.Main;
 
+import net.amigocraft.mpt.json.JSONPrettyPrinter;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.json.simple.JSONObject;
-import net.amigocraft.mpt.json.JSONPrettyPrinter;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 

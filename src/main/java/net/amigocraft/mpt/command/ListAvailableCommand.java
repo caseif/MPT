@@ -27,6 +27,7 @@ package net.amigocraft.mpt.command;
 
 import net.amigocraft.mpt.Main;
 import net.amigocraft.mpt.util.MPTException;
+
 import org.bukkit.command.CommandSender;
 import org.json.simple.JSONObject;
 

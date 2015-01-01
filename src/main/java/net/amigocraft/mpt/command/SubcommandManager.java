@@ -26,6 +26,7 @@
 package net.amigocraft.mpt.command;
 
 import net.amigocraft.mpt.util.Config;
+
 import org.bukkit.command.CommandSender;
 
 public abstract class SubcommandManager {

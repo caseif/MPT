@@ -33,9 +33,6 @@ import net.amigocraft.mpt.util.MPTException;
 import org.bukkit.command.CommandSender;
 import org.json.simple.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class InfoCommand extends SubcommandManager {
 
 	public InfoCommand(CommandSender sender, String[] args){

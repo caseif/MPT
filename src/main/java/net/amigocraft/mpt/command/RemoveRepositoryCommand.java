@@ -29,8 +29,8 @@ import static net.amigocraft.mpt.util.Config.*;
 import static net.amigocraft.mpt.util.MiscUtil.*;
 
 import net.amigocraft.mpt.Main;
-
 import net.amigocraft.mpt.util.MPTException;
+
 import org.bukkit.command.CommandSender;
 import org.json.simple.JSONObject;
 

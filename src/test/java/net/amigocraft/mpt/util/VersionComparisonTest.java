@@ -1,7 +1,7 @@
 /*
  * MPT (Map Packaging Tool)
  *
- * Copyright (c) 2014 Maxim Roncacé <https://github.com/mproncace>
+ * Copyright (c) 2015 Maxim Roncacé <mproncace@lapis.blue>
  *
  * The MIT License (MIT)
  *

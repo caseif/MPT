@@ -48,17 +48,21 @@ public class RemoveCommand extends SubcommandManager {
 	public void handle(){
 		if (sender.hasPermission("mpt.use")){
 			if (args.length > 1){
+				Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
+					public void run(){
 						try {
 							for (int i = 1; i < args.length; i++){
 								String id = args[i];
-								sender.sendMessage(INFO_COLOR + "Removing " + ID_COLOR + id + INFO_COLOR + "...");
+								threadSafeSendMessage(sender, INFO_COLOR + "Removing " + ID_COLOR + id + INFO_COLOR + "...");
 								removePackage(id);
-								sender.sendMessage(INFO_COLOR + "Successfully removed " + ID_COLOR + id);
+								threadSafeSendMessage(sender, INFO_COLOR + "Successfully removed " + ID_COLOR + id);
 							}
 						}
 						catch (MPTException ex){
-							sender.sendMessage(ERROR_COLOR + ex.getMessage());
+							threadSafeSendMessage(sender, ERROR_COLOR + ex.getMessage());
 						}
+					}
+				});
 			}
 			else
 				sender.sendMessage(ERROR_COLOR + "[MPT] Too few arguments! Type " + COMMAND_COLOR + "/mpt help" +
@@ -69,6 +73,8 @@ public class RemoveCommand extends SubcommandManager {
 	}
 
 	public static void removePackage(String id) throws MPTException {
+		if (Thread.currentThread().getId() == Main.mainThreadId)
+			throw new MPTException(ERROR_COLOR + "Packages may not be removed from the main thread!");
 		if (((JSONObject)Main.packageStore.get("packages")).containsKey(id)){
 			JSONObject pack = (JSONObject)((JSONObject)Main.packageStore.get("packages")).get(id);
 			if (pack.containsKey("installed")){

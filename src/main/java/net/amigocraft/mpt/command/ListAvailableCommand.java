@@ -70,13 +70,13 @@ public class ListAvailableCommand extends SubcommandManager {
 				if (((JSONObject)e.getValue()).containsKey("name") &&
 						((JSONObject)e.getValue()).containsKey("version")){
 					packList.add(new String[]{
-							e.getKey(),
+							e.getKey().toLowerCase(),
 							((JSONObject)e.getValue()).get("name").toString(),
 							((JSONObject)e.getValue()).get("version").toString(),
 					});
 				}
 				else if (VERBOSE){
-					Main.log.warning("Invalid package definition \"" + e.getKey() + "\"");
+					Main.log.warning("Invalid package definition \"" + e.getKey().toLowerCase() + "\"");
 				}
 			}
 			return packList;

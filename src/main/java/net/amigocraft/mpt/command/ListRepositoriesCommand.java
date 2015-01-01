@@ -65,10 +65,13 @@ public class ListRepositoriesCommand extends SubcommandManager {
 			List<String[]> repoList = new ArrayList<>();
 			for (Map.Entry<String, Object> e : entries){
 				if (((JSONObject)e.getValue()).containsKey("url")){
-					repoList.add(new String[]{e.getKey(), ((JSONObject)e.getValue()).get("url").toString()});
+					repoList.add(new String[]{
+							e.getKey().toLowerCase(),
+							((JSONObject)e.getValue()).get("url").toString()
+					});
 				}
 				else if (VERBOSE){
-					Main.log.warning("Invalid repository definition \"" + e.getKey() + "\"");
+					Main.log.warning("Invalid repository definition \"" + e.getKey().toLowerCase() + "\"");
 				}
 			}
 			return repoList;

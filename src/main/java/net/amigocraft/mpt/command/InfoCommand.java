@@ -46,7 +46,7 @@ public class InfoCommand extends SubcommandManager {
 	public void handle(){
 		if (!checkPerms()) return;
 		if (args.length == 2){
-			String id = args[1];
+			String id = args[1].toLowerCase();
 			try {
 				String[] info = getPackageInfo(id);
 				String[] messages = new String[]{
@@ -72,6 +72,7 @@ public class InfoCommand extends SubcommandManager {
 
 	@SuppressWarnings("unchecked")
 	public static String[] getPackageInfo(String id) throws MPTException{
+		id = id.toLowerCase();
 		if (Main.packageStore.containsKey("packages")){
 			JSONObject packs = (JSONObject)Main.packageStore.get("packages");
 			Object pack = packs.get(id);

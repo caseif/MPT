@@ -52,7 +52,7 @@ public class UpgradeCommand extends SubcommandManager {
 				if (args.length > 1){
 					threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Upgrading selected packages...");
 					for (int i = 1; i < args.length; i++){
-						String id = args[i];
+						String id = args[i].toLowerCase();
 						try {
 							threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Attempting to upgrade package " +
 									ID_COLOR + id);
@@ -119,6 +119,7 @@ public class UpgradeCommand extends SubcommandManager {
 	public static String upgradePackage(String id) throws MPTException {
 		if (Thread.currentThread().getId() == Main.mainThreadId)
 			throw new MPTException(ERROR_COLOR + "Packages may not be upgraded from the main thread!");
+		id = id.toLowerCase();
 		if (Main.packageStore.containsKey("packages") &&
 				((JSONObject)Main.packageStore.get("packages")).containsKey(id)){
 			JSONObject pack = (JSONObject)((JSONObject)Main.packageStore.get("packages")).get(id);

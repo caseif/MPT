@@ -62,7 +62,7 @@ public class InstallCommand extends SubcommandManager {
 				public void run(){
 					try {
 						for (int i = 1; i < args.length; i++){
-							String id = args[i];
+							String id = args[i].toLowerCase();
 							threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Downloading package " + ID_COLOR +
 									id + INFO_COLOR + "...");
 							downloadPackage(id);
@@ -142,6 +142,7 @@ public class InstallCommand extends SubcommandManager {
 	public static void installPackage(String id) throws MPTException {
 		if (Thread.currentThread().getId() == Main.mainThreadId)
 			throw new MPTException(ERROR_COLOR + "Packages may not be installed from the main thread!");
+		id = id.toLowerCase();
 		try {
 			File file = new File(Main.plugin.getDataFolder(), "cache" + File.separator + id + ".zip");
 			if (!file.exists())

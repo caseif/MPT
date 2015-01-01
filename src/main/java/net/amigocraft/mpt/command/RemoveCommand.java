@@ -75,6 +75,7 @@ public class RemoveCommand extends SubcommandManager {
 	public static void removePackage(String id) throws MPTException {
 		if (Thread.currentThread().getId() == Main.mainThreadId)
 			throw new MPTException(ERROR_COLOR + "Packages may not be removed from the main thread!");
+		id = id.toLowerCase();
 		if (((JSONObject)Main.packageStore.get("packages")).containsKey(id)){
 			JSONObject pack = (JSONObject)((JSONObject)Main.packageStore.get("packages")).get(id);
 			if (pack.containsKey("installed")){

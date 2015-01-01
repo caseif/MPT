@@ -47,7 +47,7 @@ public class RemoveRepositoryCommand extends SubcommandManager {
 	public void handle(){
 		if (!checkPerms()) return;
 			if (args.length == 2){
-				String id = args[1];
+				String id = args[1].toLowerCase();
 				try {
 					removeRepository(id);
 					sender.sendMessage(INFO_COLOR + "[MPT] Successfully removed repository " +
@@ -66,6 +66,7 @@ public class RemoveRepositoryCommand extends SubcommandManager {
 	}
 
 	public static void removeRepository(String id) throws MPTException {
+		id = id.toLowerCase();
 		JSONObject repos = (JSONObject)Main.repoStore.get("repositories");
 		if (repos.containsKey(id)){
 			lockStores();

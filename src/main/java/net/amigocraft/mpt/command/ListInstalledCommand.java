@@ -67,13 +67,13 @@ public class ListInstalledCommand extends SubcommandManager {
 				if (((JSONObject)e.getValue()).containsKey("installed")){
 					if (((JSONObject)e.getValue()).containsKey("name")){
 						packList.add(new String[]{
-								e.getKey(),
+								e.getKey().toLowerCase(),
 								((JSONObject)e.getValue()).get("name").toString(),
 								((JSONObject)e.getValue()).get("installed").toString(),
 						});
 					}
 					else if (VERBOSE){
-						Main.log.warning("Invalid package definition \"" + e.getKey() + "\"");
+						Main.log.warning("Invalid package definition \"" + e.getKey().toLowerCase() + "\"");
 					}
 				}
 			}

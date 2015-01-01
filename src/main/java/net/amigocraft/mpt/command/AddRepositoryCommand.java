@@ -96,7 +96,7 @@ public class AddRepositoryCommand extends SubcommandManager {
 			throw new MPTException(ERROR_COLOR + "Repositories may not be added from the main thread!");
 		try {
 			JSONObject json = MiscUtil.getRemoteIndex(path);
-			String id = json.get("id").toString(); // get ID from remote
+			String id = json.get("id").toString().toLowerCase(); // get ID from remote
 			File store = new File(Main.plugin.getDataFolder(), "repositories.json");
 			if (!store.exists())
 				Main.initializeRepoStore(store); // gotta initialize it before using it

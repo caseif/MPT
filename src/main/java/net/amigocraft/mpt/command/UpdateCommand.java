@@ -84,8 +84,8 @@ public class UpdateCommand extends SubcommandManager {
 		JSONObject repos = (JSONObject)Main.repoStore.get("repositories");
 		Set<Map.Entry> entries = repos.entrySet();
 		for (Map.Entry<String, JSONObject> e : entries){
-			final String id = e.getKey();
-			JSONObject repo = (JSONObject)e.getValue();
+			final String id = e.getKey().toLowerCase();
+			JSONObject repo = e.getValue();
 			final String url = repo.get("url").toString();
 			if (VERBOSE)
 				Main.log.info("Updating repository \"" + id + "\"");
@@ -94,7 +94,7 @@ public class UpdateCommand extends SubcommandManager {
 			JSONObject packages = (JSONObject)json.get("packages");
 			Set<Map.Entry> pEntries = packages.entrySet();
 			for (Map.Entry en : pEntries){
-				String packId = en.getKey().toString();
+				String packId = en.getKey().toString().toLowerCase();
 				JSONObject o = (JSONObject)en.getValue();
 				if (o.containsKey("name") && o.containsKey("version") && o.containsKey("url")){
 					if (o.containsKey("sha1") || !Config.ENFORCE_CHECKSUM){

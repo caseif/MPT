@@ -34,9 +34,9 @@ import org.json.simple.JSONObject;
 
 import java.util.*;
 
-public class ListPackagesCommand extends SubcommandManager {
+public class ListInstalledCommand extends SubcommandManager {
 
-	public ListPackagesCommand(CommandSender sender, String[] args){
+	public ListInstalledCommand(CommandSender sender, String[] args){
 		super(sender, args);
 	}
 

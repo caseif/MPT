@@ -9,6 +9,7 @@ public class MptApi {
 
 	/**
 	 * Installs a package by the given ID.
+	 * <strong>This method may not be called from the main thread.</strong>
 	 * @param id the ID of the package to install
 	 * @throws MPTException if something goes wrong while downloading or installing the package.
 	 * A specific error message will be included in the exception.
@@ -29,6 +30,7 @@ public class MptApi {
 
 	/**
 	 * Upgrades a package by the given ID.
+	 * <strong>This method may not be called from the main thread.</strong>
 	 * @param id the ID of the package to upgrade
 	 * @return the new version of the package, or null if it is already up-to-date
 	 * @throws MPTException if something goes wrong while removing or reinstalling the package.
@@ -47,11 +49,24 @@ public class MptApi {
 	 * A specific error message will be included in the exception.
 	 */
 	public static List<String[]> getInstalledPackages() throws MPTException {
-		return ListPackagesCommand.getPackages();
+		return ListInstalledCommand.getPackages();
+	}
+
+	/**
+	 * Retrieves an enumeration of all packages avilable for installation.
+	 * @return a list of string arrays, each representing information about a package.
+	 * The first index is the package's ID, the second its "friendly" name, and the third the
+	 * currently installed version.
+	 * @throws MPTException if something goes wrong while indexing the installed packages
+	 * A specific error message will be included in the exception.
+	 */
+	public static List<String[]> getAvailablePackages() throws MPTException {
+		return ListAvailableCommand.getPackages();
 	}
 
 	/**
 	 * Adds a repository at the given URL to the local store.
+	 * <strong>This method may not be called from the main thread.</strong>
 	 * @param url the URL of the repository to add
 	 * @return the ID of the newly-added repository
 	 * @throws MPTException if something goes wrong while connecting to or parsing the repository.
@@ -73,6 +88,7 @@ public class MptApi {
 
 	/**
 	 * Fetches the package listings from all remotes and saves them to the local store.
+	 * <strong>This method may not be called from the main thread.</strong>
 	 * @throws MPTException if something goes wrong while connecting to or parsing the repository.
 	 * A specific error message will be included in the exception.
 	 */

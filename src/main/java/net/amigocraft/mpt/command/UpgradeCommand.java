@@ -111,6 +111,7 @@ public class UpgradeCommand extends SubcommandManager {
 
 	/**
 	 * Attempts to upgrade a package by the given ID
+	 * <strong>This method may not be called from the main thread.</strong>
 	 * @param id the ID of the package to upgrade
 	 * @return the new version, or null if the package was not upgraded
 	 * @throws MPTException if called from the main thread, or if something goes wrong while upgrading

@@ -72,6 +72,10 @@ public class HelpCommand extends SubcommandManager {
 				new String[]{"Prints out all installed packages.",
 						"/mpt list",
 						"mpt.use"});
+		commands.put("list-all",
+				new String[]{"Prints out all available packages.",
+						"/mpt list-all",
+						"mpt.use"});
 		commands.put("abort",
 				new String[]{"Attempts to abort any currently running tasks and unlock the local stores. This " +
 						"command is not officially supported and may mess up your stores. Use it as a last resort " +

@@ -13,7 +13,7 @@ defaultTasks 'clean', 'licenseFormat', 'build', 'shadowJar'
 
 // Project information
 group = 'net.amigocraft.mpt'
-version = '1.1.0'
+version = '1.2.0-SNAPSHOT'
 
 // Extended project information
 ext.projectName = 'MPT'

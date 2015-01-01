@@ -54,6 +54,8 @@ public class CommandManager implements CommandExecutor {
 					new ListInstalledCommand(sender, args).handle();
 				else if (args[0].equalsIgnoreCase("list-all"))
 					new ListAvailableCommand(sender, args).handle();
+				else if (args[0].equalsIgnoreCase("info"))
+					new InfoCommand(sender, args).handle();
 				else if (args[0].equalsIgnoreCase("abort"))
 					new AbortCommand(sender, args).handle();
 				else if (args[0].equalsIgnoreCase("reload"))

@@ -46,7 +46,7 @@ public class HelpCommand extends SubcommandManager {
 						"mpt.use"});
 		commands.put("remove-repo",
 				new String[]{"Removes the repository with the given ID from the local store.",
-						"/mpt remove-repo [id]",
+						"/mpt remove-repo [repo id]",
 						"mpt.use"});
 		commands.put("update",
 				new String[]{"Updates the local package store from the remote repositories.",
@@ -58,15 +58,15 @@ public class HelpCommand extends SubcommandManager {
 						"mpt.use"});
 		commands.put("upgrade",
 				new String[]{"Upgrades the given package(s), or all if no arguments are provided.",
-						"/mpt upgrade {package1} {package2}...",
+						"/mpt upgrade {package 1} {package 2}...",
 						"mpt.use"});
 		commands.put("install",
 				new String[]{"Installs the package(s) with the given ID(s).",
-						"/mpt install [package1] {package2}...",
+						"/mpt install [package 1] {package 2}...",
 						"mpt.use"});
 		commands.put("remove",
 				new String[]{"Removes the package(s) with the given ID(s).",
-						"/mpt remove [package1] {package2}...",
+						"/mpt remove [package 1] {package 2}...",
 						"mpt.use"});
 		commands.put("list",
 				new String[]{"Prints out all installed packages.",
@@ -75,6 +75,10 @@ public class HelpCommand extends SubcommandManager {
 		commands.put("list-all",
 				new String[]{"Prints out all available packages.",
 						"/mpt list-all",
+						"mpt.use"});
+		commands.put("info",
+				new String[]{"Prints detailed information about a package.",
+						"/mpt info [package id]",
 						"mpt.use"});
 		commands.put("abort",
 				new String[]{"Attempts to abort any currently running tasks and unlock the local stores. This " +

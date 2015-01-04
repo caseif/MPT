@@ -72,11 +72,7 @@ public class JSONPrettyPrinter extends HashMap {
 				sb.append(' ');
 
 			Map.Entry entry = (Map.Entry)iter.next();
-			sb.append('\"');
-			sb.append(escape(String.valueOf(entry.getKey())));
-			sb.append('\"');
-			sb.append(':');
-			sb.append(' ');
+			sb.append('\"').append(escape(String.valueOf(entry.getKey()))).append("\": ");
 
 			sb.append(entry.getValue() instanceof Map ?
 					toJSONString((Map)entry.getValue()) :
@@ -111,8 +107,7 @@ public class JSONPrettyPrinter extends HashMap {
 			if (first)
 				first = false;
 			else
-				sb.append(',');
-			sb.append(newLine);
+				sb.append(',').append(newLine);
 			for (int i = 0; i < column * INDENT + 4; i++)
 				sb.append(' ');
 
@@ -197,9 +192,8 @@ public class JSONPrettyPrinter extends HashMap {
 					if ((ch <= '\u001F') || (ch >= '\u007F' && ch <= '\u009F') || (ch >= '\u2000' && ch <= '\u20FF')){
 						String ss=Integer.toHexString(ch);
 						sb.append("\\u");
-						for (int k = 0; k < 4 - ss.length(); k++){
+						for (int k = 0; k < 4 - ss.length(); k++)
 							sb.append('0');
-						}
 						sb.append(ss.toUpperCase());
 					}
 					else {

@@ -41,6 +41,7 @@ public class MptApi {
 	 * @since 1.0.0
 	 */
 	public static void installPackage(String id) throws MPTException {
+		InstallCommand.downloadPackage(id);
 		InstallCommand.installPackage(id);
 	}
 

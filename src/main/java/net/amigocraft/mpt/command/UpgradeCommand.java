@@ -130,6 +130,7 @@ public class UpgradeCommand extends SubcommandManager {
 					if (diff > 0){
 						// easy way out
 						RemoveCommand.removePackage(id);
+						InstallCommand.downloadPackage(id);
 						InstallCommand.installPackage(id);
 						return pack.get("version").toString();
 					}

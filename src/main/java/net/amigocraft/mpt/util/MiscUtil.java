@@ -226,25 +226,25 @@ public class MiscUtil {
 					}
 					if (!DISALLOW_OVERWRITE || !file.exists()){
 						file.getParentFile().mkdirs();
-						String ext = name.split("\\.")[name.split("\\.").length - 1];
-						if (!DISALLOWED_EXTENSIONS.contains(ext)){
-							BufferedInputStream bIs = new BufferedInputStream(zip.getInputStream(entry));
-							int b;
-							byte[] buffer = new byte[1024];
-							FileOutputStream fOs = new FileOutputStream(file);
-							BufferedOutputStream bOs = new BufferedOutputStream(fOs, 1024);
-							while ((b = bIs.read(buffer, 0, 1024)) != -1)
-								bOs.write(buffer, 0, b);
-							bOs.flush();
-							bOs.close();
-							bIs.close();
+						for (String ext : DISALLOWED_EXTENSIONS){
+							if (file.getName().endsWith(ext)){
+								if (VERBOSE)
+									Main.log.warning("Refusing to extract " + name + " from " + zip.getName() +
+											": extension \"" + ext + "\" is not allowed");
+								returnValue = false;
+								continue entryLoop;
+							}
 						}
-						else {
-							if (VERBOSE)
-								Main.log.warning("Refusing to extract " + name + " from " + zip.getName() +
-										": extension \"" + ext + "\" is not allowed");
-							returnValue = false;
-						}
+						BufferedInputStream bIs = new BufferedInputStream(zip.getInputStream(entry));
+						int b;
+						byte[] buffer = new byte[1024];
+						FileOutputStream fOs = new FileOutputStream(file);
+						BufferedOutputStream bOs = new BufferedOutputStream(fOs, 1024);
+						while ((b = bIs.read(buffer, 0, 1024)) != -1)
+							bOs.write(buffer, 0, b);
+						bOs.flush();
+						bOs.close();
+						bIs.close();
 					}
 					else {
 						if (VERBOSE)

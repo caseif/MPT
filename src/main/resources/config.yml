@@ -33,9 +33,10 @@ disallow-overwrite: true
 # While true, directories will not be merged if they already exist.
 disallow-merge: false
 
-# Files with extensions present on this list will not be extracted no matter what. It is HIGHLY recommended that you
+# Files ending in a string present on this list will not be extracted no matter what. It is HIGHLY recommended that you
 # not remove any present by default.
 disallowed-extensions:
+  # dangerous file types
   - jar
   - class
   - java
@@ -44,6 +45,23 @@ disallowed-extensions:
   - application
   - deb
   - rpm
+  # files that probably shouldn't be overwritten
+  - banned-ips.json
+  - bamned-ips.txt
+  - banned-players.json
+  - banned-players.txt
+  - bukkit.yml
+  - eula.txt
+  - help.yml
+  - ops.json
+  - ops.txt
+  - permissions.yml
+  - server.properties
+  - server-icon/png
+  - spigot.yml
+  - usercache.json
+  - whitelist.json
+  - white-list.txt
 
 # Files within directories contained by the following list will not be extracted no matter what.
 disallowed-directories:

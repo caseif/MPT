@@ -23,18 +23,18 @@
  *     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *     SOFTWARE.
  */
-package net.amigocraft.mpt.util;
+package net.caseif.mpt.util;
 
 public class MPTException extends Exception {
 
-	private String message;
+    private String message;
 
-	public MPTException(String message){
-		this.message = message;
-	}
+    public MPTException(String message) {
+        this.message = message;
+    }
 
-	public String getMessage(){
-		return this.message;
-	}
+    public String getMessage() {
+        return this.message;
+    }
 
 }

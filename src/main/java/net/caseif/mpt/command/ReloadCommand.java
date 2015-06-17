@@ -23,25 +23,26 @@
  *     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *     SOFTWARE.
  */
-package net.amigocraft.mpt.command;
+package net.caseif.mpt.command;
 
-import net.amigocraft.mpt.Main;
-import net.amigocraft.mpt.util.MiscUtil;
+import net.caseif.mpt.Main;
+import net.caseif.mpt.util.Config;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
-public class AbortCommand extends SubcommandManager {
+public class ReloadCommand extends SubcommandManager {
 
-	public AbortCommand(CommandSender sender, String[] args){
-		super(sender, args);
-	}
+    public ReloadCommand(CommandSender sender, String[] args) {
+        super(sender, args);
+    }
 
-	@Override
-	public void handle(){
-		if (!checkPerms()) return;
-		Main.log.info("Forcibly unlocking stores...");
-		Bukkit.getScheduler().cancelTasks(Main.plugin); // cancel any currently running tasks
-		MiscUtil.unlockStores();
-	}
+    @Override
+    public void handle() {
+        if (!checkPerms()) return;
+        sender.sendMessage(Config.INFO_COLOR + "[MPT] Reloading MPT...");
+        Bukkit.getPluginManager().disablePlugin(Main.plugin);
+        Bukkit.getPluginManager().enablePlugin(Bukkit.getPluginManager().getPlugin("MPT"));
+        sender.sendMessage(Config.INFO_COLOR + "[MPT] Successfully reloaded!");
+    }
 }

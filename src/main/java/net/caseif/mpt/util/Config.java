@@ -23,9 +23,9 @@
  *     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *     SOFTWARE.
  */
-package net.amigocraft.mpt.util;
+package net.caseif.mpt.util;
 
-import net.amigocraft.mpt.Main;
+import net.caseif.mpt.Main;
 
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -34,32 +34,32 @@ import java.util.List;
 
 public class Config {
 
-	public static final ChatColor INFO_COLOR = ChatColor.DARK_PURPLE;
-	public static final ChatColor ERROR_COLOR = ChatColor.RED;
-	public static final ChatColor COMMAND_COLOR = ChatColor.GOLD;
-	public static final ChatColor ID_COLOR = ChatColor.AQUA;
+    public static final ChatColor INFO_COLOR = ChatColor.DARK_PURPLE;
+    public static final ChatColor ERROR_COLOR = ChatColor.RED;
+    public static final ChatColor COMMAND_COLOR = ChatColor.GOLD;
+    public static final ChatColor ID_COLOR = ChatColor.AQUA;
 
-	public static final boolean VERBOSE;
-	public static final boolean KEEP_ARCHIVES;
-	public static final boolean AUTO_UPDATE;
-	public static final boolean METRICS;
-	public static final boolean ENFORCE_CHECKSUM;
-	public static final boolean DISALLOW_OVERWRITE;
-	public static final boolean DISALLOW_MERGE;
-	public static final List<String> DISALLOWED_EXTENSIONS;
-	public static final List<String> DISALLOWED_DIRECTORIES;
+    public static final boolean VERBOSE;
+    public static final boolean KEEP_ARCHIVES;
+    public static final boolean AUTO_UPDATE;
+    public static final boolean METRICS;
+    public static final boolean ENFORCE_CHECKSUM;
+    public static final boolean DISALLOW_OVERWRITE;
+    public static final boolean DISALLOW_MERGE;
+    public static final List<String> DISALLOWED_EXTENSIONS;
+    public static final List<String> DISALLOWED_DIRECTORIES;
 
-	static {
-		FileConfiguration cfg = Main.plugin.getConfig();
-		VERBOSE = cfg.getBoolean("verbose");
-		KEEP_ARCHIVES = cfg.getBoolean("keep-archives");
-		AUTO_UPDATE = cfg.getBoolean("auto-update");
-		METRICS = cfg.getBoolean("metrics");
-		ENFORCE_CHECKSUM = cfg.getBoolean("enforce-checksum");
-		DISALLOW_OVERWRITE = cfg.getBoolean("disallow-overwrite");
-		DISALLOW_MERGE = cfg.getBoolean("disallow-merge");
-		DISALLOWED_EXTENSIONS = cfg.getStringList("disallowed-extensions");
-		DISALLOWED_DIRECTORIES = cfg.getStringList("disalllowed-directories");
-	}
+    static {
+        FileConfiguration cfg = Main.plugin.getConfig();
+        VERBOSE = cfg.getBoolean("verbose");
+        KEEP_ARCHIVES = cfg.getBoolean("keep-archives");
+        AUTO_UPDATE = cfg.getBoolean("auto-update");
+        METRICS = cfg.getBoolean("metrics");
+        ENFORCE_CHECKSUM = cfg.getBoolean("enforce-checksum");
+        DISALLOW_OVERWRITE = cfg.getBoolean("disallow-overwrite");
+        DISALLOW_MERGE = cfg.getBoolean("disallow-merge");
+        DISALLOWED_EXTENSIONS = cfg.getStringList("disallowed-extensions");
+        DISALLOWED_DIRECTORIES = cfg.getStringList("disalllowed-directories");
+    }
 
 }

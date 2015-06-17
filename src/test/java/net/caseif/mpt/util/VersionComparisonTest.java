@@ -23,10 +23,7 @@
  *     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *     SOFTWARE.
  */
-package net.amigocraft.mpt.util;
-
-import static net.amigocraft.mpt.util.MiscUtil.*;
-import static org.junit.Assert.*;
+package net.caseif.mpt.util;
 
 import org.junit.Test;
 

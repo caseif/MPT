@@ -1,6 +1,6 @@
 name: MPT
 version: 1.2.0-SNAPSHOT
-main: net.amigocraft.mpt.Main
+main: Main
 description: A Bukkit plugin similar to Debian's apt-get package, but with Minecraft maps instead of packages.
 author: Maxim Roncacé
 

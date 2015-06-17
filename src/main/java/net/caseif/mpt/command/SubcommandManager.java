@@ -23,30 +23,30 @@
  *     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *     SOFTWARE.
  */
-package net.amigocraft.mpt.command;
+package net.caseif.mpt.command;
 
-import net.amigocraft.mpt.util.Config;
+import net.caseif.mpt.util.Config;
 
 import org.bukkit.command.CommandSender;
 
 public abstract class SubcommandManager {
 
-	protected CommandSender sender;
-	protected String[] args;
+    protected CommandSender sender;
+    protected String[] args;
 
-	public SubcommandManager(CommandSender sender, String[] args){
-		this.sender = sender;
-		this.args = args;
-	}
+    public SubcommandManager(CommandSender sender, String[] args) {
+        this.sender = sender;
+        this.args = args;
+    }
 
-	public abstract void handle();
+    public abstract void handle();
 
-	public boolean checkPerms(){
-		if (!HelpCommand.commands.containsKey(args[0]) && sender.hasPermission(HelpCommand.commands.get(args[0])[2])){
-			sender.sendMessage(Config.ERROR_COLOR + "[MPT] You do not have access to this command!");
-			return false;
-		}
-		return true;
-	}
+    public boolean checkPerms() {
+        if (!HelpCommand.commands.containsKey(args[0]) && sender.hasPermission(HelpCommand.commands.get(args[0])[2])) {
+            sender.sendMessage(Config.ERROR_COLOR + "[MPT] You do not have access to this command!");
+            return false;
+        }
+        return true;
+    }
 
 }

@@ -40,7 +40,7 @@ public class HelpCommand extends SubcommandManager {
     static Map<String, String[]> commands;
 
     static {
-        commands = new HashMap<String, String[]>();
+        commands = new HashMap<>();
         commands.put("add-repo",
                 new String[]{"Adds the repository at the given URL to the local store",
                         "/mpt add-repo [url]",
@@ -82,9 +82,9 @@ public class HelpCommand extends SubcommandManager {
                         "/mpt info [package id]",
                         "mpt.use"});
         commands.put("abort",
-                new String[]{"Attempts to abort any currently running tasks and unlock the local stores. This " +
-                        "command is not officially supported and may mess up your stores. Use it as a last resort " +
-                        "ONLY.",
+                new String[]{"Attempts to abort any currently running tasks and unlock the local stores. This "
+                        + "command is not officially supported and may mess up your stores. Use it as a last resort "
+                        + "ONLY.",
                         "/mpt abort",
                         "mpt.abort"});
         commands.put("help",
@@ -100,13 +100,15 @@ public class HelpCommand extends SubcommandManager {
 
     @Override
     public void handle() {
-        if (!checkPerms()) return;
+        if (!checkPerms()) {
+            return;
+        }
         sender.sendMessage(INFO_COLOR + "Commands available to you:");
         for (Map.Entry e : commands.entrySet()) {
             if (sender.hasPermission(((String[])e.getValue())[2])) {
                 sender.sendMessage(ChatColor.DARK_GRAY + "-----------------------------------------------");
-                sender.sendMessage(COMMAND_COLOR + "/mpt " + e.getKey() + ChatColor.WHITE + " - " +
-                        INFO_COLOR + ((String[])e.getValue())[0]);
+                sender.sendMessage(COMMAND_COLOR + "/mpt " + e.getKey() + ChatColor.WHITE + " - " + INFO_COLOR
+                        + ((String[])e.getValue())[0]);
                 sender.sendMessage(INFO_COLOR + "Usage: " + ((String[])e.getValue())[1]);
                 sender.sendMessage(INFO_COLOR + "Permission node: " + ((String[])e.getValue())[2]);
             }

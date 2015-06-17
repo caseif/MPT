@@ -61,29 +61,31 @@ public class JSONPrettyPrinter extends HashMap {
         sb.append(newLine);
 
         while (iter.hasNext()) {
-            if (first)
+            if (first) {
                 first = false;
-            else {
+            } else {
                 sb.append(',');
                 sb.append(newLine);
             }
 
-            for (int i = 0; i < column * INDENT; i++)
+            for (int i = 0; i < column * INDENT; i++) {
                 sb.append(' ');
+            }
 
             Map.Entry entry = (Map.Entry)iter.next();
             sb.append('\"').append(escape(String.valueOf(entry.getKey()))).append("\": ");
 
-            sb.append(entry.getValue() instanceof Map ?
-                    toJSONString((Map)entry.getValue()) :
-                    valueToJsonString(entry.getValue()));
+            sb.append(entry.getValue() instanceof Map
+                    ? toJSONString((Map)entry.getValue())
+                    : valueToJsonString(entry.getValue()));
         }
 
         sb.append(newLine);
         column--;
 
-        for (int i = 0; i < column * INDENT; i++)
+        for (int i = 0; i < column * INDENT; i++) {
             sb.append(' ');
+        }
 
         sb.append('}');
         return sb.toString();
@@ -104,12 +106,14 @@ public class JSONPrettyPrinter extends HashMap {
 
         sb.append('[');
         while (iter.hasNext()) {
-            if (first)
+            if (first) {
                 first = false;
-            else
+            } else {
                 sb.append(',').append(newLine);
-            for (int i = 0; i < column * INDENT + 4; i++)
+            }
+            for (int i = 0; i < column * INDENT + 4; i++) {
                 sb.append(' ');
+            }
 
             Object value = iter.next();
             if (value == null) {
@@ -120,43 +124,53 @@ public class JSONPrettyPrinter extends HashMap {
             sb.append(valueToJsonString(value));
         }
         sb.append(newLine);
-        for (int i = 0; i < column * INDENT; i++)
+        for (int i = 0; i < column * INDENT; i++) {
             sb.append(' ');
+        }
         sb.append(']');
         return sb.toString();
     }
 
     public static String valueToJsonString(Object value) throws IOException {
-        if (value == null)
+        if (value == null) {
             return "null";
+        }
 
-        if (value instanceof String)
+        if (value instanceof String) {
             return "\"" + escape((String)value) + "\"";
+        }
 
         if (value instanceof Double) {
-            if (((Double)value).isInfinite() || ((Double)value).isNaN())
+            if (((Double)value).isInfinite() || ((Double)value).isNaN()) {
                 return "null";
-            else
+            } else {
                 return value.toString();
+            }
         }
 
         if (value instanceof Float) {
-            if (((Float)value).isInfinite() || ((Float)value).isNaN())
+            if (((Float)value).isInfinite() || ((Float)value).isNaN()) {
                 return "null";
-            else
+            } else {
                 return value.toString();
+            }
         }
 
-        if (value instanceof Number)
+        if (value instanceof Number) {
             return value.toString();
-        if (value instanceof Boolean)
+        }
+        if (value instanceof Boolean) {
             return value.toString();
-        if (value instanceof Map)
+        }
+        if (value instanceof Map) {
             return JSONPrettyPrinter.toJSONString((Map)value);
-        if (value instanceof List)
+        }
+        if (value instanceof List) {
             return JSONPrettyPrinter.listToJsonString((List)value);
-        if ((value instanceof JSONAware))
+        }
+        if ((value instanceof JSONAware)) {
             return ((JSONAware)value).toJSONString();
+        }
 
         return value.toString();
     }
@@ -192,8 +206,9 @@ public class JSONPrettyPrinter extends HashMap {
                     if ((ch <= '\u001F') || (ch >= '\u007F' && ch <= '\u009F') || (ch >= '\u2000' && ch <= '\u20FF')) {
                         String ss = Integer.toHexString(ch);
                         sb.append("\\u");
-                        for (int k = 0; k < 4 - ss.length(); k++)
+                        for (int k = 0; k < 4 - ss.length(); k++) {
                             sb.append('0');
+                        }
                         sb.append(ss.toUpperCase());
                     } else {
                         sb.append(ch);

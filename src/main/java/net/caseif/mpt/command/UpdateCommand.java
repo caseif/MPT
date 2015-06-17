@@ -59,7 +59,9 @@ public class UpdateCommand extends SubcommandManager {
 
     @Override
     public void handle() {
-        if (!checkPerms()) return;
+        if (!checkPerms()) {
+            return;
+        }
         if (args.length == 1) {
             Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
                 public void run() {
@@ -72,38 +74,45 @@ public class UpdateCommand extends SubcommandManager {
                     }
                 }
             });
-        } else
-            sender.sendMessage(ERROR_COLOR + "[MPT] Too many arguments! Type " + COMMAND_COLOR + "/mpt help" +
-                    ERROR_COLOR + " for help.");
+        } else {
+            sender.sendMessage(ERROR_COLOR + "[MPT] Too many arguments! Type " + COMMAND_COLOR + "/mpt help"
+                    + ERROR_COLOR + " for help.");
+        }
     }
 
     @SuppressWarnings("unchecked")
     public static void updateStore() throws MPTException {
-        if (Thread.currentThread().getId() == Main.mainThreadId)
+        if (Thread.currentThread().getId() == Main.mainThreadId) {
             throw new MPTException(ERROR_COLOR + "Package store may not be updated from the main thread!");
+        }
         lockStores();
         final File rStoreFile = new File(Main.plugin.getDataFolder(), "repositories.json");
-        if (!rStoreFile.exists())
+        if (!rStoreFile.exists()) {
             Main.initializeRepoStore(rStoreFile); // gotta initialize it before using it
+        }
         final File pStoreFile = new File(Main.plugin.getDataFolder(), "packages.json");
-        if (!pStoreFile.exists())
+        if (!pStoreFile.exists()) {
             Main.initializePackageStore(pStoreFile);
+        }
         JSONObject repos = (JSONObject)Main.repoStore.get("repositories");
         Set<Map.Entry> entries = repos.entrySet();
         JSONObject localPackages = (JSONObject)Main.packageStore.get("packages");
         List<Object> remove = new ArrayList<Object>();
         for (Object k : localPackages.keySet()) {
-            if (!((JSONObject)localPackages.get(k)).containsKey("installed"))
+            if (!((JSONObject)localPackages.get(k)).containsKey("installed")) {
                 remove.add(k);
+            }
         }
-        for (Object r : remove)
+        for (Object r : remove) {
             localPackages.remove(r);
+        }
         for (Map.Entry<String, JSONObject> e : entries) {
             final String id = e.getKey().toLowerCase();
             JSONObject repo = e.getValue();
             final String url = repo.get("url").toString();
-            if (VERBOSE)
+            if (VERBOSE) {
                 Main.log.info("Updating repository \"" + id + "\"");
+            }
             JSONObject json = MiscUtil.getRemoteIndex(url);
             String repoId = json.get("id").toString();
             JSONObject packages = (JSONObject)json.get("packages");
@@ -118,35 +127,42 @@ public class UpdateCommand extends SubcommandManager {
                         String version = o.get("version").toString();
                         String contentUrl = o.get("url").toString();
                         String sha1 = o.containsKey("sha1") ? o.get("sha1").toString() : "";
-                        if (VERBOSE)
+                        if (VERBOSE) {
                             Main.log.info("Fetching package \"" + packId + "\"");
-                        String installed = localPackages.containsKey(packId) &&
-                                ((JSONObject)localPackages.get(packId)).containsKey("installed") ?
-                                (((JSONObject)localPackages.get(packId)).get("installed")).toString() :
-                                "";
-                        JSONArray files = localPackages.containsKey(packId) &&
-                                ((JSONObject)localPackages.get(packId)).containsKey("files") ?
-                                ((JSONArray)((JSONObject)localPackages.get(packId)).get("files")) :
-                                null;
+                        }
+                        String installed = localPackages.containsKey(packId)
+                                && ((JSONObject)localPackages.get(packId)).containsKey("installed")
+                                ? (((JSONObject)localPackages.get(packId)).get("installed")).toString()
+                                : "";
+                        JSONArray files = localPackages.containsKey(packId)
+                                && ((JSONObject)localPackages.get(packId)).containsKey("files")
+                                ? ((JSONArray)((JSONObject)localPackages.get(packId)).get("files"))
+                                : null;
                         JSONObject pObj = new JSONObject();
                         pObj.put("repo", repoId);
                         pObj.put("name", name);
-                        if (!desc.isEmpty())
+                        if (!desc.isEmpty()) {
                             pObj.put("description", desc);
+                        }
                         pObj.put("version", version);
                         pObj.put("url", contentUrl);
-                        if (!sha1.isEmpty())
+                        if (!sha1.isEmpty()) {
                             pObj.put("sha1", sha1);
-                        if (!installed.isEmpty())
+                        }
+                        if (!installed.isEmpty()) {
                             pObj.put("installed", installed);
-                        if (files != null)
+                        }
+                        if (files != null) {
                             pObj.put("files", files);
+                        }
                         localPackages.put(packId, pObj);
-                    } else if (VERBOSE)
+                    } else if (VERBOSE) {
                         Main.log.warning("Missing checksum for package \"" + packId + ".\" Ignoring package...");
-                } else if (VERBOSE)
-                    Main.log.warning("Found invalid package definition \"" + packId + "\" in repository \"" +
-                            repoId + "\"");
+                    }
+                } else if (VERBOSE) {
+                    Main.log.warning("Found invalid package definition \"" + packId + "\" in repository \"" + repoId
+                            + "\"");
+                }
             }
         }
         Main.packageStore.put("packages", localPackages);

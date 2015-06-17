@@ -55,7 +55,9 @@ public class AddRepositoryCommand extends SubcommandManager {
 
     @Override
     public void handle() {
-        if (!checkPerms()) return;
+        if (!checkPerms()) {
+            return;
+        }
         if (args.length == 2) {
             final String path = args[1];
             // get the main array from the JSON object
@@ -74,37 +76,38 @@ public class AddRepositoryCommand extends SubcommandManager {
             Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
                 public void run() {
                     try {
-                        threadSafeSendMessage(sender, INFO_COLOR +
-                                "[MPT] Attempting connection to repository...");
+                        threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Attempting connection to repository...");
                         String id = addRepository(path);
-                        threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully added " +
-                                "repository under ID " + ID_COLOR + id + INFO_COLOR +
-                                " to local store! You may now use " + COMMAND_COLOR + "/mpt update" +
-                                INFO_COLOR + " to fetch available packages.");
+                        threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully added repository under ID "
+                                + ID_COLOR + id + INFO_COLOR + " to local store! You may now use " + COMMAND_COLOR
+                                + "/mpt update" + INFO_COLOR + " to fetch available packages.");
                     } catch (MPTException ex) {
                         threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
                     }
                 }
 
             });
-        } else if (args.length < 2)
-            sender.sendMessage(ERROR_COLOR + "[MPT] Too few arguments! Type " + COMMAND_COLOR +
-                    "/mpt help " + ERROR_COLOR + "for help");
-        else
-            sender.sendMessage(ERROR_COLOR + "[MPT] Too many arguments! Type " + COMMAND_COLOR +
-                    "/mpt help " + ERROR_COLOR + "for help");
+        } else if (args.length < 2) {
+            sender.sendMessage(ERROR_COLOR + "[MPT] Too few arguments! Type " + COMMAND_COLOR + "/mpt help "
+                    + ERROR_COLOR + "for help");
+        } else {
+            sender.sendMessage(ERROR_COLOR + "[MPT] Too many arguments! Type " + COMMAND_COLOR + "/mpt help "
+                    + ERROR_COLOR + "for help");
+        }
     }
 
     @SuppressWarnings("unchecked")
     public static String addRepository(String path) throws MPTException {
-        if (Thread.currentThread().getId() == Main.mainThreadId)
+        if (Thread.currentThread().getId() == Main.mainThreadId) {
             throw new MPTException(ERROR_COLOR + "Repositories may not be added from the main thread!");
+        }
         try {
             JSONObject json = MiscUtil.getRemoteIndex(path);
             String id = json.get("id").toString().toLowerCase(); // get ID from remote
             File store = new File(Main.plugin.getDataFolder(), "repositories.json");
-            if (!store.exists())
+            if (!store.exists()) {
                 Main.initializeRepoStore(store); // gotta initialize it before using it
+            }
             lockStores();
             JSONObject repoElement = new JSONObject(); // create a new JSON object
             repoElement.put("url", path); // set the repo URL
@@ -115,8 +118,7 @@ public class AddRepositoryCommand extends SubcommandManager {
             // apt-get doesn't fetch packages when a repo is added, so I'm following that precedent
         } catch (IOException ex) {
             unlockStores();
-            throw new MPTException(ERROR_COLOR + "Failed to add repository to local " +
-                    "store!");
+            throw new MPTException(ERROR_COLOR + "Failed to add repository to local store!");
         }
     }
 }

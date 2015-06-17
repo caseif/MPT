@@ -1,12 +1,12 @@
 // Apply Gradle plugins
 plugins {
-	id 'java'
-	id 'eclipse'
-	id 'idea'
-	id 'checkstyle'
+    id 'java'
+    id 'eclipse'
+    id 'idea'
+    id 'checkstyle'
 
     id 'com.github.hierynomus.license' version '0.11.0'
-	id 'com.github.johnrengelman.shadow' version '1.2.0'
+    id 'com.github.johnrengelman.shadow' version '1.2.0'
 }
 
 defaultTasks 'clean', 'licenseFormat', 'build', 'shadowJar'
@@ -27,65 +27,66 @@ targetCompatibility = 1.7
 
 ext {
     bukkit = 'org.bukkit:bukkit:1.8-R0.1-SNAPSHOT'
-	updater = 'net.gravitydevelopment.updater:updater:2.3'
-	junit = 'junit:junit:4.12'
+    updater = 'net.gravitydevelopment.updater:updater:2.3'
+    junit = 'junit:junit:4.12'
 }
 
 // Project repositories
 repositories {
-	mavenCentral()
-	maven { url 'http://hub.spigotmc.org/nexus/content/groups/public/' }
-	maven { url 'http://repo.gravitydevelopment.net/' }
+    mavenCentral()
+    maven {url 'http://hub.spigotmc.org/nexus/content/groups/public/'}
+    maven {url 'http://repo.gravitydevelopment.net/'}
 }
 
 // Project dependencies
 dependencies {
     compile bukkit
-	compile updater
-	testCompile junit
+    compile updater
+    testCompile junit
 }
 
 // Read source files using UTF-8
 tasks.withType(JavaCompile) {
-	options.encoding = 'UTF-8'
+    options.encoding = 'UTF-8'
 }
 
 processResources {
-  filter { String line -> line.replace('SNAPSHOT', 'SNAPSHOT' + versionSuffix) }
+    filter {String line -> line.replace('SNAPSHOT', 'SNAPSHOT' + versionSuffix)}
 }
 
 shadowJar {
-	dependencies {
-		include dependency(updater)
-	}
-	classifier = ''
+    dependencies {
+        include dependency(updater)
+    }
+    classifier = ''
 }
 
 // License header formatting
 license {
-	header file('LICENSE')
-	excludes([
-			'**/*.json',
-			'**/*.txt',
-			'**/*.yml',
-			'**/Metrics.java'])
-	sourceSets = project.sourceSets
-	ignoreFailures false
-	strictCheck true
-	mapping {
-		java = 'SLASHSTAR_STYLE'
-	}
+    header file('LICENSE')
+    excludes([
+            'LICENSE',
+            '**/*.json',
+            '**/*.txt',
+            '**/*.yml',
+            '**/Metrics.java'])
+    sourceSets = project.sourceSets
+    ignoreFailures false
+    strictCheck true
+    mapping {
+        java = 'SLASHSTAR_STYLE'
+    }
 }
 
 // check code style
 checkstyle {
     configProperties = [
-            "name"        : project.name,
-            "year"        : project.inceptionYear
+            "name": project.name,
+            "year": project.inceptionYear
     ]
     configFile = file("etc/checkstyle.xml")
 }
 
-tasks.withType(Checkstyle){
-	exclude '**/Metrics.java'
+tasks.withType(Checkstyle) {
+    exclude '**/Metrics.java'
 }

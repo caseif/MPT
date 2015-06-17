@@ -51,7 +51,9 @@ public class UpgradeCommand extends SubcommandManager {
     @Override
     @SuppressWarnings("unchecked")
     public void handle() {
-        if (!checkPerms()) return;
+        if (!checkPerms()) {
+            return;
+        }
         Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
             public void run() {
                 if (args.length > 1) {
@@ -59,15 +61,16 @@ public class UpgradeCommand extends SubcommandManager {
                     for (int i = 1; i < args.length; i++) {
                         String id = args[i].toLowerCase();
                         try {
-                            threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Attempting to upgrade package " +
-                                    ID_COLOR + id);
+                            threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Attempting to upgrade package " + ID_COLOR
+                                    + id);
                             String v = upgradePackage(id);
-                            if (v != null)
-                                threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully upgraded " +
-                                        ID_COLOR + id + INFO_COLOR + " to " + ID_COLOR + "v" + v);
-                            else
-                                threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Package " + ID_COLOR + id +
-                                        INFO_COLOR + " is already up-to-date");
+                            if (v != null) {
+                                threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully upgraded " + ID_COLOR
+                                        + id + INFO_COLOR + " to " + ID_COLOR + "v" + v);
+                            } else {
+                                threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Package " + ID_COLOR + id + INFO_COLOR
+                                        + " is already up-to-date");
+                            }
                         } catch (MPTException ex) {
                             threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
                         }
@@ -86,12 +89,13 @@ public class UpgradeCommand extends SubcommandManager {
                             if (((JSONObject)e.getValue()).containsKey("installed")) {
                                 try {
                                     String id = e.getKey().toString();
-                                    threadSafeSendMessage(sender, INFO_COLOR +
-                                            "[MPT] Attempting to upgrade package " + ID_COLOR + id);
+                                    threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Attempting to upgrade package "
+                                            + ID_COLOR + id);
                                     String v = upgradePackage(id);
-                                    if (v != null)
-                                        threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully upgraded " +
-                                                ID_COLOR + id + INFO_COLOR + " to " + ID_COLOR + "v" + v);
+                                    if (v != null) {
+                                        threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully upgraded "
+                                                + ID_COLOR + id + INFO_COLOR + " to " + ID_COLOR + "v" + v);
+                                    }
                                 } catch (MPTException ex) {
                                     threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
                                 }
@@ -103,8 +107,9 @@ public class UpgradeCommand extends SubcommandManager {
                                 threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Finished uprgading packages!");
                             }
                         });
-                    } else
+                    } else {
                         threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] Local package store is malformed!");
+                    }
                 }
             }
         });
@@ -120,11 +125,12 @@ public class UpgradeCommand extends SubcommandManager {
      * @throws MPTException if called from the main thread, or if something goes wrong while upgrading
      */
     public static String upgradePackage(String id) throws MPTException {
-        if (Thread.currentThread().getId() == Main.mainThreadId)
+        if (Thread.currentThread().getId() == Main.mainThreadId) {
             throw new MPTException(ERROR_COLOR + "Packages may not be upgraded from the main thread!");
+        }
         id = id.toLowerCase();
-        if (Main.packageStore.containsKey("packages") &&
-                ((JSONObject)Main.packageStore.get("packages")).containsKey(id)) {
+        if (Main.packageStore.containsKey("packages")
+                && ((JSONObject)Main.packageStore.get("packages")).containsKey(id)) {
             JSONObject pack = (JSONObject)((JSONObject)Main.packageStore.get("packages")).get(id);
             if (pack.containsKey("installed")) {
                 if (pack.containsKey("version")) {
@@ -135,14 +141,17 @@ public class UpgradeCommand extends SubcommandManager {
                         InstallCommand.downloadPackage(id);
                         InstallCommand.installPackage(id);
                         return pack.get("version").toString();
-                    } else // up-to-date
+                    } else { // up-to-date
                         return null;
-                } else
-                    throw new MPTException(ERROR_COLOR + "Package " + ID_COLOR + id + ERROR_COLOR +
-                            " is missing version string! Type " + COMMAND_COLOR + "/mpt update" + ERROR_COLOR +
-                            " to fix this.");
-            } else
+                    }
+                } else {
+                    throw new MPTException(ERROR_COLOR + "Package " + ID_COLOR + id + ERROR_COLOR
+                            + " is missing version string! Type " + COMMAND_COLOR + "/mpt update" + ERROR_COLOR
+                            + " to fix this.");
+                }
+            } else {
                 throw new MPTException(ERROR_COLOR + "Package " + ID_COLOR + id + ERROR_COLOR + " is not installed!");
+            }
         }
         return null;
     }

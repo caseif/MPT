@@ -45,13 +45,15 @@ public class ListInstalledCommand extends SubcommandManager {
 
     @Override
     public void handle() {
-        if (!checkPerms()) return;
+        if (!checkPerms()) {
+            return;
+        }
         try {
             List<String> messages = new ArrayList<>();
             messages.add(Config.INFO_COLOR + "[MPT] Installed packages:");
             for (String[] info : getPackages()) {
-                messages.add(Config.INFO_COLOR + "- " + Config.ID_COLOR + info[1] + " v" + info[2] +
-                        Config.INFO_COLOR + " (id: " + Config.ID_COLOR + info[0] + Config.INFO_COLOR + ")");
+                messages.add(Config.INFO_COLOR + "- " + Config.ID_COLOR + info[1] + " v" + info[2] + Config.INFO_COLOR
+                        + " (id: " + Config.ID_COLOR + info[0] + Config.INFO_COLOR + ")");
             }
             sender.sendMessage(messages.toArray(new String[messages.size()]));
         } catch (MPTException ex) {

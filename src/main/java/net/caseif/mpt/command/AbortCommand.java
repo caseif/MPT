@@ -39,7 +39,9 @@ public class AbortCommand extends SubcommandManager {
 
     @Override
     public void handle() {
-        if (!checkPerms()) return;
+        if (!checkPerms()) {
+            return;
+        }
         Main.log.info("Forcibly unlocking stores...");
         Bukkit.getScheduler().cancelTasks(Main.plugin); // cancel any currently running tasks
         MiscUtil.unlockStores();

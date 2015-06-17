@@ -45,13 +45,15 @@ public class ListAvailableCommand extends SubcommandManager {
 
     @Override
     public void handle() {
-        if (!checkPerms()) return;
+        if (!checkPerms()) {
+            return;
+        }
         try {
             List<String> messages = new ArrayList<>();
             messages.add(Config.INFO_COLOR + "[MPT] Available packages:");
             for (String[] info : getPackages()) {
-                messages.add(Config.INFO_COLOR + "- " + Config.ID_COLOR + info[1] + " v" + info[2] +
-                        Config.INFO_COLOR + " (id: " + Config.ID_COLOR + info[0] + Config.INFO_COLOR + ")");
+                messages.add(Config.INFO_COLOR + "- " + Config.ID_COLOR + info[1] + " v" + info[2]
+                        + Config.INFO_COLOR + " (id: " + Config.ID_COLOR + info[0] + Config.INFO_COLOR + ")");
             }
             sender.sendMessage(messages.toArray(new String[messages.size()]));
         } catch (MPTException ex) {
@@ -66,8 +68,8 @@ public class ListAvailableCommand extends SubcommandManager {
             Set<Map.Entry<String, Object>> entries = packs.entrySet();
             List<String[]> packList = new ArrayList<>();
             for (Map.Entry<String, Object> e : entries) {
-                if (((JSONObject)e.getValue()).containsKey("name") &&
-                        ((JSONObject)e.getValue()).containsKey("version")) {
+                if (((JSONObject)e.getValue()).containsKey("name")
+                        && ((JSONObject)e.getValue()).containsKey("version")) {
                     packList.add(new String[]{
                             e.getKey().toLowerCase(),
                             ((JSONObject)e.getValue()).get("name").toString(),

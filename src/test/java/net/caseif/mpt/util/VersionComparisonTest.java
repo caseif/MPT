@@ -25,108 +25,111 @@
  */
 package net.caseif.mpt.util;
 
+import static net.caseif.mpt.util.MiscUtil.compareVersions;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 public class VersionComparisonTest {
 
-	@Test
-	public void testVersionEquality(){
-		assertEquals(compareVersions("1", "1"), 0);
-		assertEquals(compareVersions("1", "1.0"), 0);
-		assertEquals(compareVersions("1", "1.0.0"), 0);
-		assertEquals(compareVersions("1.0", "1"), 0);
-		assertEquals(compareVersions("1.0", "1.0"), 0);
-		assertEquals(compareVersions("1.0", "1.0.0"), 0);
-		assertEquals(compareVersions("1.0.0", "1"), 0);
-		assertEquals(compareVersions("1.0.0", "1.0"), 0);
-		assertEquals(compareVersions("1.0.0", "1.0.0"), 0);
-		assertEquals(compareVersions("1-alpha", "1-alpha"), 0);
-	}
+    @Test
+    public void testVersionEquality() {
+        assertEquals(compareVersions("1", "1"), 0);
+        assertEquals(compareVersions("1", "1.0"), 0);
+        assertEquals(compareVersions("1", "1.0.0"), 0);
+        assertEquals(compareVersions("1.0", "1"), 0);
+        assertEquals(compareVersions("1.0", "1.0"), 0);
+        assertEquals(compareVersions("1.0", "1.0.0"), 0);
+        assertEquals(compareVersions("1.0.0", "1"), 0);
+        assertEquals(compareVersions("1.0.0", "1.0"), 0);
+        assertEquals(compareVersions("1.0.0", "1.0.0"), 0);
+        assertEquals(compareVersions("1-alpha", "1-alpha"), 0);
+    }
 
-	@Test
-	public void testMajorVersionGreater(){
-		assertEquals(compareVersions("1", "2"), 1);
-		assertEquals(compareVersions("1", "2.0"), 1);
-		assertEquals(compareVersions("1", "2.0.0"), 1);
-		assertEquals(compareVersions("1.0", "2"), 1);
-		assertEquals(compareVersions("1.0", "2.0"), 1);
-		assertEquals(compareVersions("1.0", "2.0.0"), 1);
-		assertEquals(compareVersions("1.0.0", "2"), 1);
-		assertEquals(compareVersions("1.0.0", "2.0"), 1);
-		assertEquals(compareVersions("1.0.0", "2.0.0"), 1);
-	}
+    @Test
+    public void testMajorVersionGreater() {
+        assertEquals(compareVersions("1", "2"), 1);
+        assertEquals(compareVersions("1", "2.0"), 1);
+        assertEquals(compareVersions("1", "2.0.0"), 1);
+        assertEquals(compareVersions("1.0", "2"), 1);
+        assertEquals(compareVersions("1.0", "2.0"), 1);
+        assertEquals(compareVersions("1.0", "2.0.0"), 1);
+        assertEquals(compareVersions("1.0.0", "2"), 1);
+        assertEquals(compareVersions("1.0.0", "2.0"), 1);
+        assertEquals(compareVersions("1.0.0", "2.0.0"), 1);
+    }
 
-	@Test
-	public void testMinorVersionGreater(){
-		assertEquals(compareVersions("1", "1.1"), 1);
-		assertEquals(compareVersions("1", "1.1.0"), 1);
-		assertEquals(compareVersions("1.0", "1.1"), 1);
-		assertEquals(compareVersions("1.0", "1.1.0"), 1);
-		assertEquals(compareVersions("1.0.0", "1.1"), 1);
-		assertEquals(compareVersions("1.0.0", "1.1.0"), 1);
-	}
+    @Test
+    public void testMinorVersionGreater() {
+        assertEquals(compareVersions("1", "1.1"), 1);
+        assertEquals(compareVersions("1", "1.1.0"), 1);
+        assertEquals(compareVersions("1.0", "1.1"), 1);
+        assertEquals(compareVersions("1.0", "1.1.0"), 1);
+        assertEquals(compareVersions("1.0.0", "1.1"), 1);
+        assertEquals(compareVersions("1.0.0", "1.1.0"), 1);
+    }
 
-	@Test
-	public void testIncrementalVersionGreater(){
-		assertEquals(compareVersions("1", "1.0.1"), 1);
-		assertEquals(compareVersions("1.0", "1.0.1"), 1);
-		assertEquals(compareVersions("1.0.0", "1.0.1"), 1);
-	}
+    @Test
+    public void testIncrementalVersionGreater() {
+        assertEquals(compareVersions("1", "1.0.1"), 1);
+        assertEquals(compareVersions("1.0", "1.0.1"), 1);
+        assertEquals(compareVersions("1.0.0", "1.0.1"), 1);
+    }
 
-	@Test
-	public void testQualifierGreater(){
-		assertEquals(compareVersions("1-alpha", "1-beta"), 1);
-		assertEquals(compareVersions("1-alpha", "1.0-beta"), 1);
-		assertEquals(compareVersions("1-alpha", "1.0.0-beta"), 1);
-		assertEquals(compareVersions("1.0-alpha", "1-beta"), 1);
-		assertEquals(compareVersions("1.0-alpha", "1.0-beta"), 1);
-		assertEquals(compareVersions("1.0-alpha", "1.0.0-beta"), 1);
-		assertEquals(compareVersions("1.0.0-alpha", "1-beta"), 1);
-		assertEquals(compareVersions("1.0.0-alpha", "1.0-beta"), 1);
-		assertEquals(compareVersions("1.0.0-alpha", "1.0.0-beta"), 1);
-	}
+    @Test
+    public void testQualifierGreater() {
+        assertEquals(compareVersions("1-alpha", "1-beta"), 1);
+        assertEquals(compareVersions("1-alpha", "1.0-beta"), 1);
+        assertEquals(compareVersions("1-alpha", "1.0.0-beta"), 1);
+        assertEquals(compareVersions("1.0-alpha", "1-beta"), 1);
+        assertEquals(compareVersions("1.0-alpha", "1.0-beta"), 1);
+        assertEquals(compareVersions("1.0-alpha", "1.0.0-beta"), 1);
+        assertEquals(compareVersions("1.0.0-alpha", "1-beta"), 1);
+        assertEquals(compareVersions("1.0.0-alpha", "1.0-beta"), 1);
+        assertEquals(compareVersions("1.0.0-alpha", "1.0.0-beta"), 1);
+    }
 
-	@Test
-	public void testMajorVersionLesser(){
-		assertEquals(compareVersions("2", "1"), -1);
-		assertEquals(compareVersions("2", "1.0"), -1);
-		assertEquals(compareVersions("2", "1.0.0"), -1);
-		assertEquals(compareVersions("2.0", "1"), -1);
-		assertEquals(compareVersions("2.0", "1.0"), -1);
-		assertEquals(compareVersions("2.0", "1.0.0"), -1);
-		assertEquals(compareVersions("2.0.0", "1"), -1);
-		assertEquals(compareVersions("2.0.0", "1.0"), -1);
-		assertEquals(compareVersions("2.0.0", "1.0.0"), -1);
-	}
+    @Test
+    public void testMajorVersionLesser() {
+        assertEquals(compareVersions("2", "1"), -1);
+        assertEquals(compareVersions("2", "1.0"), -1);
+        assertEquals(compareVersions("2", "1.0.0"), -1);
+        assertEquals(compareVersions("2.0", "1"), -1);
+        assertEquals(compareVersions("2.0", "1.0"), -1);
+        assertEquals(compareVersions("2.0", "1.0.0"), -1);
+        assertEquals(compareVersions("2.0.0", "1"), -1);
+        assertEquals(compareVersions("2.0.0", "1.0"), -1);
+        assertEquals(compareVersions("2.0.0", "1.0.0"), -1);
+    }
 
-	@Test
-	public void testMinorVersionLesser(){
-		assertEquals(compareVersions("1.1", "1"), -1);
-		assertEquals(compareVersions("1.1", "1.0"), -1);
-		assertEquals(compareVersions("1.1", "1.0.0"), -1);
-		assertEquals(compareVersions("1.1.0", "1"), -1);
-		assertEquals(compareVersions("1.1.0", "1.0"), -1);
-		assertEquals(compareVersions("1.1.0", "1.0.0"), -1);
-	}
+    @Test
+    public void testMinorVersionLesser() {
+        assertEquals(compareVersions("1.1", "1"), -1);
+        assertEquals(compareVersions("1.1", "1.0"), -1);
+        assertEquals(compareVersions("1.1", "1.0.0"), -1);
+        assertEquals(compareVersions("1.1.0", "1"), -1);
+        assertEquals(compareVersions("1.1.0", "1.0"), -1);
+        assertEquals(compareVersions("1.1.0", "1.0.0"), -1);
+    }
 
-	@Test
-	public void testIncrementalVersionLesser(){
-		assertEquals(compareVersions("1.0.1", "1"), -1);
-		assertEquals(compareVersions("1.0.1", "1.0"), -1);
-		assertEquals(compareVersions("1.0.1", "1.0.0"), -1);
-	}
+    @Test
+    public void testIncrementalVersionLesser() {
+        assertEquals(compareVersions("1.0.1", "1"), -1);
+        assertEquals(compareVersions("1.0.1", "1.0"), -1);
+        assertEquals(compareVersions("1.0.1", "1.0.0"), -1);
+    }
 
-	@Test
-	public void testQualifierLesser(){
-		assertEquals(compareVersions("1-beta", "1-alpha"), -1);
-		assertEquals(compareVersions("1-beta", "1.0-alpha"), -1);
-		assertEquals(compareVersions("1-beta", "1.0.0-alpha"), -1);
-		assertEquals(compareVersions("1.0-beta", "1-alpha"), -1);
-		assertEquals(compareVersions("1.0-beta", "1.0-alpha"), -1);
-		assertEquals(compareVersions("1.0-beta", "1.0.0-alpha"), -1);
-		assertEquals(compareVersions("1.0.0-beta", "1-alpha"), -1);
-		assertEquals(compareVersions("1.0.0-beta", "1.0-alpha"), -1);
-		assertEquals(compareVersions("1.0.0-beta", "1.0.0-alpha"), -1);
-	}
+    @Test
+    public void testQualifierLesser() {
+        assertEquals(compareVersions("1-beta", "1-alpha"), -1);
+        assertEquals(compareVersions("1-beta", "1.0-alpha"), -1);
+        assertEquals(compareVersions("1-beta", "1.0.0-alpha"), -1);
+        assertEquals(compareVersions("1.0-beta", "1-alpha"), -1);
+        assertEquals(compareVersions("1.0-beta", "1.0-alpha"), -1);
+        assertEquals(compareVersions("1.0-beta", "1.0.0-alpha"), -1);
+        assertEquals(compareVersions("1.0.0-beta", "1-alpha"), -1);
+        assertEquals(compareVersions("1.0.0-beta", "1.0-alpha"), -1);
+        assertEquals(compareVersions("1.0.0-beta", "1.0.0-alpha"), -1);
+    }
 
 }

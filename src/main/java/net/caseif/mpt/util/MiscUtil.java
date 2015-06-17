@@ -78,9 +78,10 @@ public class MiscUtil {
      * @throws MPTException if the store is already locked
      */
     public static void lockStores() throws MPTException {
-        if (Main.LOCKED)
-            throw new MPTException(Config.ERROR_COLOR + "Failed to lock local stores! Perhaps a task is currently " +
-                    "running or has uncleanly terminated?");
+        if (Main.LOCKED) {
+            throw new MPTException(Config.ERROR_COLOR + "Failed to lock local stores! Perhaps a task is currently "
+                    + "running or has uncleanly terminated?");
+        }
         Main.LOCKED = true;
     }
 
@@ -104,24 +105,27 @@ public class MiscUtil {
                     JSONParser parser = new JSONParser(); // get a new parser
                     String line;
                     StringBuilder content = new StringBuilder();
-                    while ((line = reader.readLine()) != null)
+                    while ((line = reader.readLine()) != null) {
                         content.append(line);
+                    }
                     JSONObject json = (JSONObject)parser.parse(content.toString()); // parse JSON object
                     // vefify remote config is valid
                     if (json.containsKey("packages") && json.get("packages") instanceof JSONObject) {
                         return json;
-                    } else
-                        throw new MPTException(Config.ERROR_COLOR + "Index for repository at " + path +
-                                "is missing required elements!");
+                    } else {
+                        throw new MPTException(Config.ERROR_COLOR + "Index for repository at " + path
+                                + "is missing required elements!");
+                    }
                 } else {
                     String error = Config.ERROR_COLOR + "Remote returned bad response code! (" + response + ")";
-                    if (!http.getResponseMessage().isEmpty())
-                        error += " The remote says: " + ChatColor.GRAY +
-                                ChatColor.ITALIC + http.getResponseMessage();
+                    if (!http.getResponseMessage().isEmpty()) {
+                        error += " The remote says: " + ChatColor.GRAY + ChatColor.ITALIC + http.getResponseMessage();
+                    }
                     throw new MPTException(error);
                 }
-            } else
+            } else {
                 throw new MPTException(Config.ERROR_COLOR + "Bad protocol for URL!");
+            }
         } catch (MalformedURLException ex) {
             throw new MPTException(Config.ERROR_COLOR + "Cannot parse URL!");
         } catch (IOException ex) {
@@ -155,15 +159,17 @@ public class MiscUtil {
             StringBuilder sb = new StringBuilder();
             for (byte mdbyte : mdbytes) {
                 String hex = Integer.toHexString(0xff & mdbyte);
-                if (hex.length() == 1)
+                if (hex.length() == 1) {
                     sb.append('0');
+                }
                 sb.append(hex);
             }
             return sb.toString();
         } catch (Exception ex) {
-            if (Config.ENFORCE_CHECKSUM)
-                throw new MPTException(Config.ERROR_COLOR + "Failed to get checksum for local package " + Config.ID_COLOR + path +
-                        Config.ERROR_COLOR + "!");
+            if (Config.ENFORCE_CHECKSUM) {
+                throw new MPTException(Config.ERROR_COLOR + "Failed to get checksum for local package "
+                        + Config.ID_COLOR + path + Config.ERROR_COLOR + "!");
+            }
         }
         return null;
     }
@@ -178,8 +184,9 @@ public class MiscUtil {
         } catch (Exception e) {
             return -1;
         } finally {
-            if (conn != null)
+            if (conn != null) {
                 conn.disconnect();
+            }
         }
     }
 
@@ -191,25 +198,27 @@ public class MiscUtil {
             entryLoop:
             while (en.hasMoreElements()) {
                 ZipEntry entry = en.nextElement();
-                String name = entry.getName().startsWith("./") ?
-                        entry.getName().substring(2, entry.getName().length()) :
-                        entry.getName();
+                String name = entry.getName().startsWith("./")
+                        ? entry.getName().substring(2, entry.getName().length())
+                        : entry.getName();
                 File file = new File(dest, name);
                 if (entry.isDirectory()) {
                     if (file.exists()) {
                         if (Config.DISALLOW_MERGE) {
                             existingDirs.add(name);
-                            if (Config.VERBOSE)
+                            if (Config.VERBOSE) {
                                 Main.log.warning("Refusing to extract directory " + name + ": already exists");
+                            }
                         }
                     }
                 } else {
                     files.add(name);
                     for (String dir : Config.DISALLOWED_DIRECTORIES) {
                         if (file.getPath().startsWith(dir)) {
-                            if (Config.VERBOSE)
-                                Main.log.warning("Refusing to extract " + name + " from " + zip.getName() +
-                                        ": parent directory \"" + dir + "\" is not allowed");
+                            if (Config.VERBOSE) {
+                                Main.log.warning("Refusing to extract " + name + " from " + zip.getName()
+                                        + ": parent directory \"" + dir + "\" is not allowed");
+                            }
                             continue entryLoop;
                         }
                     }
@@ -227,9 +236,10 @@ public class MiscUtil {
                         file.getParentFile().mkdirs();
                         for (String ext : Config.DISALLOWED_EXTENSIONS) {
                             if (file.getName().endsWith(ext)) {
-                                if (Config.VERBOSE)
-                                    Main.log.warning("Refusing to extract " + name + " from " + zip.getName() +
-                                            ": extension \"" + ext + "\" is not allowed");
+                                if (Config.VERBOSE) {
+                                    Main.log.warning("Refusing to extract " + name + " from " + zip.getName()
+                                            + ": extension \"" + ext + "\" is not allowed");
+                                }
                                 returnValue = false;
                                 continue entryLoop;
                             }
@@ -239,15 +249,17 @@ public class MiscUtil {
                         byte[] buffer = new byte[1024];
                         FileOutputStream fOs = new FileOutputStream(file);
                         BufferedOutputStream bOs = new BufferedOutputStream(fOs, 1024);
-                        while ((b = bIs.read(buffer, 0, 1024)) != -1)
+                        while ((b = bIs.read(buffer, 0, 1024)) != -1) {
                             bOs.write(buffer, 0, b);
+                        }
                         bOs.flush();
                         bOs.close();
                         bIs.close();
                     } else {
-                        if (Config.VERBOSE)
-                            Main.log.warning("Refusing to extract " + name + " from " + zip.getName() +
-                                    ": already exists");
+                        if (Config.VERBOSE) {
+                            Main.log.warning("Refusing to extract " + name + " from " + zip.getName()
+                                    + ": already exists");
+                        }
                         returnValue = false;
                     }
                 }
@@ -302,24 +314,25 @@ public class MiscUtil {
         int major2;
         try {
             major1 = Integer.parseInt(vStr1.split("\\.")[0]);
-            if (major1 < 0)
+            if (major1 < 0) {
                 throw new NumberFormatException();
+            }
         } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException("Version string \"" + vStr1 +
-                    "\" contains invalid major version!");
+            throw new IllegalArgumentException("Version string \"" + vStr1 + "\" contains invalid major version!");
         }
         try {
             major2 = Integer.parseInt(vStr2.split("\\.")[0]);
-            if (major2 < 0)
+            if (major2 < 0) {
                 throw new NumberFormatException();
+            }
         } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException("Version string \"" + vStr2 +
-                    "\" contains invalid major version!");
+            throw new IllegalArgumentException("Version string \"" + vStr2 + "\" contains invalid major version!");
         }
-        if (major2 > major1)
+        if (major2 > major1) {
             return 1;
-        else if (major2 < major1)
+        } else if (major2 < major1) {
             return -1;
+        }
         // else major versions are equal
 
         // compare minor versions
@@ -327,24 +340,25 @@ public class MiscUtil {
         int minor2;
         try {
             minor1 = vStr1.split("\\.").length > 1 ? Integer.parseInt(vStr1.split("\\.")[1]) : 0;
-            if (minor1 < 0)
+            if (minor1 < 0) {
                 throw new NumberFormatException();
+            }
         } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException("Version string \"" + vStr1 +
-                    "\" contains invalid minor version!");
+            throw new IllegalArgumentException("Version string \"" + vStr1 + "\" contains invalid minor version!");
         }
         try {
             minor2 = vStr2.split("\\.").length > 1 ? Integer.parseInt(vStr2.split("\\.")[1]) : 0;
-            if (minor2 < 0)
+            if (minor2 < 0) {
                 throw new NumberFormatException();
+            }
         } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException("Version string \"" + vStr2 +
-                    "\" contains invalid minor version!");
+            throw new IllegalArgumentException("Version string \"" + vStr2 + "\" contains invalid minor version!");
         }
-        if (minor2 > minor1)
+        if (minor2 > minor1) {
             return 1;
-        else if (minor2 < minor1)
+        } else if (minor2 < minor1) {
             return -1;
+        }
         // else minor versions are equal
 
         // compare incremental versions
@@ -352,32 +366,37 @@ public class MiscUtil {
         int inc2;
         try {
             inc1 = vStr1.split("\\.").length > 2 ? Integer.parseInt(vStr1.split("\\.")[2]) : 0;
-            if (inc1 < 0)
+            if (inc1 < 0) {
                 throw new NumberFormatException();
+            }
         } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException("Version string \"" + vStr1 +
-                    "\" contains invalid minor version!");
+            throw new IllegalArgumentException("Version string \"" + vStr1 + "\" contains invalid minor version!");
         }
         try {
             inc2 = vStr2.split("\\.").length > 2 ? Integer.parseInt(vStr2.split("\\.")[2]) : 0;
-            if (inc2 < 0)
+            if (inc2 < 0) {
                 throw new NumberFormatException();
+            }
         } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException("Version string \"" + vStr2 +
-                    "\" contains invalid minor version!");
+            throw new IllegalArgumentException("Version string \"" + vStr2 + "\" contains invalid minor version!");
         }
-        if (inc2 > inc1)
+        if (inc2 > inc1) {
             return 1;
-        else if (inc2 < inc1)
+        } else if (inc2 < inc1) {
             return -1;
+        }
         // else incremental versions are equal
 
         String qual1 = version1.contains("-") ? version1.substring(version1.indexOf("-") + 1) : "";
         String qual2 = version2.contains("-") ? version2.substring(version2.indexOf("-") + 1) : "";
         int lex = qual1.compareTo(qual2);
-        if (lex > 0) return -1;
-        else if (lex < 0) return 1;
-        else return 0;
+        if (lex > 0) {
+            return -1;
+        } else if (lex < 0) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
 }

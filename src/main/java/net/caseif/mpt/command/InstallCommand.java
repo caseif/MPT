@@ -65,30 +65,33 @@ public class InstallCommand extends SubcommandManager {
 
     @Override
     public void handle() {
-        if (!checkPerms()) return;
+        if (!checkPerms()) {
+            return;
+        }
         if (args.length > 1) {
             Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, new Runnable() {
                 public void run() {
                     try {
                         for (int i = 1; i < args.length; i++) {
                             String id = args[i].toLowerCase();
-                            threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Downloading package " + ID_COLOR +
-                                    id + INFO_COLOR + "...");
+                            threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Downloading package " + ID_COLOR + id
+                                    + INFO_COLOR + "...");
                             downloadPackage(id);
-                            threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully downloaded content! " +
-                                    "Installing...");
+                            threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully downloaded content! "
+                                    + "Installing...");
                             installPackage(id);
-                            threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully installed " +
-                                    ID_COLOR + id);
+                            threadSafeSendMessage(sender, INFO_COLOR + "[MPT] Successfully installed "
+                                    + ID_COLOR + id);
                         }
                     } catch (MPTException ex) {
                         threadSafeSendMessage(sender, ERROR_COLOR + "[MPT] " + ex.getMessage());
                     }
                 }
             });
-        } else
-            sender.sendMessage(ERROR_COLOR + "[MPT] Too few arguments! Type " + COMMAND_COLOR + "/mpt help" +
-                    ERROR_COLOR + " for help.");
+        } else {
+            sender.sendMessage(ERROR_COLOR + "[MPT] Too few arguments! Type " + COMMAND_COLOR + "/mpt help"
+                    + ERROR_COLOR + " for help.");
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -105,8 +108,7 @@ public class InstallCommand extends SubcommandManager {
                         String url = pack.get("url").toString();
                         String sha1 = pack.containsKey("sha1") ? pack.get("sha1").toString() : "";
                         if (pack.containsKey("installed")) { //TODO: compare versions
-                            throw new MPTException(ID_COLOR + name + ERROR_COLOR +
-                                    " is already installed");
+                            throw new MPTException(ID_COLOR + name + ERROR_COLOR + " is already installed");
                         }
                         try {
                             URLConnection conn = new URL(url).openConnection();
@@ -122,36 +124,42 @@ public class InstallCommand extends SubcommandManager {
                             os.close();
                             if (!sha1.isEmpty() && !sha1(file.getAbsolutePath()).equals(sha1)) {
                                 file.delete();
-                                throw new MPTException(ERROR_COLOR + "Failed to install package " + ID_COLOR +
-                                        fullName + ERROR_COLOR + ": checksum mismatch!");
+                                throw new MPTException(ERROR_COLOR + "Failed to install package " + ID_COLOR + fullName
+                                        + ERROR_COLOR + ": checksum mismatch!");
                             }
                         } catch (IOException ex) {
                             throw new MPTException(ERROR_COLOR + "Failed to download package " + ID_COLOR + fullName);
                         }
-                    } else
-                        throw new MPTException(ERROR_COLOR + "Package " + ID_COLOR + id + ERROR_COLOR +
-                                " is missing SHA-1 checksum! Aborting...");
-                } else
-                    throw new MPTException(ERROR_COLOR + "Package " + ID_COLOR + id + ERROR_COLOR +
-                            " is missing required elements!");
-            } else
+                    } else {
+                        throw new MPTException(ERROR_COLOR + "Package " + ID_COLOR + id + ERROR_COLOR
+                                + " is missing SHA-1 checksum! Aborting...");
+                    }
+                } else {
+                    throw new MPTException(ERROR_COLOR + "Package " + ID_COLOR + id + ERROR_COLOR
+                            + " is missing required elements!");
+                }
+            } else {
                 throw new MPTException(ERROR_COLOR + "Cannot find package with id " + ID_COLOR + id);
+            }
         } else {
             throw new MPTException(ERROR_COLOR + "Package store is malformed!");
         }
     }
 
     public static void installPackage(String id) throws MPTException {
-        if (Thread.currentThread().getId() == Main.mainThreadId)
+        if (Thread.currentThread().getId() == Main.mainThreadId) {
             throw new MPTException(ERROR_COLOR + "Packages may not be installed from the main thread!");
+        }
         id = id.toLowerCase();
         try {
             File file = new File(Main.plugin.getDataFolder(), "cache" + File.separator + id + ".zip");
-            if (!file.exists())
+            if (!file.exists()) {
                 downloadPackage(id);
-            if (!Main.packageStore.containsKey("packages") &&
-                    ((JSONObject)Main.packageStore.get("packages")).containsKey(id))
+            }
+            if (!Main.packageStore.containsKey("packages")
+                    && ((JSONObject)Main.packageStore.get("packages")).containsKey(id)) {
                 throw new MPTException(ERROR_COLOR + "Cannot find package by id " + ID_COLOR + id + ERROR_COLOR + "!");
+            }
             JSONObject pack = (JSONObject)((JSONObject)Main.packageStore.get("packages")).get(id);
             List<String> files = new ArrayList<>();
             lockStores();
@@ -160,12 +168,14 @@ public class InstallCommand extends SubcommandManager {
                     Bukkit.getWorldContainer(),
                     files
             );
-            if (!KEEP_ARCHIVES)
+            if (!KEEP_ARCHIVES) {
                 file.delete();
+            }
             pack.put("installed", pack.get("version").toString());
             JSONArray fileArray = new JSONArray();
-            for (String str : files)
+            for (String str : files) {
                 fileArray.add(str);
+            }
             pack.put("files", fileArray);
             try {
                 writePackageStore();
@@ -175,8 +185,9 @@ public class InstallCommand extends SubcommandManager {
                 throw new MPTException(ERROR_COLOR + "Failed to write package store to disk!");
             }
             unlockStores();
-            if (!success)
+            if (!success) {
                 throw new MPTException(ERROR_COLOR + "Some files were not extracted. Use verbose logging for details.");
+            }
         } catch (IOException ex) {
             throw new MPTException(ERROR_COLOR + "Failed to access archive!");
         }

@@ -47,22 +47,25 @@ public class RemoveRepositoryCommand extends SubcommandManager {
 
     @Override
     public void handle() {
-        if (!checkPerms()) return;
+        if (!checkPerms()) {
+            return;
+        }
         if (args.length == 2) {
             String id = args[1].toLowerCase();
             try {
                 removeRepository(id);
-                sender.sendMessage(Config.INFO_COLOR + "[MPT] Successfully removed repository " +
-                        Config.ID_COLOR + id + Config.INFO_COLOR + " from local store.");
+                sender.sendMessage(Config.INFO_COLOR + "[MPT] Successfully removed repository " + Config.ID_COLOR + id
+                        + Config.INFO_COLOR + " from local store.");
             } catch (MPTException ex) {
                 sender.sendMessage(Config.ERROR_COLOR + "[MPT] " + ex.getMessage());
             }
-        } else if (args.length < 2)
-            sender.sendMessage(Config.ERROR_COLOR + "[MPT] Too few arguments! Type " + Config.COMMAND_COLOR +
-                    "/mpt help" + Config.ERROR_COLOR + " for help.");
-        else
-            sender.sendMessage(Config.ERROR_COLOR + "[MPT] Too many arguments! Type " + Config.COMMAND_COLOR +
-                    "/mpt help" + Config.ERROR_COLOR + " for help.");
+        } else if (args.length < 2) {
+            sender.sendMessage(Config.ERROR_COLOR + "[MPT] Too few arguments! Type " + Config.COMMAND_COLOR
+                    + "/mpt help" + Config.ERROR_COLOR + " for help.");
+        } else {
+            sender.sendMessage(Config.ERROR_COLOR + "[MPT] Too many arguments! Type " + Config.COMMAND_COLOR
+                    + "/mpt help" + Config.ERROR_COLOR + " for help.");
+        }
     }
 
     public static void removeRepository(String id) throws MPTException {
@@ -72,8 +75,9 @@ public class RemoveRepositoryCommand extends SubcommandManager {
             lockStores();
             repos.remove(id); // remove it from memory
             File store = new File(Main.plugin.getDataFolder(), "repositories.json"); // get the store file
-            if (!store.exists()) // avoid dumb errors
+            if (!store.exists()) { // avoid dumb errors
                 Main.initializeRepoStore(store);
+            }
             try {
                 writeRepositoryStore();
             } catch (IOException ex) {
@@ -82,7 +86,8 @@ public class RemoveRepositoryCommand extends SubcommandManager {
                 throw new MPTException(Config.ERROR_COLOR + "Failed to remove repository from local store!");
             }
             unlockStores();
-        } else // repo doesn't exist in local store
+        } else { // repo doesn't exist in local store
             throw new MPTException(Config.ERROR_COLOR + "Cannot find repo with given ID!");
+        }
     }
 }

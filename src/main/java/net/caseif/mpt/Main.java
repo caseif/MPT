@@ -95,8 +95,9 @@ public class Main extends JavaPlugin {
         this.getCommand("mpt").setExecutor(new CommandManager()); // register the CommandManager class
 
         // initialize auto-updater
-        if (Config.AUTO_UPDATE)
+        if (Config.AUTO_UPDATE) {
             new Updater(this, 88254, this.getFile(), Updater.UpdateType.DEFAULT, true);
+        }
 
         // initialize plugin metrics
         if (Config.METRICS) {
@@ -128,8 +129,9 @@ public class Main extends JavaPlugin {
             JSONObject repos = new JSONObject(); // create an empty array
             repoStore = new JSONObject(); // create an empty object
             repoStore.put("repositories", repos); // add the array to it
-            if (!file.getParentFile().exists())
+            if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdir();
+            }
             file.createNewFile(); // create the file
             BufferedWriter writer = new BufferedWriter(new FileWriter(file)); // get a writer
             writer.write(JSONPrettyPrinter.toJSONString(repoStore)); // convert the JSON object to a string and write it
@@ -151,11 +153,13 @@ public class Main extends JavaPlugin {
             packageStore = new JSONObject(); // create an empty object
             packageStore.put("packages", packages); // add the array to it
             try {
-                if (!file.getParentFile().exists())
+                if (!file.getParentFile().exists()) {
                     file.getParentFile().mkdir();
+                }
                 file.createNewFile(); // create the file
                 BufferedWriter writer = new BufferedWriter(new FileWriter(file)); // get a writer
-                writer.write(JSONPrettyPrinter.toJSONString(packageStore)); // convert the JSON object to a string and write it
+                // convert the JSON object to a string and write it
+                writer.write(JSONPrettyPrinter.toJSONString(packageStore));
                 writer.flush();
             } catch (IOException ex) {
                 ex.printStackTrace();

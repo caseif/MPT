@@ -57,25 +57,30 @@ public class RemoveCommand extends SubcommandManager {
                         try {
                             for (int i = 1; i < args.length; i++) {
                                 String id = args[i];
-                                threadSafeSendMessage(sender, Config.INFO_COLOR + "Removing " + Config.ID_COLOR + id + Config.INFO_COLOR + "...");
+                                threadSafeSendMessage(sender, Config.INFO_COLOR + "Removing " + Config.ID_COLOR + id
+                                        + Config.INFO_COLOR + "...");
                                 removePackage(id);
-                                threadSafeSendMessage(sender, Config.INFO_COLOR + "Successfully removed " + Config.ID_COLOR + id);
+                                threadSafeSendMessage(sender, Config.INFO_COLOR + "Successfully removed "
+                                        + Config.ID_COLOR + id);
                             }
                         } catch (MPTException ex) {
                             threadSafeSendMessage(sender, Config.ERROR_COLOR + ex.getMessage());
                         }
                     }
                 });
-            } else
-                sender.sendMessage(Config.ERROR_COLOR + "[MPT] Too few arguments! Type " + Config.COMMAND_COLOR + "/mpt help" +
-                        Config.ERROR_COLOR + " for help.");
-        } else
+            } else {
+                sender.sendMessage(Config.ERROR_COLOR + "[MPT] Too few arguments! Type " + Config.COMMAND_COLOR
+                        + "/mpt help" + Config.ERROR_COLOR + " for help.");
+            }
+        } else {
             sender.sendMessage(Config.ERROR_COLOR + "[MPT] You do not have permission to use this command!");
+        }
     }
 
     public static void removePackage(String id) throws MPTException {
-        if (Thread.currentThread().getId() == Main.mainThreadId)
+        if (Thread.currentThread().getId() == Main.mainThreadId) {
             throw new MPTException(Config.ERROR_COLOR + "Packages may not be removed from the main thread!");
+        }
         id = id.toLowerCase();
         if (((JSONObject)Main.packageStore.get("packages")).containsKey(id)) {
             JSONObject pack = (JSONObject)((JSONObject)Main.packageStore.get("packages")).get(id);
@@ -95,10 +100,10 @@ public class RemoveCommand extends SubcommandManager {
                         }
                     }
                     pack.remove("files");
-                } else
+                } else {
                     Main.log.warning("No file listing for package " + id + "!");
-                File archive = new File(Main.plugin.getDataFolder(), "cache" + File.separator +
-                        id + ".zip");
+                }
+                File archive = new File(Main.plugin.getDataFolder(), "cache" + File.separator + id + ".zip");
                 if (archive.exists()) {
                     if (!archive.delete() && Config.VERBOSE) {
                         Main.log.warning("Failed to delete archive from cache");
@@ -112,10 +117,13 @@ public class RemoveCommand extends SubcommandManager {
                     throw new MPTException(Config.ERROR_COLOR + "Failed to save changes to disk!");
                 }
                 unlockStores();
-            } else
-                throw new MPTException(Config.ERROR_COLOR + "Package " + Config.ID_COLOR + id + Config.ERROR_COLOR + " is not installed!");
-        } else
+            } else {
+                throw new MPTException(Config.ERROR_COLOR + "Package " + Config.ID_COLOR + id + Config.ERROR_COLOR
+                        + " is not installed!");
+            }
+        } else {
             throw new MPTException(Config.ERROR_COLOR + "Cannot find package with id " + Config.ID_COLOR + id);
+        }
         unlockStores();
     }
 
@@ -125,7 +133,8 @@ public class RemoveCommand extends SubcommandManager {
                 file.getParentFile().delete();
                 checkParent(file.getParentFile());
             }
-        } else
+        } else {
             throw new IllegalArgumentException("File cannot be null!");
+        }
     }
 }

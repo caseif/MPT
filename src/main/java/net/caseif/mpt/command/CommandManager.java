@@ -36,40 +36,56 @@ public class CommandManager implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (label.equalsIgnoreCase("mpt")) { // probably not necessary, actually, but whatever
             if (args.length > 0) {
-                if (args[0].equalsIgnoreCase("add-repo"))
-                    new AddRepositoryCommand(sender, args).handle();
-                else if (args[0].equalsIgnoreCase("remove-repo"))
-                    new RemoveRepositoryCommand(sender, args).handle();
-                else if (args[0].equalsIgnoreCase("update"))
-                    new UpdateCommand(sender, args).handle();
-                else if (args[0].equalsIgnoreCase("list-repos"))
-                    new ListRepositoriesCommand(sender, args).handle();
-                else if (args[0].equalsIgnoreCase("upgrade"))
-                    new UpgradeCommand(sender, args).handle();
-                else if (args[0].equalsIgnoreCase("install"))
-                    new InstallCommand(sender, args).handle();
-                else if (args[0].equalsIgnoreCase("remove"))
-                    new RemoveCommand(sender, args).handle();
-                else if (args[0].equalsIgnoreCase("list"))
-                    new ListInstalledCommand(sender, args).handle();
-                else if (args[0].equalsIgnoreCase("list-all"))
-                    new ListAvailableCommand(sender, args).handle();
-                else if (args[0].equalsIgnoreCase("info"))
-                    new InfoCommand(sender, args).handle();
-                else if (args[0].equalsIgnoreCase("abort"))
-                    new AbortCommand(sender, args).handle();
-                else if (args[0].equalsIgnoreCase("reload"))
-                    new ReloadCommand(sender, args).handle();
-                else if (args[0].equalsIgnoreCase("help"))
-                    new HelpCommand(sender, args).handle();
-                else if (args[0].equalsIgnoreCase("?"))
-                    new HelpCommand(sender, args).handle();
-                else
-                    sender.sendMessage(Config.ERROR_COLOR + "[MPT] Invalid command! Type " + Config.COMMAND_COLOR +
-                            "/mpt help" + Config.ERROR_COLOR + " for help.");
+                switch (args[0].toLowerCase()) {
+                    case "add-repo":
+                        new AddRepositoryCommand(sender, args).handle();
+                        break;
+                    case "remove-repo":
+                        new RemoveRepositoryCommand(sender, args).handle();
+                        break;
+                    case "update":
+                        new UpdateCommand(sender, args).handle();
+                        break;
+                    case "list-repos":
+                        new ListRepositoriesCommand(sender, args).handle();
+                        break;
+                    case "upgrade":
+                        new UpgradeCommand(sender, args).handle();
+                        break;
+                    case "install":
+                        new InstallCommand(sender, args).handle();
+                        break;
+                    case "remove":
+                        new RemoveCommand(sender, args).handle();
+                        break;
+                    case "list":
+                        new ListInstalledCommand(sender, args).handle();
+                        break;
+                    case "list-all":
+                        new ListAvailableCommand(sender, args).handle();
+                        break;
+                    case "info":
+                        new InfoCommand(sender, args).handle();
+                        break;
+                    case "abort":
+                        new AbortCommand(sender, args).handle();
+                        break;
+                    case "reload":
+                        new ReloadCommand(sender, args).handle();
+                        break;
+                    case "help":
+                        new HelpCommand(sender, args).handle();
+                        break;
+                    case "?":
+                        new HelpCommand(sender, args).handle();
+                        break;
+                    default:
+                        sender.sendMessage(Config.ERROR_COLOR + "[MPT] Invalid command! Type " + Config.COMMAND_COLOR
+                                + "/mpt help" + Config.ERROR_COLOR + " for help.");
+                }
             } else {
-                sender.sendMessage(Config.ERROR_COLOR + "[MPT] Too few arguments! Type " + Config.COMMAND_COLOR +
-                        "/mpt help" + Config.ERROR_COLOR + " for help.");
+                sender.sendMessage(Config.ERROR_COLOR + "[MPT] Too few arguments! Type " + Config.COMMAND_COLOR
+                        + "/mpt help" + Config.ERROR_COLOR + " for help.");
             }
             return true;
         }

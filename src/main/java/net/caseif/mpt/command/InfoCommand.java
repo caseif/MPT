@@ -40,13 +40,16 @@ public class InfoCommand extends SubcommandManager {
 
     @Override
     public void handle() {
-        if (!checkPerms()) return;
+        if (!checkPerms()) {
+            return;
+        }
         if (args.length == 2) {
             String id = args[1].toLowerCase();
             try {
                 String[] info = getPackageInfo(id);
                 String[] messages = new String[]{
-                        Config.COMMAND_COLOR + "Information for package ID " + Config.ID_COLOR + id + Config.COMMAND_COLOR + ":",
+                        Config.COMMAND_COLOR + "Information for package ID " + Config.ID_COLOR + id
+                                + Config.COMMAND_COLOR + ":",
                         Config.INFO_COLOR + "Name: " + Config.ID_COLOR + info[0],
                         Config.INFO_COLOR + "Description: " + Config.ID_COLOR + info[1],
                         Config.INFO_COLOR + "Latest version: " + Config.ID_COLOR + info[2],
@@ -59,9 +62,10 @@ public class InfoCommand extends SubcommandManager {
             } catch (MPTException ex) {
                 sender.sendMessage(Config.ERROR_COLOR + "[MPT] " + ex.getMessage());
             }
-        } else
-            sender.sendMessage(Config.ERROR_COLOR + "Invalid argument count! Type " + Config.COMMAND_COLOR + "/mpt help" +
-                    Config.ERROR_COLOR + " for help.");
+        } else {
+            sender.sendMessage(Config.ERROR_COLOR + "Invalid argument count! Type " + Config.COMMAND_COLOR + "/mpt help"
+                    + Config.ERROR_COLOR + " for help.");
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -72,11 +76,11 @@ public class InfoCommand extends SubcommandManager {
             Object pack = packs.get(id);
             if (pack != null) {
                 JSONObject jPack = (JSONObject)pack;
-                if (jPack.containsKey("name") &&
-                        jPack.containsKey("description") &&
-                        jPack.containsKey("version") &&
-                        jPack.containsKey("url") &&
-                        jPack.containsKey("repo")) {
+                if (jPack.containsKey("name")
+                        && jPack.containsKey("description")
+                        && jPack.containsKey("version")
+                        && jPack.containsKey("url")
+                        && jPack.containsKey("repo")) {
                     return new String[]{
                             jPack.get("name").toString(),
                             jPack.get("description").toString(),
@@ -86,13 +90,17 @@ public class InfoCommand extends SubcommandManager {
                             jPack.containsKey("sha1") ? jPack.get("sha1").toString() : null,
                             jPack.containsKey("installed") ? jPack.get("installed").toString() : null,
                     };
-                } else
-                    throw new MPTException(Config.ERROR_COLOR + "Package definition for " + Config.ID_COLOR + id + Config.ERROR_COLOR +
-                            " is malformed! Running " + Config.COMMAND_COLOR + "/mpt update" + Config.ERROR_COLOR + " may correct" +
-                            "this.");
-            } else
-                throw new MPTException(Config.ERROR_COLOR + "Cannot find package " + Config.ID_COLOR + id + Config.ERROR_COLOR + "!");
-        } else
+                } else {
+                    throw new MPTException(Config.ERROR_COLOR + "Package definition for " + Config.ID_COLOR + id
+                            + Config.ERROR_COLOR + " is malformed! Running " + Config.COMMAND_COLOR + "/mpt update"
+                            + Config.ERROR_COLOR + " may correct" + "this.");
+                }
+            } else {
+                throw new MPTException(Config.ERROR_COLOR + "Cannot find package " + Config.ID_COLOR + id
+                        + Config.ERROR_COLOR + "!");
+            }
+        } else {
             throw new MPTException("Package store is malformed!");
+        }
     }
 }

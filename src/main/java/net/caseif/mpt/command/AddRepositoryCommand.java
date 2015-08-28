@@ -35,6 +35,7 @@ import static net.caseif.mpt.util.MiscUtil.unlockStores;
 import static net.caseif.mpt.util.MiscUtil.writeRepositoryStore;
 
 import net.caseif.mpt.Main;
+import net.caseif.mpt.Telemetry;
 import net.caseif.mpt.util.MPTException;
 import net.caseif.mpt.util.MiscUtil;
 
@@ -114,6 +115,7 @@ public class AddRepositoryCommand extends SubcommandManager {
             ((JSONObject)Main.repoStore.get("repositories")).put(id, repoElement);
             writeRepositoryStore();
             unlockStores();
+            Telemetry.setDirty();
             return id;
             // apt-get doesn't fetch packages when a repo is added, so I'm following that precedent
         } catch (IOException ex) {

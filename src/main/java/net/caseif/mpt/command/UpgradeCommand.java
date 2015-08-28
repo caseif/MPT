@@ -33,6 +33,7 @@ import static net.caseif.mpt.util.MiscUtil.compareVersions;
 import static net.caseif.mpt.util.MiscUtil.threadSafeSendMessage;
 
 import net.caseif.mpt.Main;
+import net.caseif.mpt.Telemetry;
 import net.caseif.mpt.util.MPTException;
 
 import org.bukkit.Bukkit;
@@ -140,6 +141,7 @@ public class UpgradeCommand extends SubcommandManager {
                         RemoveCommand.removePackage(id);
                         InstallCommand.downloadPackage(id);
                         InstallCommand.installPackage(id);
+                        Telemetry.setDirty();
                         return pack.get("version").toString();
                     } else { // up-to-date
                         return null;

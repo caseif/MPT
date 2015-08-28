@@ -37,6 +37,7 @@ import static net.caseif.mpt.util.MiscUtil.unlockStores;
 import static net.caseif.mpt.util.MiscUtil.writePackageStore;
 
 import net.caseif.mpt.Main;
+import net.caseif.mpt.Telemetry;
 import net.caseif.mpt.util.Config;
 import net.caseif.mpt.util.MPTException;
 import net.caseif.mpt.util.MiscUtil;
@@ -185,6 +186,7 @@ public class InstallCommand extends SubcommandManager {
                 throw new MPTException(ERROR_COLOR + "Failed to write package store to disk!");
             }
             unlockStores();
+            Telemetry.setDirty();
             if (!success) {
                 throw new MPTException(ERROR_COLOR + "Some files were not extracted. Use verbose logging for details.");
             }

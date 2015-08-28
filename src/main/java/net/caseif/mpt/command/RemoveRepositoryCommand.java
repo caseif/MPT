@@ -30,6 +30,7 @@ import static net.caseif.mpt.util.MiscUtil.unlockStores;
 import static net.caseif.mpt.util.MiscUtil.writeRepositoryStore;
 
 import net.caseif.mpt.Main;
+import net.caseif.mpt.Telemetry;
 import net.caseif.mpt.util.Config;
 import net.caseif.mpt.util.MPTException;
 
@@ -86,6 +87,7 @@ public class RemoveRepositoryCommand extends SubcommandManager {
                 throw new MPTException(Config.ERROR_COLOR + "Failed to remove repository from local store!");
             }
             unlockStores();
+            Telemetry.setDirty();
         } else { // repo doesn't exist in local store
             throw new MPTException(Config.ERROR_COLOR + "Cannot find repo with given ID!");
         }

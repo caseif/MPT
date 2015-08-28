@@ -109,6 +109,8 @@ public class Main extends JavaPlugin {
             }
         }
 
+        Telemetry.startTask();
+
         log.info(this + " has been enabled!");
     }
 

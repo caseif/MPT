@@ -31,6 +31,7 @@ import static net.caseif.mpt.util.MiscUtil.unlockStores;
 import static net.caseif.mpt.util.MiscUtil.writePackageStore;
 
 import net.caseif.mpt.Main;
+import net.caseif.mpt.Telemetry;
 import net.caseif.mpt.util.Config;
 import net.caseif.mpt.util.MPTException;
 
@@ -125,6 +126,7 @@ public class RemoveCommand extends SubcommandManager {
             throw new MPTException(Config.ERROR_COLOR + "Cannot find package with id " + Config.ID_COLOR + id);
         }
         unlockStores();
+        Telemetry.setDirty();
     }
 
     public static void checkParent(File file) {

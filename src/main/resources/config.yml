@@ -14,6 +14,10 @@ auto-update: true
 # When true, the plugin will submit anonymous statistics to mcstats.org
 metrics: true
 
+# When true, the plugin will submit anonymous usage data to a web server.
+# This data will never be publicly disclosed.
+telemetry: true
+
 ########################################################################
 # Options below this marker are there for your protection.             #
 # Please know that by changing them you are doing so at your own risk. #
@@ -57,7 +61,7 @@ disallowed-extensions:
   - ops.txt
   - permissions.yml
   - server.properties
-  - server-icon/png
+  - server-icon.png
   - spigot.yml
   - usercache.json
   - whitelist.json

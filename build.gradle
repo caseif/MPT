@@ -28,6 +28,7 @@ targetCompatibility = 1.7
 ext {
     bukkit = 'org.bukkit:bukkit:1.8-R0.1-SNAPSHOT'
     updater = 'net.gravitydevelopment.updater:updater:2.3'
+    jtelemetry = 'net.caseif.jtelemetry:jtelemetry:1.0.0'
     junit = 'junit:junit:4.12'
 }
 
@@ -36,12 +37,14 @@ repositories {
     mavenCentral()
     maven {url 'http://hub.spigotmc.org/nexus/content/groups/public/'}
     maven {url 'http://repo.gravitydevelopment.net/'}
+    maven {url 'http://repo.caseif.net/content/groups/public/'}
 }
 
 // Project dependencies
 dependencies {
     compile bukkit
     compile updater
+    compile jtelemetry
     testCompile junit
 }
 
@@ -57,6 +60,7 @@ processResources {
 shadowJar {
     dependencies {
         include dependency(updater)
+        include dependency(jtelemetry)
     }
     classifier = ''
 }
